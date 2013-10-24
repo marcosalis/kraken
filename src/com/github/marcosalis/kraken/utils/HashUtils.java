@@ -1,0 +1,75 @@
+/*
+ * Copyright 2013 Luluvise Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.github.marcosalis.kraken.utils;
+
+import javax.annotation.Nonnull;
+
+import com.google.common.hash.HashFunction;
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
+
+/**
+ * Helper class containing static utility methods for hashing objects.
+ * 
+ * @since 1.0
+ * @author Marco Salis
+ */
+public final class HashUtils {
+
+	private static final HashFunction DEFAULT_HASH = Hashing.murmur3_128();
+
+	private HashUtils() {
+		// hidden constructor, no instantiation needed
+	}
+
+	/**
+	 * Gets a String hash generated using the default hashing algorithm with the
+	 * passed strings as input.
+	 */
+	public static String getDefaultHash(@Nonnull String... strings) {
+		return getHash(DEFAULT_HASH, strings);
+	}
+
+	/**
+	 * Gets a String hash generated using the MD5 hashing algorithm with the
+	 * passed strings as input.
+	 */
+	public static String getMD5Hash(@Nonnull String... strings) {
+		return getHash(Hashing.md5(), strings);
+	}
+
+	/**
+	 * Gets a String hash generated using the passed hashing algorithm.
+	 */
+	@Nonnull
+	public static String getHash(@Nonnull HashFunction hash, @Nonnull String... strings) {
+		Hasher hasher = hash.newHasher();
+		for (String input : strings) {
+			hasher.putString(input);
+		}
+		return hasher.hash().toString();
+	}
+
+	/**
+	 * Interface that represent any suitable object to be used as a String cache
+	 * key. The key is to be retrieved by calling the hash() method.
+	 */
+	public interface CacheKey {
+
+		public String hash();
+	}
+
+}
