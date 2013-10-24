@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generic XML file to put resources that don't match any other file -->
+<resources>
+
+    <item name="tag_image_animation" type="id"/>
+
+</resources>
