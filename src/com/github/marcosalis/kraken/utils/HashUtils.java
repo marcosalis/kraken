@@ -64,8 +64,10 @@ public final class HashUtils {
 	}
 
 	/**
-	 * Interface that represent any suitable object to be used as a String cache
-	 * key. The key is to be retrieved by calling the hash() method.
+	 * Interface that represent any suitable object that can be used as a String
+	 * cache key. The key itself retrieved by calling the hash() method.
+	 * 
+	 * TODO: move this
 	 */
 	public interface CacheKey {
 

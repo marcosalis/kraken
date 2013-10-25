@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +27,9 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 
+import com.github.marcosalis.kraken.utils.log.LogUtils;
 import com.google.common.annotations.Beta;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Helper class containing static methods to retrieve information and perform
@@ -42,7 +45,7 @@ import com.google.common.annotations.Beta;
 public class StorageUtils {
 
 	/**
-	 * Application storage caches possible locations
+	 * Application storage caches locations
 	 */
 	public enum CacheLocation {
 		INTERNAL,
@@ -56,6 +59,16 @@ public class StorageUtils {
 
 	private StorageUtils() {
 		// hidden constructor, no instantiation needed
+	}
+
+	/**
+	 * Check whether the device external storage is mounted using the
+	 * {@link Environment} Android API helper methods.
+	 * 
+	 * @return true if the external storage is mounted, false otherwise
+	 */
+	public static boolean isExternalStorageMounted() {
+		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
 	/**
@@ -136,6 +149,7 @@ public class StorageUtils {
 	 * directory and make sure it exists.
 	 */
 	@CheckForNull
+	@VisibleForTesting
 	static File getInternalAppCacheDir(@Nonnull Context context) {
 		File intCacheDir = context.getCacheDir();
 		if (intCacheDir != null && !intCacheDir.exists()) {
@@ -150,10 +164,12 @@ public class StorageUtils {
 	 * Helper method to retrieve the application external storage cache
 	 * directory from any platform version.
 	 */
+	@CheckForNull
+	@VisibleForTesting
 	static File getExternalAppCacheDir(@Nonnull Context context) {
 		File extCacheDir = null;
 
-		if (StorageUtils.isExternalStorageMounted()) { // only works if mounted
+		if (isExternalStorageMounted()) { // only works if mounted
 
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
 				// we cannot use getExternalCacheDir(), retrieve it manually
@@ -169,27 +185,19 @@ public class StorageUtils {
 					Method getExternalCacheDir = Context.class.getMethod("getExternalCacheDir");
 					extCacheDir = (File) getExternalCacheDir.invoke(context);
 				} catch (Exception e) { // something unexpected went wrong
-					e.printStackTrace();
+					LogUtils.logException(e);
 				}
 			}
 
 			// create directory tree if not existing
-			if (extCacheDir != null)
-				if (!FileUtils.createDir(extCacheDir) || !extCacheDir.canWrite())
+			if (extCacheDir != null) {
+				if (!FileUtils.createDir(extCacheDir) || !extCacheDir.canWrite()) {
 					extCacheDir = null;
+				}
+			}
 		}
 
 		return extCacheDir;
-	}
-
-	/**
-	 * Check whether the device external storage is mounted using the
-	 * {@link Environment} Android API helper methods.
-	 * 
-	 * @return true if the external storage is mounted, false otherwise
-	 */
-	public static boolean isExternalStorageMounted() {
-		return Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED);
 	}
 
 }

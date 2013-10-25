@@ -1,5 +1,6 @@
 /*
- * Copyright 2013 Marco Salis
+ * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +16,9 @@
  */
 
 /**
- * This package contains a collection of static utility classes for different uses.
+ * This package and its sub-packages contains a collection of static utility classes for different uses,
+ * mainly related to general Android programming and controller/UI components subclasses extended
+ * with new features.
  * 
  * @since 1.0
  * @author Marco Salis

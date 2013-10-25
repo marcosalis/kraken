@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +16,8 @@
  */
 package com.github.marcosalis.kraken.utils;
 
+import javax.annotation.concurrent.Immutable;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -25,6 +28,7 @@ import com.google.common.annotations.Beta;
  * @author Marco Salis
  */
 @Beta
+@Immutable
 public class TimeDroidUtils {
 
 	/* conversions from seconds to other time units */

@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -252,9 +253,9 @@ public class BitmapUtils {
 	 * @return The Bitmap, or null if the URI didn't match any resource
 	 */
 	@CheckForNull
-	public static Bitmap loadBitmapFromUri(ContentResolver cr, Uri picUri, int reqWidth,
-			int reqHeight) {
-		// TODO: handle picture orientation
+	public static Bitmap loadBitmapFromUri(@Nonnull ContentResolver cr, @Nonnull Uri picUri,
+			int reqWidth, int reqHeight) {
+		// TODO: handle bitmap orientation
 		final String[] mediaColumns = getImagesMediaColumns();
 		Cursor cursor = cr.query(picUri, mediaColumns, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) { // we've found the image
@@ -272,7 +273,7 @@ public class BitmapUtils {
 	 * Rotate flag set to true by default
 	 */
 	@CheckForNull
-	public static Bitmap loadBitmapFromPath(String picturePath, int reqWidth, int reqHeight) {
+	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, int reqWidth, int reqHeight) {
 		return loadBitmapFromPath(picturePath, reqWidth, reqHeight, true);
 	}
 
@@ -329,7 +330,6 @@ public class BitmapUtils {
 				// TODO: find a less memory-consuming way to do this?
 				Matrix matrix = new Matrix();
 				matrix.setRotate(rotateValue);
-				// matrix.postRotate(rotateValue);
 				Bitmap originalBitmap = bitmap;
 				bitmap = Bitmap.createBitmap(originalBitmap, 0, 0, bitmap.getWidth(),
 						bitmap.getHeight(), matrix, false);

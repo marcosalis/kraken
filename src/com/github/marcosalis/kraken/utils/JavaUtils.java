@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@ package com.github.marcosalis.kraken.utils;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -75,6 +77,7 @@ public class JavaUtils {
 	 * @return The item at the pseudo-randomly generated index, or null if the
 	 *         array is empty
 	 */
+	@CheckForNull
 	public static final <E> E getRandom(@Nonnull E[] array) {
 		if (array.length == 0) { // avoids out of bounds exceptions
 			return null;
@@ -92,6 +95,7 @@ public class JavaUtils {
 	 * @return The item at the pseudo-randomly generated index, or null if the
 	 *         list is empty
 	 */
+	@CheckForNull
 	public static final <E> E getRandom(@Nonnull List<E> list) {
 		if (list.size() == 0) {
 			return null;

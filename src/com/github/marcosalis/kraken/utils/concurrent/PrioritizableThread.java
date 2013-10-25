@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +39,7 @@ import com.google.common.annotations.Beta;
 public class PrioritizableThread extends Thread {
 
 	protected final int mPriority;
-	protected int mTid = -1;
+	private volatile int mTid = -1;
 
 	/**
 	 * Instantiate a thread with priority

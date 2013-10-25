@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,10 +67,11 @@ public class FileUtils {
 			File toDelete = deletionStack.peek();
 			if (toDelete.isDirectory()) {
 				File[] children = toDelete.listFiles();
-				if (children != null && children.length > 0)
-					for (File child : children)
+				if (children != null && children.length > 0) {
+					for (File child : children) {
 						deletionStack.push(child);
-				else {
+					}
+				} else {
 					deletionStack.pop();
 					result = result && toDelete.delete();
 				}
@@ -96,8 +98,9 @@ public class FileUtils {
 			}
 			directory.mkdirs();
 
-			if (!directory.exists())
+			if (!directory.exists()) {
 				return false;
+			}
 		}
 		return true;
 	}
@@ -112,18 +115,20 @@ public class FileUtils {
 	 *             if the passed File is a directory
 	 */
 	public static boolean createNewFileAndPath(@Nonnull File file) {
-
-		if (file.exists()) // the file already exists
+		if (file.exists()) {
 			return false;
+		}
 
 		String name = file.getName();
-		if (name.equals(""))
+		if (name.equals("")) {
 			throw new IllegalArgumentException(String.format("File name part missing in %s",
 					file.toString()));
+		}
 
-		if (!createDir(new File(file.getParent())))
+		if (!createDir(new File(file.getParent()))) {
 			// directory tree creation failed
 			return false;
+		}
 
 		try {
 			return file.createNewFile();
@@ -131,5 +136,5 @@ public class FileUtils {
 			return false;
 		}
 	}
-	
+
 }

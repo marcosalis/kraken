@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -226,7 +227,7 @@ public class DroidUtils {
 					android.provider.Settings.Secure.ANDROID_ID);
 		}
 		// if ("9774d56d682e549c".equals(androidId)) { // broken Android ID
-		// TODO: fallback
+		// FIXME: fallback
 		// }
 		if (androidId == null) {
 			androidId = "";

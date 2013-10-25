@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,6 +76,7 @@ import com.google.common.annotations.Beta;
  *            The key type for matching tasks
  */
 @Beta
+@ThreadSafe
 public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 
 	private static final String TAG = ReorderingThreadPoolExecutor.class.getSimpleName();

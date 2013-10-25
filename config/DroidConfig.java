@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +19,14 @@ package com.github.marcosalis.kraken;
 import android.os.StrictMode;
 
 /**
- * Kraken library configuration global constants
+ * Kraken library configuration global constants.
  * 
  * <b>Do NOT modify this file manually: all changes will be erased</b>
+ * 
+ * Run one of the following Ant scripts instead:
+ * 
+ * <code>ant kraken-debug-config</code> for debug configuration
+ * <code>ant kraken-release-config</code> for release configuration
  * 
  * @since 1.0
  * @author Marco Salis
