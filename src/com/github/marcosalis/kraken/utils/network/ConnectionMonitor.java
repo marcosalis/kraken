@@ -13,29 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.annotations;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.github.marcosalis.kraken.utils.network;
 
 import com.google.common.annotations.Beta;
 
 /**
- * Simple annotation to be used for marking methods which are known to perform
- * (possibly) long-running I/O operations such as network connections or disk
- * accesses, and therefore should not be called from the UI thread.
+ * Interface for a network connection monitor.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
-@Inherited
-@Target(ElementType.METHOD)
-// annotation not available at runtime
-@Retention(RetentionPolicy.SOURCE)
-public @interface NotForUIThread {
+public interface ConnectionMonitor {
+
+	/**
+	 * Checks if the connection monitor has already been registered.
+	 * 
+	 * @return true if it is already registered, false otherwise
+	 */
+	public boolean isRegistered();
+
+	/**
+	 * Checks the current device's network connection state.
+	 * 
+	 * @return true if there is an active network connection or the monitor
+	 *         hasn't been initialized, false otherwise
+	 */
+	public boolean isNetworkActive();
 
 }

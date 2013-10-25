@@ -38,7 +38,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import com.github.marcosalis.kraken.utils.log.LogUtils;
+import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;

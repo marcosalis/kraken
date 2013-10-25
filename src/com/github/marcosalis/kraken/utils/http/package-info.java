@@ -31,4 +31,4 @@
  * @since 1.0
  * @author Marco Salis
  */
-package com.github.marcosalis.kraken.http;
+package com.github.marcosalis.kraken.utils.http;

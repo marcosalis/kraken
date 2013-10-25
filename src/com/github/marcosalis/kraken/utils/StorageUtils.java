@@ -27,7 +27,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Environment;
 
-import com.github.marcosalis.kraken.utils.log.LogUtils;
+import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 

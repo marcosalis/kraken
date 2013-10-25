@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.utils.os;
+package com.github.marcosalis.kraken.utils.android;
 
 import javax.annotation.Nonnull;
 
@@ -38,7 +38,6 @@ import android.view.WindowManager;
 import com.github.marcosalis.kraken.BuildConfig;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.utils.DroidUtils;
-import com.github.marcosalis.kraken.utils.log.LogUtils;
 import com.google.common.annotations.Beta;
 
 /**

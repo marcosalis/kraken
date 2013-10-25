@@ -38,8 +38,8 @@ import android.annotation.TargetApi;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
-import com.github.marcosalis.kraken.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.DroidUtils;
+import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 
 /**

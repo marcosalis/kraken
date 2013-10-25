@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.utils.log;
+package com.github.marcosalis.kraken.utils.android;
 
 import android.util.Log;
 
