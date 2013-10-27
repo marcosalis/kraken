@@ -40,6 +40,7 @@ import android.util.Log;
 
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
@@ -190,7 +191,8 @@ public class BitmapUtils {
 	 * @throws IllegalArgumentException
 	 *             if {@code number < 0}
 	 */
-	public static int getNextLowerTwoPow(int number) {
+	@VisibleForTesting
+	static int getNextLowerTwoPow(int number) {
 		Preconditions.checkArgument(number >= 0);
 		return (int) Math.pow(2, Math.floor(Math.log(number) / Math.log(2)));
 	}

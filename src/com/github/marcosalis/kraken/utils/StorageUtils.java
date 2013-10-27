@@ -17,25 +17,27 @@
 package com.github.marcosalis.kraken.utils;
 
 import java.io.File;
-import java.lang.reflect.Method;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Environment;
 
-import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
- * Helper class containing static methods to retrieve information and perform
- * operations on the device storage units, either internal or external.
+ * Helper class containing static methods to retrieve information about the
+ * default cache folders and perform operations on the device storage units,
+ * either internal or external.
  * 
  * See {@link http://developer.android.com/guide/topics/data/data-storage.html}
+ * 
+ * Access and write to external storage requires the
+ * <code>READ_EXTERNAL_STORAGE</code> and <code>WRITE_EXTERNAL_STORAGE</code>
+ * Manifest permissions.
  * 
  * @since 1.0
  * @author Marco Salis
@@ -55,7 +57,7 @@ public class StorageUtils {
 	/**
 	 * Default external cache storage path for Android apps
 	 */
-	private static final String EXT_CACHE_PATH = "Android/data/%s/cache/";
+	static final String EXT_CACHE_PATH = "Android/data/%s/cache/";
 
 	private StorageUtils() {
 		// hidden constructor, no instantiation needed
@@ -146,7 +148,7 @@ public class StorageUtils {
 
 	/**
 	 * Helper method to retrieve the application internal storage cache
-	 * directory and make sure it exists.
+	 * directory and make sure it exists and it's writeable.
 	 */
 	@CheckForNull
 	@VisibleForTesting
@@ -162,41 +164,22 @@ public class StorageUtils {
 
 	/**
 	 * Helper method to retrieve the application external storage cache
-	 * directory from any platform version.
+	 * directory and make sure it exists and it's writeable.
 	 */
 	@CheckForNull
 	@VisibleForTesting
 	static File getExternalAppCacheDir(@Nonnull Context context) {
 		File extCacheDir = null;
-
 		if (isExternalStorageMounted()) { // only works if mounted
-
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.FROYO) {
-				// we cannot use getExternalCacheDir(), retrieve it manually
-				final File extStorage = android.os.Environment.getExternalStorageDirectory();
-				final String packageName = context.getPackageName();
-
-				if (extStorage != null) {
-					extCacheDir = new File(extStorage.getAbsolutePath() + File.separator
-							+ String.format(EXT_CACHE_PATH, packageName));
-				}
-			} else { // use reflection here
-				try {
-					Method getExternalCacheDir = Context.class.getMethod("getExternalCacheDir");
-					extCacheDir = (File) getExternalCacheDir.invoke(context);
-				} catch (Exception e) { // something unexpected went wrong
-					LogUtils.logException(e);
-				}
-			}
-
-			// create directory tree if not existing
+			extCacheDir = context.getExternalCacheDir();
 			if (extCacheDir != null) {
+
+				// create directory tree if not existing
 				if (!FileUtils.createDir(extCacheDir) || !extCacheDir.canWrite()) {
-					extCacheDir = null;
+					return null; // can't create or write
 				}
 			}
 		}
-
 		return extCacheDir;
 	}
 
