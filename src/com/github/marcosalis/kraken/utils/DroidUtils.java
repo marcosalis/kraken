@@ -66,6 +66,14 @@ public class DroidUtils {
 
 	public static final String SMS_BODY_EXTRA = "sms_body";
 
+	/* Time utils: conversions from seconds to other time units */
+	public static final int MINUTE = 60;
+	public static final int HOUR = 60 * MINUTE;
+	public static final int DAY = 24 * HOUR;
+	public static final int WEEK = 7 * DAY;
+	public static final int MONTH = 30 * DAY;
+	public static final int YEAR = 12 * MONTH;
+
 	private DroidUtils() {
 		// hidden constructor, no instantiation needed
 	}
@@ -196,6 +204,8 @@ public class DroidUtils {
 	/**
 	 * Generates an unique, stable UID that identifies the device where the user
 	 * is currently logged.
+	 * 
+	 * Requires the <code>READ_PHONE_STATE</code> permission in the Manifest.
 	 * 
 	 * @param context
 	 *            A {@link Context} to retrieve data from the

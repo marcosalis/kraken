@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +40,7 @@ public final class HashUtils {
 	 * Gets a String hash generated using the default hashing algorithm with the
 	 * passed strings as input.
 	 */
+	@Nonnull
 	public static String getDefaultHash(@Nonnull String... strings) {
 		return getHash(DEFAULT_HASH, strings);
 	}
@@ -47,6 +49,7 @@ public final class HashUtils {
 	 * Gets a String hash generated using the MD5 hashing algorithm with the
 	 * passed strings as input.
 	 */
+	@Nonnull
 	public static String getMD5Hash(@Nonnull String... strings) {
 		return getHash(Hashing.md5(), strings);
 	}
@@ -56,7 +59,7 @@ public final class HashUtils {
 	 */
 	@Nonnull
 	public static String getHash(@Nonnull HashFunction hash, @Nonnull String... strings) {
-		Hasher hasher = hash.newHasher();
+		final Hasher hasher = hash.newHasher();
 		for (String input : strings) {
 			hasher.putString(input);
 		}
