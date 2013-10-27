@@ -73,4 +73,14 @@ public class StorageUtilsTest extends InstrumentationTestCase {
 		}
 	}
 
+	/**
+	 * Check for the availability of a temporary directory
+	 */
+	public void testGetTempFolder() {
+		final File tempFolder = StorageUtils.getTempFolder(getInstrumentation().getTargetContext());
+		assertNotNull("Null temp File", tempFolder);
+		assertTrue("Temporary path doesn't exist", tempFolder.exists());
+		assertTrue("Can't write on temporary path", tempFolder.canWrite());
+	}
+
 }

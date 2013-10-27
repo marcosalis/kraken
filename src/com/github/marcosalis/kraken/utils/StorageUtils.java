@@ -59,6 +59,8 @@ public class StorageUtils {
 	 */
 	static final String EXT_CACHE_PATH = "Android/data/%s/cache/";
 
+	private static final String TEMP_FOLDER = File.separator + "temp" + File.separator;
+
 	private StorageUtils() {
 		// hidden constructor, no instantiation needed
 	}
@@ -181,6 +183,28 @@ public class StorageUtils {
 			}
 		}
 		return extCacheDir;
+	}
+
+	/**
+	 * Returns a writable folder in the external storage (or internal, if not
+	 * available) where to write temporary files. Note that these files are not
+	 * automatically deleted until application uninstall, delete them manually.
+	 * 
+	 * @param context
+	 *            A {@link Context} to retrieve the temp folder
+	 * @return The temp folder {@link File}
+	 */
+	@CheckForNull
+	public static File getTempFolder(@Nonnull Context context) {
+		final File cacheDir = getAppCacheDir(context, CacheLocation.EXTERNAL, true);
+		File tempDir = null;
+		if (cacheDir != null) {
+			tempDir = new File(cacheDir.getAbsolutePath() + TEMP_FOLDER);
+			if (!tempDir.exists()) {
+				tempDir.mkdir();
+			}
+		}
+		return tempDir;
 	}
 
 }

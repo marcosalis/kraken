@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
 import android.annotation.TargetApi;
@@ -33,10 +34,8 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
@@ -64,9 +63,7 @@ import com.google.common.collect.ImmutableList;
 @Beta
 public class BitmapUtils {
 
-	public static final int MAX_WIDTH = 1280;
-	public static final int MAX_HEIGHT = 1280;
-
+	@SuppressWarnings("unused")
 	private static final String TAG = BitmapUtils.class.getSimpleName();
 
 	private BitmapUtils() {
@@ -86,7 +83,8 @@ public class BitmapUtils {
 	 *            The height of the image
 	 * @return The actual size in bytes
 	 */
-	public static int getSize(int width, int height) {
+	@Nonnegative
+	public static int getSize(@Nonnegative int width, @Nonnegative int height) {
 		return width * height * 4;
 	}
 
@@ -96,24 +94,27 @@ public class BitmapUtils {
 	 * @param bitmap
 	 * @return The actual size in bytes
 	 */
-	public static int getSize(Bitmap bitmap) {
+	@Nonnegative
+	public static int getSize(@Nonnull Bitmap bitmap) {
 		// getBytesCount() on API 12 does exactly the same
 		return bitmap.getRowBytes() * bitmap.getHeight();
 	}
 
 	/**
-	 * Gets the device's default directory for storing pictures
+	 * Gets the device's default directory for storing pictures. If the default
+	 * device dir is unavailable, it falls back to the application temporary
+	 * directory.
 	 * 
 	 * @param context
 	 *            A {@link Context} to retrieve the folder
 	 * @return The File object or null if something went wrong
 	 */
+	@CheckForNull
 	public static File getPublicPicturesDir(@Nonnull Context context) {
 		File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		if (!dir.exists()) {
-			if (!dir.mkdirs()) { // fallback to the temporary directory
-				dir = DroidUtils.getTempFolder(context);
-			}
+		if (!dir.exists() && !dir.mkdirs()) {
+			// fallback to the temporary directory
+			dir = StorageUtils.getTempFolder(context);
 		}
 		return dir;
 	}
@@ -128,8 +129,9 @@ public class BitmapUtils {
 	 * @param reqHeight
 	 * @return The calculated inSampleSize
 	 */
-	public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth,
-			int reqHeight) {
+	@Nonnegative
+	public static int calculateInSampleSize(@Nonnull BitmapFactory.Options options,
+			@Nonnegative int reqWidth, @Nonnegative int reqHeight) {
 		// Raw height and width of image
 		final int height = options.outHeight;
 		final int width = options.outWidth;
@@ -143,8 +145,7 @@ public class BitmapUtils {
 			}
 		}
 
-		// check if the number is <=3 or a power of two
-		if (inSampleSize > 3 && (inSampleSize & -inSampleSize) != inSampleSize) {
+		if (inSampleSize > 3 && !isPowerOfTwo(inSampleSize)) {
 			// calculate next lower power of two from the number
 			inSampleSize = getNextLowerTwoPow(inSampleSize);
 		}
@@ -168,7 +169,8 @@ public class BitmapUtils {
 	 *            The max size, in pixel, the resulting Bitmap must have
 	 * @return The calculated inSampleSize
 	 */
-	public static int calculateMaxInSampleSize(BitmapFactory.Options options, int maxSide) {
+	public static int calculateMaxInSampleSize(@Nonnull BitmapFactory.Options options,
+			@Nonnegative int maxSide) {
 		// raw height and width of image
 		final int height = options.outHeight;
 		final int width = options.outWidth;
@@ -183,6 +185,12 @@ public class BitmapUtils {
 		}
 
 		return inSampleSize;
+	}
+
+	@VisibleForTesting
+	static boolean isPowerOfTwo(@Nonnegative @Nonnull int number) {
+		Preconditions.checkArgument(number > 0);
+		return (number & -number) == number;
 	}
 
 	/**
@@ -211,7 +219,7 @@ public class BitmapUtils {
 	 */
 	@CheckForNull
 	public static Bitmap decodeSampledBitmapFromResource(@Nonnull Resources res, int resId,
-			int reqWidth, int reqHeight) {
+			@Nonnegative int reqWidth, @Nonnegative int reqHeight) {
 
 		// First decode with inJustDecodeBounds = true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -256,12 +264,12 @@ public class BitmapUtils {
 	 */
 	@CheckForNull
 	public static Bitmap loadBitmapFromUri(@Nonnull ContentResolver cr, @Nonnull Uri picUri,
-			int reqWidth, int reqHeight) {
+			@Nonnegative int reqWidth, @Nonnegative int reqHeight) {
 		// TODO: handle bitmap orientation
 		final String[] mediaColumns = getImagesMediaColumns();
-		Cursor cursor = cr.query(picUri, mediaColumns, null, null, null);
+		final Cursor cursor = cr.query(picUri, mediaColumns, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) { // we've found the image
-			String picturePath = cursor.getString(cursor.getColumnIndex(mediaColumns[0]));
+			final String picturePath = cursor.getString(cursor.getColumnIndex(mediaColumns[0]));
 			cursor.close();
 			return loadBitmapFromPath(picturePath, reqWidth, reqHeight);
 		} else {
@@ -275,7 +283,8 @@ public class BitmapUtils {
 	 * Rotate flag set to true by default
 	 */
 	@CheckForNull
-	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, int reqWidth, int reqHeight) {
+	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, @Nonnegative int reqWidth,
+			@Nonnegative int reqHeight) {
 		return loadBitmapFromPath(picturePath, reqWidth, reqHeight, true);
 	}
 
@@ -294,14 +303,12 @@ public class BitmapUtils {
 	 * @return The Bitmap, or null if the path wasn't valid
 	 */
 	@CheckForNull
-	public static Bitmap loadBitmapFromPath(String picturePath, int reqWidth, int reqHeight,
-			boolean rotate) {
+	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, int reqWidth,
+			int reqHeight, boolean rotate) {
 		int rotateValue = 0;
 		if (rotate) { // check for orientation
 			int orientation = getExifOrientation(picturePath);
-			LogUtils.log(Log.VERBOSE, TAG, "Image orientation: " + orientation);
-
-			rotateValue = getRotationFromOrientation(orientation);
+			rotateValue = getRotationAngleFromOrientation(orientation);
 			// invert width and height if the image flips
 			if (rotateValue == 90 || rotateValue == 270) {
 				int oldW = reqWidth;
@@ -321,29 +328,29 @@ public class BitmapUtils {
 
 		Bitmap bitmap;
 
-		if (rotateValue != 0 && Build.VERSION.SDK_INT >= 11) { // HONEYCOMB
+		if (rotateValue != 0 && DroidUtils.isMinimumSdkLevel((11))) { // HONEYCOMB
 			// we can rotate the mutable bitmap in-place without copying it
 			bitmap = decodeMutableBitmap(picturePath, options);
-			Canvas canvas = new Canvas(bitmap);
+			final Canvas canvas = new Canvas(bitmap);
 			canvas.rotate(rotateValue);
 		} else { // pre-HONEYCOMB or no rotation needed
 			bitmap = BitmapFactory.decodeFile(picturePath, options);
 			if (rotateValue != 0) {
 				// TODO: find a less memory-consuming way to do this?
-				Matrix matrix = new Matrix();
+				final Matrix matrix = new Matrix();
 				matrix.setRotate(rotateValue);
-				Bitmap originalBitmap = bitmap;
+				final Bitmap originalBitmap = bitmap;
 				bitmap = Bitmap.createBitmap(originalBitmap, 0, 0, bitmap.getWidth(),
 						bitmap.getHeight(), matrix, false);
 				originalBitmap.recycle();
-				LogUtils.log(Log.INFO, TAG, "loadBitmapFromPath: recycling bitmap");
 			}
 		}
 		return bitmap;
 	}
 
 	@TargetApi(11)
-	private static Bitmap decodeMutableBitmap(String picturePath, BitmapFactory.Options options) {
+	private static Bitmap decodeMutableBitmap(@Nonnull String picturePath,
+			@Nonnull BitmapFactory.Options options) {
 		options.inMutable = true;
 		return BitmapFactory.decodeFile(picturePath, options);
 	}
@@ -356,7 +363,7 @@ public class BitmapUtils {
 	 * @return The orientation constant, see {@link ExifInterface}
 	 * @throws IOException
 	 */
-	public static int getExifOrientation(String path) {
+	public static int getExifOrientation(@Nonnull String path) {
 		ExifInterface exif = null;
 		final int defOrientation = ExifInterface.ORIENTATION_NORMAL;
 		try {
@@ -371,7 +378,7 @@ public class BitmapUtils {
 	/**
 	 * Gets the rotation to apply to a picture given its EXIF orientation tag
 	 */
-	public static int getRotationFromOrientation(int orientation) {
+	public static int getRotationAngleFromOrientation(int orientation) {
 		int rotateValue = 0;
 		switch (orientation) {
 		// sums up rotation value
@@ -401,13 +408,12 @@ public class BitmapUtils {
 	 */
 	@CheckForNull
 	public static Bitmap cropProfileBitmap(@Nonnull String picturePath, int maxSide) {
-		Preconditions.checkNotNull(picturePath);
 		Preconditions.checkArgument(maxSide > 0);
 
 		int rotateValue = 0;
 		// check for orientation
 		int orientation = getExifOrientation(picturePath);
-		rotateValue = getRotationFromOrientation(orientation);
+		rotateValue = getRotationAngleFromOrientation(orientation);
 
 		// First decode with inJustDecodeBounds = true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -453,10 +459,10 @@ public class BitmapUtils {
 	 *            The bitmap to crop (must already be resized if necessary)
 	 * @param rotateValue
 	 *            The rotate value for the {@link Matrix} if needed
-	 * @return
+	 * @return The processed {@link Bitmap}
 	 */
 	@CheckForNull
-	private static Bitmap cropSquaredBitmap(Bitmap bitmap, int rotateValue) {
+	private static Bitmap cropSquaredBitmap(@Nonnull Bitmap bitmap, int rotateValue) {
 		// cropping calculations
 		final int width = bitmap.getWidth();
 		final int height = bitmap.getHeight();
@@ -471,14 +477,14 @@ public class BitmapUtils {
 			cropOffset = (width - squaredSize) / 2;
 		}
 
-		Bitmap originalBitmap = bitmap;
+		final Bitmap originalBitmap = bitmap;
 		if (rotateValue == 0 && cropOffset == 0 && width == height) {
 			// we don't need to do anything, return the original image
 			return originalBitmap;
 		} else {
-			Matrix matrix = new Matrix();
+			final Matrix matrix = new Matrix();
 			matrix.setRotate(rotateValue);
-			Bitmap cropped = Bitmap.createBitmap(originalBitmap, cropOffset, vertOffset,
+			final Bitmap cropped = Bitmap.createBitmap(originalBitmap, cropOffset, vertOffset,
 					squaredSize, squaredSize, matrix, true);
 			return cropped;
 		}

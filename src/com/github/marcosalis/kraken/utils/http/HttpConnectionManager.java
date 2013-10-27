@@ -17,199 +17,72 @@
 package com.github.marcosalis.kraken.utils.http;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.ThreadSafe;
 
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import android.util.Log;
-
-import com.github.marcosalis.kraken.DroidConfig;
-import com.google.api.client.extensions.android.AndroidUtils;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
+import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.apache.ApacheHttpTransport;
-import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.common.annotations.Beta;
-import com.google.common.annotations.VisibleForTesting;
 
 /**
- * Library level class to handle network connections using the same transport
- * and optimizing reusable components. This default implementation provides
- * basic functionalities, and it just takes care of using the same
- * {@link HttpTransport} for any connection and can be used to retrieve an
- * {@link HttpRequestFactory} initialised with default connection parameters,
- * user agent and timeouts.
+ * This simple interface declares the basic operations for any custom connection
+ * manager to perform standard operations inside other library components that
+ * use network requests.
  * 
- * The global instance, suitable for most uses, can be retrieved by calling
- * {@link #get()}.
- * 
- * Please note that no limits are put on the number of concurrent connection at
- * this abstraction level. Clients must implement their own pooling mechanism to
- * limit it or just rely on the wrapped connection library pooling policies.
- * 
- * To debug network connections executed from the {@link HttpTransport} library
- * in a device or emulator do the following:
- * 
- * <ul>
- * <li>set the DEBUG flag to true in the {@link DroidConfig} class</li>
- * <li>add
- * <i>Logger.getLogger(HttpTransport.class.getName()).setLevel(Level.CONFIG
- * );</i> before the execute call in your code</li>
- * <li>type <i>adb shell setprop log.tag.HttpTransport DEBUG</i> in a terminal
- * to enable debug logging for the transport class in the connected device or
- * emulator</li>
- * </ul>
+ * It can also be used to implement a mock connection manager to inject in other
+ * components for testing purposes.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
-@ThreadSafe
-public class HttpConnectionManager implements HttpConnectionManagerInterface {
-
-	private static final String TAG = HttpConnectionManager.class.getSimpleName();
+public interface HttpConnectionManager {
 
 	/**
-	 * Globally accessible instance of the default HTTP connection manager.
-	 */
-	private static final HttpConnectionManager INSTANCE = new HttpConnectionManager();
-
-	private volatile HttpTransport mDefaultHttpTransport;
-	private volatile HttpRequestFactory mDefaultRequestFactory;
-
-	/**
-	 * Shortcut method to return the {@link HttpConnectionManager} global
-	 * instance.
-	 */
-	public static HttpConnectionManager get() {
-		return INSTANCE;
-	}
-
-	private HttpConnectionManager() {
-		final Level logLevel = DroidConfig.DEBUG ? Level.CONFIG : Level.OFF;
-		Logger.getLogger(HttpTransport.class.getName()).setLevel(logLevel);
-	}
-
-	/**
-	 * Initializes the {@link HttpConnectionManager}
-	 * 
-	 * @param keepAliveStrategy
-	 *            The {@link ConnectionKeepAliveStrategy} if
-	 *            {@link ApacheHttpTransport} is used.
-	 */
-	@OverridingMethodsMustInvokeSuper
-	public synchronized void initialize(@Nullable ConnectionKeepAliveStrategy keepAliveStrategy) {
-
-		if (DroidConfig.DEBUG) { // logging system properties values
-			Log.d(TAG, "http.maxConnections: " + System.getProperty("http.maxConnections"));
-			Log.d(TAG, "http.keepAlive: " + System.getProperty("http.keepAlive"));
-		}
-		/*
-		 * Get the best HTTP client for the current Android version, mimicking
-		 * the behavior of the method AndroidHttp.newCompatibleTransport(). As
-		 * of now, ApacheHttpTransport appears to be much less CPU-consuming
-		 * than NetHttpTransport on Gingerbread, so we use the latter only for
-		 * API >= 11
-		 */
-		if (AndroidUtils.isMinimumSdkLevel(11)) {
-			// use HttpURLConnection as default connection transport
-			mDefaultHttpTransport = new NetHttpTransport();
-		} else {
-			/* Use custom DefaultHttpClient to set the keep alive strategy */
-			final DefaultHttpClient httpClient = ApacheHttpTransport.newDefaultHttpClient();
-			if (keepAliveStrategy != null) {
-				httpClient.setKeepAliveStrategy(keepAliveStrategy);
-			}
-			/**
-			 * Android has a known issue that causes the generation of unsafe
-			 * {@link SecureRandom} values which can affect secure connections
-			 * with the Apache http library. See the link below for more
-			 * information.
-			 * 
-			 * <pre>
-			 * http://android-developers.blogspot.com.au/2013/08/some-securerandom-thoughts.html
-			 * </pre>
-			 */
-			mDefaultHttpTransport = new ApacheHttpTransport(httpClient);
-		}
-
-		mDefaultRequestFactory = createStandardRequestFactory(mDefaultHttpTransport);
-	}
-
-	/**
-	 * ONLY FOR TESTING PURPOSES<br>
-	 * Inject a custom {@link HttpTransport} inside the manager
-	 * 
-	 * @param transport
-	 *            The {@link HttpTransport} to inject
-	 */
-	@VisibleForTesting
-	synchronized void injectTransport(@Nonnull HttpTransport transport) {
-		mDefaultHttpTransport = transport;
-		mDefaultRequestFactory = createStandardRequestFactory(transport);
-	}
-
-	/**
-	 * {@inheritDoc}
+	 * Returns the default request factory from which you can execute HTTP
+	 * requests. Base settings, such as timeouts and user agent, are already set
+	 * for you within each {@link HttpRequest} created.
 	 * 
 	 * The HttpRequest objects created with this factory don't throw exceptions
 	 * if the request is not successful (response < 200 or >299), so you have to
 	 * check the HTTP result code within the response.
 	 */
-	@Nonnull
-	@Override
-	public HttpRequestFactory getRequestFactory() {
-		return mDefaultRequestFactory;
-	}
+	public HttpRequestFactory getRequestFactory();
 
 	/**
-	 * {@inheritDoc}
-	 */
-	@Nonnull
-	@Override
-	public HttpRequestFactory createRequestFactory(@Nonnull HttpTransport transport) {
-		return createStandardRequestFactory(transport);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Nonnull
-	@Override
-	public HttpRequest buildRequest(@Nonnull String method, @Nonnull String urlString,
-			@Nullable HttpContent content) throws IOException {
-		return mDefaultRequestFactory.buildRequest(method, new GenericUrl(urlString), content);
-	}
-
-	/**
-	 * Returns the default {@link HttpTransport} used by the manager.
-	 */
-	@Nonnull
-	public HttpTransport getDefaultHttpTransport() {
-		return mDefaultHttpTransport;
-	}
-
-	/**
-	 * Initialize here {@link HttpRequest}'s parameters for the request factory
-	 * to other servers
+	 * Returns a new request factory which uses the passed {@link HttpTransport}
+	 * and whose generated {@link HttpRequest}s are initialised with default
+	 * parameters.
 	 * 
 	 * @param transport
-	 *            The {@link HttpTransport} used to create requests
+	 *            The HttpTransport to be used for this factory
 	 * @return The created {@link HttpRequestFactory}
 	 */
-	@Nonnull
-	private HttpRequestFactory createStandardRequestFactory(HttpTransport transport) {
-		return transport.createRequestFactory(new DefaultHttpRequestInitializer());
-	}
+	public HttpRequestFactory createRequestFactory(@Nonnull HttpTransport transport);
+
+	/**
+	 * Shortcut for the {@link HttpRequest} builder. See
+	 * {@link HttpRequestFactory#buildRequest(String, GenericUrl, HttpContent)}
+	 * for more details.
+	 * 
+	 * @param method
+	 *            HTTP request method string as per {@link HttpMethods}
+	 * @param urlString
+	 *            HTTP request url String
+	 * @param content
+	 *            HTTP request content or null
+	 * @return The built HttpRequest
+	 * @throws IOException
+	 *             If an exception occurred while building the request
+	 * @throws IllegalArgumentException
+	 *             If the passed url has a syntax error
+	 */
+	public HttpRequest buildRequest(@Nonnull String method, @Nonnull String urlString,
+			@Nullable HttpContent content) throws IOException;
 
 }

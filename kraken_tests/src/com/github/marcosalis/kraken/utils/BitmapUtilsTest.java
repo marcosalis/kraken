@@ -15,7 +15,10 @@
  */
 package com.github.marcosalis.kraken.utils;
 
+import java.io.File;
+
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -38,10 +41,26 @@ public class BitmapUtilsTest extends AndroidTestCase {
 		super.tearDown();
 	}
 
+	public void testGetSizeInt() {
+		int actualSize = BitmapUtils.getSize(200, 200);
+		final int expectedSize = 200 * 200 * 4;
+		assertEquals(expectedSize, actualSize);
+	}
+
+	public void testGetPublicPicturesDir() {
+		final File picturesDir = BitmapUtils.getPublicPicturesDir(getContext());
+		final File expected = Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		if (expected != null) {
+			assertNotNull(picturesDir);
+		} else { // test fallback
+			assertEquals(StorageUtils.getTempFolder(getContext()), picturesDir);
+		}
+	}
+
 	/**
 	 * Test for
 	 * {@link BitmapUtils#calculateInSampleSize(android.graphics.BitmapFactory.Options, int, int)}
-	 * with different image sizes and ratio
 	 */
 	public void testCalculateInSampleSize() {
 		BitmapFactory.Options options = new BitmapFactory.Options();
@@ -65,6 +84,15 @@ public class BitmapUtilsTest extends AndroidTestCase {
 		options.outHeight = 150;
 		sampleSize = BitmapUtils.calculateInSampleSize(options, 300, 300);
 		assertEquals(1, sampleSize);
+	}
+
+	public void testIsPowerOfTwo() {
+		assertTrue(BitmapUtils.isPowerOfTwo(1));
+		assertTrue(BitmapUtils.isPowerOfTwo(2));
+		assertFalse(BitmapUtils.isPowerOfTwo(3));
+		assertTrue(BitmapUtils.isPowerOfTwo(4));
+		assertTrue(BitmapUtils.isPowerOfTwo(8));
+		assertFalse(BitmapUtils.isPowerOfTwo(Integer.MAX_VALUE));
 	}
 
 	public void testGetNextLowerTwoPow() {

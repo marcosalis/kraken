@@ -15,8 +15,9 @@
  */
 package com.github.marcosalis.kraken.utils;
 
-import java.io.File;
+import java.io.IOException;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.test.InstrumentationTestCase;
@@ -41,6 +42,11 @@ public class DroidUtilsTest extends InstrumentationTestCase {
 		super.tearDown();
 	}
 
+	public void testCpuCores() {
+		assertTrue(DroidUtils.CPU_CORES > 0);
+		assertTrue(DroidUtils.CPU_CORES >= Runtime.getRuntime().availableProcessors());
+	}
+
 	public void testGetCpuBoundPoolSize() {
 		assertTrue("CPU bound pool size is zero", DroidUtils.getCpuBoundPoolSize() > 0);
 	}
@@ -50,10 +56,15 @@ public class DroidUtilsTest extends InstrumentationTestCase {
 				DroidUtils.getIOBoundPoolSize() > DroidUtils.getCpuBoundPoolSize());
 	}
 
+	public void testGetDefaultDisplayMetrics() {
+		assertNotNull(DroidUtils.getDefaultDisplayMetrics(getInstrumentation().getTargetContext()));
+	}
+
 	public void testGetDeviceUniqueIdentificator() {
 		String id = DroidUtils.getDeviceUniqueIdentificator(
 				getInstrumentation().getTargetContext(), "mock_id");
 		assertNotNull("ID null", id);
+		// TODO: inject custom telephony
 	}
 
 	public void testBuildEmailUri() {
@@ -75,14 +86,9 @@ public class DroidUtilsTest extends InstrumentationTestCase {
 		assertEquals("Wrong action", Intent.ACTION_VIEW, viewUrl.getAction());
 	}
 
-	/**
-	 * Check for the availability of a temporary directory
-	 */
-	public void testGetTempFolder() {
-		final File tempFolder = DroidUtils.getTempFolder(getInstrumentation().getTargetContext());
-		assertNotNull("Null temp File", tempFolder);
-		assertTrue("Temporary path doesn't exist", tempFolder.exists());
-		assertTrue("Can't write on temporary path", tempFolder.canWrite());
+	public void testGetAsset() throws IOException {
+		final Context testContext = getInstrumentation().getContext();
+		assertNotNull(DroidUtils.getAsset(testContext, "droid.jpg"));
 	}
 
 }

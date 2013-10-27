@@ -31,7 +31,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentResolver;
@@ -48,7 +47,6 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
-import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
 import com.google.api.client.extensions.android.AndroidUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Joiner;
@@ -74,10 +72,6 @@ public class DroidUtils {
 	public static final int MONTH = 30 * DAY;
 	public static final int YEAR = 12 * MONTH;
 
-	private DroidUtils() {
-		// hidden constructor, no instantiation needed
-	}
-
 	/**
 	 * Statically initialized constant that represents the number of total CPU
 	 * cores in the device. This number can be higher than the one returned by
@@ -97,11 +91,17 @@ public class DroidUtils {
 		CPU_CORES = getDeviceCpuCores();
 	}
 
+	private DroidUtils() {
+		// hidden constructor, no instantiation needed
+	}
+
 	/**
 	 * Gets the number of cores available in this device, across all processors.
-	 * Requires: Ability to peruse the filesystem at "/sys/devices/system/cpu"
+	 * Requires: Ability to access the filesystem at "/sys/devices/system/cpu"
 	 * 
-	 * @return The number of cores, or 1 if failed to get result
+	 * @return The number of cores, or the value of {@link
+	 *         Runtime.getRuntime().availableProcessors()} if failed to get
+	 *         result
 	 */
 	private static int getDeviceCpuCores() {
 		// private class to display only CPU devices in the directory listing
@@ -121,11 +121,14 @@ public class DroidUtils {
 			// Filter to only list the devices we care about
 			File[] files = dir.listFiles(new CpuFilter());
 			// Return the number of cores (virtual CPU devices)
-			return files.length;
+			final int cpuCount = files.length;
+			if (cpuCount > 0) {
+				return cpuCount;
+			}
 		} catch (Exception e) {
 			// falls back to Runtime.getRuntime().availableProcessors()
-			return Runtime.getRuntime().availableProcessors();
 		}
+		return Runtime.getRuntime().availableProcessors();
 	}
 
 	/**
@@ -148,8 +151,6 @@ public class DroidUtils {
 	 * 
 	 * This trivial implementation just doubles the number returned by
 	 * {@link #getCpuBoundPoolSize()}.
-	 * 
-	 * TODO: benchmark different pool sizes
 	 */
 	public static int getIOBoundPoolSize() {
 		return (getCpuBoundPoolSize() * 2);
@@ -165,8 +166,8 @@ public class DroidUtils {
 	 */
 	@Nonnull
 	public static DisplayMetrics getDefaultDisplayMetrics(@Nonnull Context context) {
-		WindowManager manager = ((WindowManager) context.getSystemService(Context.WINDOW_SERVICE));
-		DisplayMetrics metrics = new DisplayMetrics();
+		WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		final DisplayMetrics metrics = new DisplayMetrics();
 		manager.getDefaultDisplay().getMetrics(metrics);
 		return metrics;
 	}
@@ -178,16 +179,15 @@ public class DroidUtils {
 	 * @param context
 	 *            The {@link Context} to use to retrieve the
 	 *            {@link WindowManager}
-	 * @return The retrieved screen size, can be one of
+	 * @return The retrieved screen size configuration, can be one of
 	 *         {@link Configuration#SCREENLAYOUT_SIZE_SMALL},
 	 *         {@link Configuration#SCREENLAYOUT_SIZE_NORMAL},
 	 *         {@link Configuration#SCREENLAYOUT_SIZE_LARGE},
 	 *         {@link Configuration#SCREENLAYOUT_SIZE_XLARGE} (<b>use the int 4
 	 *         for this configuration, constant available only from API 11</b>)
 	 */
-	@Nonnull
 	public static int getScreenSize(@Nonnull Context context) {
-		Configuration conf = context.getResources().getConfiguration();
+		final Configuration conf = context.getResources().getConfiguration();
 		return conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 	}
 
@@ -265,7 +265,7 @@ public class DroidUtils {
 	 * @return true if the telephony is available, false otherwise
 	 */
 	public static boolean hasTelephony(@Nonnull Context context) {
-		PackageManager manager = context.getPackageManager();
+		final PackageManager manager = context.getPackageManager();
 		return manager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
 	}
 
@@ -361,8 +361,9 @@ public class DroidUtils {
 
 	@Nonnull
 	private static String getMultipleSmsJoinOn() {
-		String manufacturer = android.os.Build.MANUFACTURER;
+		final String manufacturer = android.os.Build.MANUFACTURER;
 		if (manufacturer.toLowerCase(Locale.US).contains("samsung")) {
+			// Samsung requires comma-separated numbers
 			return ",";
 		} else {
 			return ";";
@@ -481,53 +482,9 @@ public class DroidUtils {
 	public static boolean isIntentAvailable(@Nonnull Context context, @Nonnull String action) {
 		final PackageManager packageManager = context.getPackageManager();
 		final Intent intent = new Intent(action);
-		List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
+		final List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
 				PackageManager.MATCH_DEFAULT_ONLY);
 		return list.size() > 0;
-	}
-
-	/**
-	 * Adds the flags {@link Intent#FLAG_ACTIVITY_NEW_TASK} and if possible
-	 * {@link Intent#FLAG_ACTIVITY_CLEAR_TASK} (only available from API 11) to
-	 * the passed intent.
-	 * 
-	 * From the {@link Intent#FLAG_ACTIVITY_NEW_TASK} docs: <b>This flag can not
-	 * be used when the caller is requesting a result from the activity being
-	 * launched.</b>
-	 * 
-	 * @param intent
-	 *            The {@link Intent} to be modified
-	 */
-	@SuppressLint("InlinedApi")
-	public static void setNewTaskFlag(@Nonnull Intent intent) {
-		if (isMinimumSdkLevel(11)) {
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-		}
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-	}
-
-	private static final String TEMP_FOLDER = File.separator + "temp" + File.separator;
-
-	/**
-	 * Returns a writable folder in the external storage (or internal, if not
-	 * available) where to write temporary files. Note that these files are not
-	 * automatically deleted until application uninstall, delete them manually.
-	 * 
-	 * @param context
-	 *            A {@link Context} to retrieve the temp folder
-	 * @return The temp folder {@link File}
-	 */
-	@CheckForNull
-	public static File getTempFolder(@Nonnull Context context) {
-		File cacheFolder = StorageUtils.getAppCacheDir(context, CacheLocation.EXTERNAL, true);
-		File tempFolder = null;
-		if (cacheFolder != null) {
-			tempFolder = new File(cacheFolder.getAbsolutePath() + TEMP_FOLDER);
-			if (!tempFolder.exists()) {
-				tempFolder.mkdir();
-			}
-		}
-		return tempFolder;
 	}
 
 	/**
@@ -542,10 +499,10 @@ public class DroidUtils {
 	 *         error occurred
 	 * @throws IOException
 	 */
+	@CheckForNull
 	public static InputStream getAsset(@Nonnull Context context, @Nonnull String path)
 			throws IOException {
-		AssetManager manager = context.getAssets();
-		return manager.open(path);
+		return context.getAssets().open(path);
 	}
 
 }

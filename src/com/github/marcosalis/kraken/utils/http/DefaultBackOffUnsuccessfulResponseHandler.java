@@ -87,7 +87,13 @@ public class DefaultBackOffUnsuccessfulResponseHandler implements HttpUnsuccessf
 
 	@Nonnull
 	@VisibleForTesting
-	public final Sleeper getSleeper() {
+	final BackOff getBackOff() {
+		return mBackOff;
+	}
+
+	@Nonnull
+	@VisibleForTesting
+	final Sleeper getSleeper() {
 		return mSleeper;
 	}
 
@@ -99,7 +105,7 @@ public class DefaultBackOffUnsuccessfulResponseHandler implements HttpUnsuccessf
 	 * </p>
 	 */
 	@VisibleForTesting
-	public final void setSleeper(@Nonnull Sleeper sleeper) {
+	final void setSleeper(@Nonnull Sleeper sleeper) {
 		mSleeper = Preconditions.checkNotNull(sleeper);
 	}
 
