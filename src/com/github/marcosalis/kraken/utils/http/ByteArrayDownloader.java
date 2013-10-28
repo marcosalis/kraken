@@ -53,17 +53,17 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 
 	private static final String TAG = ByteArrayDownloader.class.getSimpleName();
 
-	private final HttpConnectionManager mConnManager;
+	private final HttpRequestsManager mConnManager;
 	private final String mUrl;
 
 	/**
-	 * Uses the default {@link DefaultHttpConnectionManager}
+	 * Uses the default {@link DefaultHttpRequestsManager}
 	 */
 	public ByteArrayDownloader(@Nonnull String url) {
-		this(DefaultHttpConnectionManager.get(), url);
+		this(DefaultHttpRequestsManager.get(), url);
 	}
 
-	public ByteArrayDownloader(@Nonnull HttpConnectionManager connManager, @Nonnull String url) {
+	public ByteArrayDownloader(@Nonnull HttpRequestsManager connManager, @Nonnull String url) {
 		mConnManager = connManager;
 		mUrl = url;
 	}
@@ -77,7 +77,7 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 	 * Directly downloads the byte array.
 	 * 
 	 * @param connManager
-	 *            The {@link HttpConnectionManager}
+	 *            The {@link HttpRequestsManager}
 	 * @param url
 	 *            The string URL to download from
 	 * @return The byte array from the stream or null if an error occurred
@@ -85,7 +85,7 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 	 */
 	@CheckForNull
 	@NotForUIThread
-	public static byte[] downloadByteArray(@Nonnull HttpConnectionManager connManager,
+	public static byte[] downloadByteArray(@Nonnull HttpRequestsManager connManager,
 			@Nonnull String url) throws IOException {
 		HttpRequest request = null;
 		HttpResponse response = null;

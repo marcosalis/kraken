@@ -30,27 +30,22 @@ import com.google.api.client.http.HttpTransport;
 import com.google.common.annotations.Beta;
 
 /**
- * This simple interface declares the basic operations for any custom connection
- * manager to perform standard operations inside other library components that
- * use network requests.
+ * Interface to access {@link HttpRequestFactory} features inside other library
+ * components that use HTTP(S) requests.
  * 
- * It can also be used to implement a mock connection manager to inject in other
+ * It can also be used to implement a mock request factory to inject in other
  * components for testing purposes.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
-public interface HttpConnectionManager {
+public interface HttpRequestsManager {
 
 	/**
 	 * Returns the default request factory from which you can execute HTTP
 	 * requests. Base settings, such as timeouts and user agent, are already set
 	 * for you within each {@link HttpRequest} created.
-	 * 
-	 * The HttpRequest objects created with this factory don't throw exceptions
-	 * if the request is not successful (response < 200 or >299), so you have to
-	 * check the HTTP result code within the response.
 	 */
 	public HttpRequestFactory getRequestFactory();
 
@@ -66,9 +61,8 @@ public interface HttpConnectionManager {
 	public HttpRequestFactory createRequestFactory(@Nonnull HttpTransport transport);
 
 	/**
-	 * Shortcut for the {@link HttpRequest} builder. See
-	 * {@link HttpRequestFactory#buildRequest(String, GenericUrl, HttpContent)}
-	 * for more details.
+	 * Shortcut method for the {@link HttpRequest} builder. See
+	 * {@link HttpRequestFactory#buildRequest(String, GenericUrl, HttpContent)}.
 	 * 
 	 * @param method
 	 *            HTTP request method string as per {@link HttpMethods}

@@ -43,10 +43,10 @@ import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 
 /**
- * Library level class to handle network connections using the same transport
- * and optimizing reusable components. This default implementation provides
- * basic functionalities, and it just takes care of using the same
- * {@link HttpTransport} for any connection and can be used to retrieve an
+ * Default implementation of {@link HttpRequestsManager}, a decorator around the
+ * Google library {@link HttpRequestFactory} to build requests using the same
+ * transport and optimizing reusable components. It just takes care of using the
+ * same {@link HttpTransport} for any connection and uses an
  * {@link HttpRequestFactory} initialised with default connection parameters,
  * user agent and timeouts.
  * 
@@ -75,40 +75,39 @@ import com.google.common.annotations.VisibleForTesting;
  */
 @Beta
 @ThreadSafe
-public class DefaultHttpConnectionManager implements HttpConnectionManager {
+public class DefaultHttpRequestsManager implements HttpRequestsManager {
 
-	private static final String TAG = DefaultHttpConnectionManager.class.getSimpleName();
+	private static final String TAG = DefaultHttpRequestsManager.class.getSimpleName();
 
 	/**
 	 * Globally accessible instance of the default HTTP connection manager.
 	 */
-	private static final DefaultHttpConnectionManager INSTANCE = new DefaultHttpConnectionManager();
+	private static final DefaultHttpRequestsManager INSTANCE = new DefaultHttpRequestsManager();
 
-	private volatile HttpTransport mDefaultHttpTransport;
 	private volatile HttpRequestFactory mDefaultRequestFactory;
 
 	/**
-	 * Shortcut method to return the {@link DefaultHttpConnectionManager} global
+	 * Shortcut method to return the {@link DefaultHttpRequestsManager} global
 	 * instance.
 	 */
-	public static DefaultHttpConnectionManager get() {
+	public static DefaultHttpRequestsManager get() {
 		return INSTANCE;
 	}
 
-	private DefaultHttpConnectionManager() {
+	private DefaultHttpRequestsManager() {
 		final Level logLevel = DroidConfig.DEBUG ? Level.CONFIG : Level.OFF;
 		Logger.getLogger(HttpTransport.class.getName()).setLevel(logLevel);
 	}
 
 	/**
-	 * Initializes the {@link DefaultHttpConnectionManager}
+	 * Initializes the {@link DefaultHttpRequestsManager}
 	 * 
-	 * @param keepAliveStrategy
+	 * @param strategy
 	 *            The {@link ConnectionKeepAliveStrategy} if
 	 *            {@link ApacheHttpTransport} is used.
 	 */
 	@OverridingMethodsMustInvokeSuper
-	public synchronized void initialize(@Nullable ConnectionKeepAliveStrategy keepAliveStrategy) {
+	public synchronized void initialize(@Nullable ConnectionKeepAliveStrategy strategy) {
 
 		if (DroidConfig.DEBUG) { // logging system properties values
 			Log.d(TAG, "http.maxConnections: " + System.getProperty("http.maxConnections"));
@@ -117,18 +116,18 @@ public class DefaultHttpConnectionManager implements HttpConnectionManager {
 		/*
 		 * Get the best HTTP client for the current Android version, mimicking
 		 * the behavior of the method AndroidHttp.newCompatibleTransport(). As
-		 * of now, ApacheHttpTransport appears to be much less CPU-consuming
-		 * than NetHttpTransport on Gingerbread, so we use the latter only for
-		 * API >= 11
+		 * of now, ApacheHttpTransport appears to be much faster and less
+		 * CPU-consuming than NetHttpTransport on Gingerbread, so we use the
+		 * latter only for API >= 11
 		 */
 		if (AndroidUtils.isMinimumSdkLevel(11)) {
-			// use HttpURLConnection as default connection transport
-			mDefaultHttpTransport = new NetHttpTransport();
+			// use NetHttpTransport as default connection transport
+			mDefaultRequestFactory = createRequestFactory(new NetHttpTransport());
 		} else {
 			/* Use custom DefaultHttpClient to set the keep alive strategy */
 			final DefaultHttpClient httpClient = ApacheHttpTransport.newDefaultHttpClient();
-			if (keepAliveStrategy != null) {
-				httpClient.setKeepAliveStrategy(keepAliveStrategy);
+			if (strategy != null) {
+				httpClient.setKeepAliveStrategy(strategy);
 			}
 			/**
 			 * Android has a known issue that causes the generation of unsafe
@@ -140,14 +139,12 @@ public class DefaultHttpConnectionManager implements HttpConnectionManager {
 			 * http://android-developers.blogspot.com.au/2013/08/some-securerandom-thoughts.html
 			 * </pre>
 			 */
-			mDefaultHttpTransport = new ApacheHttpTransport(httpClient);
+			mDefaultRequestFactory = createRequestFactory(new ApacheHttpTransport(httpClient));
 		}
-
-		mDefaultRequestFactory = createStandardRequestFactory(mDefaultHttpTransport);
 	}
 
 	/**
-	 * ONLY FOR TESTING PURPOSES<br>
+	 * <b>Only for testing purposes.</b><br>
 	 * Inject a custom {@link HttpTransport} inside the manager
 	 * 
 	 * @param transport
@@ -155,8 +152,7 @@ public class DefaultHttpConnectionManager implements HttpConnectionManager {
 	 */
 	@VisibleForTesting
 	synchronized void injectTransport(@Nonnull HttpTransport transport) {
-		mDefaultHttpTransport = transport;
-		mDefaultRequestFactory = createStandardRequestFactory(transport);
+		mDefaultRequestFactory = createRequestFactory(transport);
 	}
 
 	/**
@@ -178,7 +174,7 @@ public class DefaultHttpConnectionManager implements HttpConnectionManager {
 	@Nonnull
 	@Override
 	public HttpRequestFactory createRequestFactory(@Nonnull HttpTransport transport) {
-		return createStandardRequestFactory(transport);
+		return transport.createRequestFactory(new DefaultHttpRequestInitializer());
 	}
 
 	/**
@@ -189,27 +185,6 @@ public class DefaultHttpConnectionManager implements HttpConnectionManager {
 	public HttpRequest buildRequest(@Nonnull String method, @Nonnull String urlString,
 			@Nullable HttpContent content) throws IOException {
 		return mDefaultRequestFactory.buildRequest(method, new GenericUrl(urlString), content);
-	}
-
-	/**
-	 * Returns the default {@link HttpTransport} used by the manager.
-	 */
-	@Nonnull
-	public HttpTransport getDefaultHttpTransport() {
-		return mDefaultHttpTransport;
-	}
-
-	/**
-	 * Initialize here {@link HttpRequest}'s parameters for the request factory
-	 * to other servers
-	 * 
-	 * @param transport
-	 *            The {@link HttpTransport} used to create requests
-	 * @return The created {@link HttpRequestFactory}
-	 */
-	@Nonnull
-	private HttpRequestFactory createStandardRequestFactory(HttpTransport transport) {
-		return transport.createRequestFactory(new DefaultHttpRequestInitializer());
 	}
 
 }
