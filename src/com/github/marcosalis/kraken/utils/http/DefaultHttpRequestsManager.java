@@ -51,7 +51,8 @@ import com.google.common.annotations.VisibleForTesting;
  * user agent and timeouts.
  * 
  * The global instance, suitable for most uses, can be retrieved by calling
- * {@link #get()}.
+ * {@link #get()}, and {@link #initialize(ConnectionKeepAliveStrategy)} must be
+ * called before accessing the request facory.
  * 
  * Please note that no limits are put on the number of concurrent connection at
  * this abstraction level. Clients must implement their own pooling mechanism to

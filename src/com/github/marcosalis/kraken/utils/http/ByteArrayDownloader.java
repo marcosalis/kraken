@@ -30,8 +30,10 @@ import android.util.Log;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
+import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
 import com.google.common.annotations.Beta;
 import com.google.common.io.ByteStreams;
@@ -41,8 +43,8 @@ import com.google.common.io.ByteStreams;
  * the given URL and converts the resulting stream to a byte array.
  * 
  * When performance is critical and a non-UI thread is available, prefer using
- * the {@link #downloadByteArray(String)} static method to save in object
- * instantiation.
+ * the {@link #downloadByteArray(HttpRequestFactory, String)} static method to
+ * save in object instantiation.
  * 
  * @since 1.0
  * @author Marco Salis
@@ -53,40 +55,41 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 
 	private static final String TAG = ByteArrayDownloader.class.getSimpleName();
 
-	private final HttpRequestsManager mConnManager;
+	private final HttpRequestFactory mRequestFactory;
 	private final String mUrl;
 
 	/**
-	 * Uses the default {@link DefaultHttpRequestsManager}
+	 * Uses the default {@link HttpRequestFactory}
 	 */
 	public ByteArrayDownloader(@Nonnull String url) {
-		this(DefaultHttpRequestsManager.get(), url);
+		this(DefaultHttpRequestsManager.get().getRequestFactory(), url);
 	}
 
-	public ByteArrayDownloader(@Nonnull HttpRequestsManager connManager, @Nonnull String url) {
-		mConnManager = connManager;
+	public ByteArrayDownloader(@Nonnull HttpRequestFactory factory, @Nonnull String url) {
+		mRequestFactory = factory;
 		mUrl = url;
 	}
 
 	@Override
-	public byte[] call() throws IOException {
-		return downloadByteArray(mConnManager, mUrl);
+	public byte[] call() throws IOException, IllegalArgumentException {
+		return downloadByteArray(mRequestFactory, mUrl);
 	}
 
 	/**
 	 * Directly downloads the byte array.
 	 * 
-	 * @param connManager
-	 *            The {@link HttpRequestsManager}
+	 * @param factory
+	 *            The {@link HttpRequestFactory}
 	 * @param url
 	 *            The string URL to download from
 	 * @return The byte array from the stream or null if an error occurred
 	 * @throws IOException
+	 * @throws IllegalArgumentException
 	 */
 	@CheckForNull
 	@NotForUIThread
-	public static byte[] downloadByteArray(@Nonnull HttpRequestsManager connManager,
-			@Nonnull String url) throws IOException {
+	public static byte[] downloadByteArray(@Nonnull HttpRequestFactory factory, @Nonnull String url)
+			throws IOException, IllegalArgumentException {
 		HttpRequest request = null;
 		HttpResponse response = null;
 		byte[] bytes = null;
@@ -96,7 +99,7 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 		}
 
 		try {
-			request = connManager.buildRequest(HttpMethods.GET, url, null);
+			request = factory.buildRequest(HttpMethods.GET, new GenericUrl(url), null);
 			response = request.execute();
 
 			if (response.isSuccessStatusCode()) {
