@@ -123,24 +123,27 @@ public class StorageUtils {
 	 * @param context
 	 *            A {@link Context} to retrieve the caches location
 	 * @param location
-	 *            The requested cache location
+	 *            The requested {@link CacheLocation}
+	 * @param allowLocationFallback
+	 *            Whether the disk cache can fallback to another location if the
+	 *            selected one is not available
 	 * @return a File containing the location, null if the specified caches are
 	 *         not available
 	 */
 	@CheckForNull
 	public static File getAppCacheDir(@Nonnull Context context, @Nonnull CacheLocation location,
-			boolean fallback) {
+			boolean allowLocationFallback) {
 		File cacheDir = null;
 		switch (location) {
 		case INTERNAL:
 			cacheDir = getInternalAppCacheDir(context);
-			if (cacheDir == null && fallback) {
+			if (cacheDir == null && allowLocationFallback) {
 				cacheDir = getExternalAppCacheDir(context);
 			}
 			break;
 		case EXTERNAL:
 			cacheDir = getExternalAppCacheDir(context);
-			if (cacheDir == null && fallback) {
+			if (cacheDir == null && allowLocationFallback) {
 				cacheDir = getInternalAppCacheDir(context);
 			}
 			break;

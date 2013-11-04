@@ -34,6 +34,8 @@ import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.google.common.annotations.Beta;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 
 /**
  * Abstract prototype class of a file-system based cache, either on internal or
@@ -46,10 +48,10 @@ import com.google.common.annotations.Beta;
  * cache.
  * 
  * <strong>Purge policy:</strong><br>
- * Purge elements with access date older than a set value (1 week or less to
- * avoid filling the device memory up). Files read for a cache hit are modified
- * in their last modified date to implement a raw LRU file cache and avoid
- * deleting recently used items.<br>
+ * Purge elements with access date older than a set value (recommended 2 days or
+ * less to avoid filling the device memory up). Files read for a cache hit are
+ * modified in their last modified date to implement a basic LRU file cache and
+ * avoid deleting recently used items.<br>
  * 
  * <b>Notes:</b><br>
  * - {@link File#setLastModified(long)} doesn't work properly on all Android
@@ -84,7 +86,7 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	/**
 	 * Default expiration time for the {@link DiskCache} subclasses (in seconds)
 	 */
-	public static final long DEFAULT_EXPIRE_IN_SEC = DroidUtils.DAY * 5;
+	public static final long DEFAULT_EXPIRE_IN_SEC = DroidUtils.DAY * 2;
 
 	protected static final ExecutorService PURGE_EXECUTOR = Executors
 			.newSingleThreadExecutor(new PriorityThreadFactory("DiskCache purge executor thread",
@@ -93,23 +95,24 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	protected final File mCacheLocation;
 
 	/**
-	 * Basic setup operation for a disk cache.<br>
-	 * Subclasses must handle the failure creating the cache or inform callers.
+	 * Constructor for a disk cache that performs directory creation and
+	 * initialization of the passed location. Client code using this must handle
+	 * any I/O failure while creating the cache or inform callers.
 	 * 
 	 * @param location
 	 *            The preferred cache location
 	 * @param subFolder
 	 *            The relative path to the cache folder where to store the cache
 	 *            (if it doesn't exist, the folder is created)
-	 * @param canChange
+	 * @param allowLocationFallback
 	 *            Whether the disk cache can fallback to another location if the
 	 *            selected one is not available
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
 	protected DiskCache(@Nonnull Context context, @Nonnull CacheLocation location,
-			@Nonnull String subFolder, boolean canChange) throws IOException {
-		File cacheRoot = StorageUtils.getAppCacheDir(context, location, true);
+			@Nonnull String subFolder, boolean allowLocationFallback) throws IOException {
+		final File cacheRoot = StorageUtils.getAppCacheDir(context, location, true);
 		if (cacheRoot != null) {
 			mCacheLocation = new File(cacheRoot.getAbsolutePath() + File.separator + subFolder);
 			// setup cache directory
@@ -153,8 +156,6 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 
 	/**
 	 * Asynchronously executes a purge of all contents on this disk cache.
-	 * 
-	 * TODO: use a more lightweight looper thread instead?
 	 */
 	public void scheduleClearAll() {
 		PURGE_EXECUTOR.execute(new Runnable() {
@@ -169,7 +170,7 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 * Execute a purge of all contents on this disk cache which are older than
 	 * the passed value.
 	 * 
-	 * @param olderThan
+	 * @param olderThanSec
 	 *            The maximum "age", in seconds, of the elements to keep in
 	 *            cache. This value must be, in any case, equals or higher than
 	 *            {@value #MIN_EXPIRE_IN_SEC}
@@ -177,12 +178,9 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 *             if olderThan is less than {@value #MIN_EXPIRE_IN_SEC}
 	 */
 	@NotForUIThread
-	protected void purge(final long olderThan) {
-		if (olderThan < MIN_EXPIRE_IN_SEC) {
-			throw new IllegalArgumentException("olderThan too short");
-		} else {
-			cleanCacheDir(olderThan);
-		}
+	protected void purge(final long olderThanSec) {
+		Preconditions.checkArgument(olderThanSec >= MIN_EXPIRE_IN_SEC, "olderThan too short");
+		cleanCacheDir(olderThanSec);
 	}
 
 	/**
@@ -272,6 +270,7 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 * @return true if the directory no longer exists, false otherwise
 	 */
 	@NotForUIThread
+	@VisibleForTesting
 	protected final boolean deleteCacheDir() {
 		if (mCacheLocation.exists()) {
 			return mCacheLocation.delete();
