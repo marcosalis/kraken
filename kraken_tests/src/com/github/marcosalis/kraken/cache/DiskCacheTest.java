@@ -147,24 +147,31 @@ public class DiskCacheTest extends AndroidTestCase {
 		assertTrue("Exception on illegal argument not thrown", thrown);
 	}
 
-	/**
-	 * Test for {@link DiskCache#deleteCacheDir()}
-	 * 
-	 * Note: this test can fail in some devices due to an Android OS bug
-	 */
-	public void testDeleteCacheDir() {
-		MockDiskCache mockCache = null;
+	public void testDeleteIfExpired_expired() throws InterruptedException {
+		mCacheDir.mkdirs();
+		final File file = new File(mCacheDir, "testFile");
 		try {
-			mockCache = new MockDiskCache(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			assertTrue(file.createNewFile());
 		} catch (IOException e) {
-			e.printStackTrace();
 			fail();
 		}
-		assertNotNull(mockCache);
-		assertTrue("deleteCacheDir() returning wrong value", mockCache.deleteCacheDir());
-		assertFalse("Folder still existing after deleteCacheDir()", mCacheDir.exists());
-		assertTrue("deleteCacheDir() returning false with non existing folder",
-				mockCache.deleteCacheDir());
+		Thread.sleep(101); // sleep to cause expiration
+		boolean deleted = DiskCache.deleteIfExpired(file, System.currentTimeMillis(), 100);
+		assertTrue(deleted);
+		assertFalse(file.exists());
+	}
+
+	public void testDeleteIfExpired_notExpired() {
+		mCacheDir.mkdirs();
+		final File file = new File(mCacheDir, "testFile");
+		try {
+			assertTrue(file.createNewFile());
+		} catch (IOException e) {
+			fail();
+		}
+		boolean deleted = DiskCache.deleteIfExpired(file, System.currentTimeMillis(), 5000);
+		assertFalse(deleted);
+		assertTrue(file.exists());
 	}
 
 	/**
@@ -215,8 +222,8 @@ public class DiskCacheTest extends AndroidTestCase {
 	 */
 	private static class MockDiskCache extends DiskCache<String> {
 		protected MockDiskCache(Context context, CacheLocation location, String subFolder,
-				boolean canChange) throws IOException {
-			super(context, location, subFolder, canChange);
+				boolean allowLocationFallback) throws IOException {
+			super(context, location, subFolder, allowLocationFallback);
 		}
 
 		@Override

@@ -84,8 +84,8 @@ public class FileUtils {
 	}
 
 	/**
-	 * Create directory full path if it doesn't exist <br>
-	 * TODO: improve this
+	 * Create directory full path if it doesn't exist, deleting any existing
+	 * file with the same name if present.
 	 * 
 	 * @param directory
 	 *            The directory path to create
@@ -97,12 +97,8 @@ public class FileUtils {
 				directory.delete();
 			}
 			directory.mkdirs();
-
-			if (!directory.exists()) {
-				return false;
-			}
 		}
-		return true;
+		return directory.exists();
 	}
 
 	/**

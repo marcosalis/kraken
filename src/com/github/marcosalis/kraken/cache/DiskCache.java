@@ -42,8 +42,8 @@ import com.google.common.base.Preconditions;
  * external storage. Common disk caching policies are implemented here.
  * 
  * <strong>Recommended disk caching policy:</strong><br>
- * <strong>Images (JPG):</strong> stored in external cache (fallback to internal
- * cache if no external storage device is available).<br>
+ * <strong>Images and other large data:</strong> stored in external cache
+ * (fallback to internal cache if no external storage device is available).<br>
  * <strong>Other data (sensible data in particular):</strong> stored in internal
  * cache.
  * 
@@ -92,6 +92,7 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 			.newSingleThreadExecutor(new PriorityThreadFactory("DiskCache purge executor thread",
 					Process.THREAD_PRIORITY_BACKGROUND));
 
+	@Nonnull
 	protected final File mCacheLocation;
 
 	/**
@@ -179,7 +180,7 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 */
 	@NotForUIThread
 	protected void purge(final long olderThanSec) {
-		Preconditions.checkArgument(olderThanSec >= MIN_EXPIRE_IN_SEC, "olderThan too short");
+		Preconditions.checkArgument(olderThanSec >= MIN_EXPIRE_IN_SEC, "olderThanSec too short");
 		cleanCacheDir(olderThanSec);
 	}
 
@@ -238,50 +239,28 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 * 
 	 * @param dir
 	 *            The directory to clean
-	 * @param olderThan
+	 * @param olderThanSec
 	 *            The max "age" from the current time for the file to be kept
 	 *            (in seconds)
 	 */
 	@NotForUIThread
-	protected final void cleanCacheDir(@Nonnegative long olderThan) {
+	protected final void cleanCacheDir(@Nonnegative long olderThanSec) {
 		final long now = System.currentTimeMillis();
-		final long expire = olderThan * 1000;
-		if (mCacheLocation.exists()) {
-			final File[] files = mCacheLocation.listFiles();
-			if (files != null) {
-				for (File f : files) { // iterate over files
-					long lastMod;
-					if (f.isFile()) { // ignore sub dirs
-						lastMod = f.lastModified();
-						if (lastMod < (now - expire)) {
-							// delete if older than max
-							f.delete();
-						}
-					}
+		final long expirationMs = olderThanSec * 1000;
+		final File[] files = mCacheLocation.listFiles();
+		if (files != null) {
+			for (File f : files) { // iterate over files
+				if (f.isFile()) { // ignore sub dirs
+					deleteIfExpired(f, now, expirationMs);
 				}
 			}
 		}
 	}
 
 	/**
-	 * Deletes the cache location directory. To be used only for testing
-	 * purposes.
-	 * 
-	 * @return true if the directory no longer exists, false otherwise
-	 */
-	@NotForUIThread
-	@VisibleForTesting
-	protected final boolean deleteCacheDir() {
-		if (mCacheLocation.exists()) {
-			return mCacheLocation.delete();
-		}
-		return true;
-	}
-
-	/**
-	 * Implements the current policy for marking a file to avoid purging it. The
-	 * method currently "touches" the file by setting its modification date only
-	 * if the file is older than the MIN_EXPIRE_IN value (it is useless and time
+	 * Implements the policy for marking a file to avoid purging it. The method
+	 * currently "touches" the file by setting its modification date only if the
+	 * file is older than the MIN_EXPIRE_IN value (it is useless and time
 	 * consuming to set it at every access).
 	 * 
 	 * See the note regarding {@link File#setLastModified(long)} in the class
@@ -296,6 +275,22 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 		if (file.lastModified() < (now - MIN_EXPIRE_IN_MS)) {
 			file.setLastModified(now);
 		}
+	}
+
+	/**
+	 * Deletes a file if its last modified date is older than the expiration.
+	 * 
+	 * @return true if the file is expired and it has been deleted, false
+	 *         otherwise
+	 */
+	@VisibleForTesting
+	static boolean deleteIfExpired(@Nonnull File file, long now, @Nonnegative long expirationMs) {
+		final long lastMod = file.lastModified();
+		if (lastMod < (now - expirationMs)) {
+			// delete if older than expiration
+			return file.delete();
+		}
+		return false;
 	}
 
 }
