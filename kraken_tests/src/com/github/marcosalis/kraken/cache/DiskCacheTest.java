@@ -64,9 +64,9 @@ public class DiskCacheTest extends AndroidTestCase {
 	 * {@link DiskCache#DiskCache(Context, CacheLocation, String, boolean)}
 	 */
 	public void testDiskCache() {
-		MockDiskCache mockCache = null;
+		DiskCache<String> mockCache = null;
 		try {
-			mockCache = new MockDiskCache(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			mockCache = new DiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
@@ -91,14 +91,14 @@ public class DiskCacheTest extends AndroidTestCase {
 			e.printStackTrace();
 			fail();
 		}
-		MockDiskCache mockCache = null;
+		DiskCache<String> mockCache = null;
 		try {
-			mockCache = new MockDiskCache(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			mockCache = new DiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
-		mockCache.clearAll();
+		mockCache.clear();
 
 		assertFalse("Files not deleted correctly", file1.exists() || file2.exists());
 	}
@@ -118,9 +118,9 @@ public class DiskCacheTest extends AndroidTestCase {
 			e.printStackTrace();
 			fail();
 		}
-		MockDiskCache mockCache = null;
+		DiskCache<String> mockCache = null;
 		try {
-			mockCache = new MockDiskCache(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			mockCache = new DiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
@@ -208,33 +208,14 @@ public class DiskCacheTest extends AndroidTestCase {
 	private static DiskCache<String> createDiskCache(Context context, boolean allowLocationFallback) {
 		DiskCache<String> cache = null;
 		try {
-			cache = new MockDiskCache(context, TEST_LOCATION, TEST_FOLDER, allowLocationFallback);
+			cache = new DiskCache<String>(context, TEST_LOCATION, TEST_FOLDER,
+					allowLocationFallback);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
 		assertNotNull(cache);
 		return cache;
-	}
-
-	/**
-	 * Mock DiskCache implementation for testing
-	 */
-	private static class MockDiskCache extends DiskCache<String> {
-		protected MockDiskCache(Context context, CacheLocation location, String subFolder,
-				boolean allowLocationFallback) throws IOException {
-			super(context, location, subFolder, allowLocationFallback);
-		}
-
-		@Override
-		public void clear() {
-			// does nothing
-		}
-
-		@Override
-		public void clearOld() {
-			// does nothing
-		}
 	}
 
 }

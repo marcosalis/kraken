@@ -36,7 +36,7 @@ import com.google.common.annotations.Beta;
  * @author Marco Salis
  */
 @Beta
-public class ContentLruCache<K, V> extends LruCache<K, V> implements ContentCache<K, V> {
+public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache<K, V> {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = ContentLruCache.class.getSimpleName();

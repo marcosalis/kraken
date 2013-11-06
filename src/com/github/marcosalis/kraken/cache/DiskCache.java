@@ -38,7 +38,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 
 /**
- * Abstract prototype class of a file-system based cache, either on internal or
+ * Base class for a 2nd level, file-system based cache, either on internal or
  * external storage. Common disk caching policies are implemented here.
  * 
  * <strong>Recommended disk caching policy:</strong><br>
@@ -66,7 +66,7 @@ import com.google.common.base.Preconditions;
  */
 @Beta
 @NotThreadSafe
-public abstract class DiskCache<V> implements ContentCache<String, V> {
+public class DiskCache<V> implements SecondLevelCache<String, V> {
 
 	/**
 	 * Defines the possible policies to clear a disk cache.
@@ -125,11 +125,17 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 		}
 	}
 
+	@Override
+	@NotForUIThread
+	public void clear() {
+		cleanCacheDir();
+	}
+
 	@NotForUIThread
 	public void clear(@Nonnull DiskCacheClearMode mode) {
 		switch (mode) {
 		case ALL:
-			clearAll();
+			clear();
 			break;
 		case EVICT_OLD:
 			clearOld();
@@ -138,22 +144,16 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	}
 
 	/**
-	 * Executes a purge of all contents on this disk cache.
-	 */
-	@NotForUIThread
-	protected void clearAll() {
-		cleanCacheDir();
-	}
-
-	/**
 	 * Purge old elements from this disk cache, according to the expiration
 	 * policy of the implementation.
 	 * 
-	 * The definition of "old" must be specified by subclasses with an
-	 * expiration time in seconds. Then they can simply call
-	 * {@link #cleanCacheDir(long)} and pass the time value.
+	 * The definition of "old" can be overridden by subclasses by passing an
+	 * expiration time to {@link #cleanCacheDir(long)} or implementing a custom
+	 * policy.
 	 */
-	protected abstract void clearOld();
+	protected void clearOld() {
+		cleanCacheDir(DEFAULT_EXPIRE_IN_SEC);
+	}
 
 	/**
 	 * Asynchronously executes a purge of all contents on this disk cache.
@@ -216,7 +216,8 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 *            The directory to clean up
 	 */
 	@NotForUIThread
-	protected final void cleanCacheDir() {
+	@VisibleForTesting
+	final void cleanCacheDir() {
 		if (mCacheLocation.exists()) {
 			final File[] files = mCacheLocation.listFiles();
 			if (files != null) {
@@ -244,7 +245,8 @@ public abstract class DiskCache<V> implements ContentCache<String, V> {
 	 *            (in seconds)
 	 */
 	@NotForUIThread
-	protected final void cleanCacheDir(@Nonnegative long olderThanSec) {
+	@VisibleForTesting
+	final void cleanCacheDir(@Nonnegative long olderThanSec) {
 		final long now = System.currentTimeMillis();
 		final long expirationMs = olderThanSec * 1000;
 		final File[] files = mCacheLocation.listFiles();

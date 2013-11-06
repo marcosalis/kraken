@@ -1,5 +1,6 @@
 /*
  * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +38,10 @@ import com.google.common.annotations.Beta;
 public interface ContentCache<K, V> {
 
 	/**
-	 * Interface that implementations can use to notify a client component when
-	 * an item in the cache is removed/evicted. This is useful expecially for
-	 * space-consuming cache items, in order to avoid other classes holding a
-	 * reference to the old cache entry and preventing it from being GCed.
+	 * Interface that cache implementations can use to notify a client component
+	 * when an item in the cache is removed/evicted. This is useful especially
+	 * for space-consuming cache items, in order to avoid other classes holding
+	 * a reference to the old cache entry and preventing it from being GCed.
 	 * 
 	 * @since 1.0
 	 */

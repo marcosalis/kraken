@@ -1,5 +1,4 @@
 /*
- * Copyright 2013 Luluvise Ltd
  * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,13 +18,13 @@ package com.github.marcosalis.kraken.cache;
 import com.google.common.annotations.Beta;
 
 /**
- * Public interface for a 1st level, memory based cache.<br>
+ * Public interface for a second level cache, usually disk or network based.<br>
  * It holds no methods for now.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
-public interface MemoryCache<K, V> extends ContentCache<K, V> {
+public interface SecondLevelCache<K, V> extends ContentCache<K, V> {
 
 }

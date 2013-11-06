@@ -25,6 +25,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import android.content.Context;
 import android.util.Log;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
@@ -185,11 +186,6 @@ public class ModelDiskCache<V> extends DiskCache<V> {
 	@NotForUIThread
 	public final void clearOld() {
 		purge(PURGE_AFTER);
-	}
-
-	@Override
-	public void clear() {
-		scheduleClearAll();
 	}
 
 }
