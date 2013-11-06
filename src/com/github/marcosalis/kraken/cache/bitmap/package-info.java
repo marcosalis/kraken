@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 Luluvise Ltd
+ * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.utils.testing;
-
-import javax.annotation.concurrent.ThreadSafe;
-
-import com.github.marcosalis.kraken.utils.network.ConnectionMonitor;
-import com.google.common.annotations.Beta;
 
 /**
- * Mock implementation of {@link ConnectionMonitor} for testing.
- * 
- * All methods return true.
+ * This package contains the classes relative to caching of bitmaps.
  * 
  * @since 1.0
  * @author Marco Salis
  */
-@Beta
-@ThreadSafe
-public class MockConnectionMonitor implements ConnectionMonitor {
-
-	@Override
-	public boolean isRegistered() {
-		return true;
-	}
-
-	@Override
-	public boolean isNetworkActive() {
-		return true;
-	}
-
-}
+package com.github.marcosalis.kraken.cache.bitmap;
