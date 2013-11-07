@@ -29,7 +29,6 @@ import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentCache;
-import com.github.marcosalis.kraken.cache.ContentCache.OnEntryRemovedListener;
 import com.github.marcosalis.kraken.utils.BitmapUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.cache.Cache;

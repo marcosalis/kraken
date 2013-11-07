@@ -20,6 +20,7 @@ import javax.annotation.Nonnull;
 
 import com.github.marcosalis.kraken.cache.json.JsonModel;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
+import com.github.marcosalis.kraken.content.ContentProxy;
 import com.google.common.annotations.Beta;
 
 /**

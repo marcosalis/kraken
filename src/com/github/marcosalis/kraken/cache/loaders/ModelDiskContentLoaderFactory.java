@@ -20,6 +20,7 @@ import com.github.marcosalis.kraken.cache.ContentLruCache;
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
 import com.github.marcosalis.kraken.cache.json.JsonModel;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
+import com.github.marcosalis.kraken.content.AbstractDiskModelContentProxy;
 import com.github.marcosalis.kraken.utils.concurrent.ExpirableFutureTask;
 import com.google.common.annotations.Beta;
 
