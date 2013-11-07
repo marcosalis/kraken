@@ -25,6 +25,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -32,14 +34,20 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import android.util.Log;
+
+import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.utils.HashUtils;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
+import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 import com.github.marcosalis.kraken.utils.http.HttpRequestsManager;
 import com.google.api.client.http.HttpMethods;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpResponse;
+import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
+import com.google.api.client.util.ObjectParser;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.hash.HashFunction;
@@ -117,7 +125,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 
 	/**
 	 * Constructor for a model request whose request URL is generated
-	 * dinamically. Call {@link #setRequestUrl(String)} to set the URL.
+	 * dynamically. Call {@link #setRequestUrl(String)} to set the URL.
 	 * 
 	 * @param httpMethod
 	 *            The HTTP method for the request (must be one of the ones
@@ -126,9 +134,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 *             if httpMethod is null
 	 */
 	public BaseCacheableRequest(@Nonnull String httpMethod) {
-		Preconditions.checkNotNull(httpMethod);
-		mHttpMethod = httpMethod;
-		mRequestUrl = null;
+		this(httpMethod, null);
 	}
 
 	/**
@@ -142,36 +148,14 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @throws IllegalArgumentException
 	 *             if any parameter is null
 	 */
-	public BaseCacheableRequest(@Nonnull String httpMethod, @Nonnull String requestUrl) {
+	public BaseCacheableRequest(@Nonnull String httpMethod, @Nullable String requestUrl) {
 		Preconditions.checkNotNull(httpMethod);
-		Preconditions.checkNotNull(requestUrl);
 		mHttpMethod = httpMethod;
 		mRequestUrl = requestUrl;
-	}
 
-	/**
-	 * Dynamically set the request URL (and invalidate the request's hash value
-	 * if already set).
-	 * 
-	 * Keep in mind that overriding the request URL after a hash key (
-	 * {@link #hash()} value) has been lazily initialized can create caches
-	 * inconsistencies.
-	 * 
-	 * @param requestUrl
-	 *            The request URL string
-	 * @throws IllegalArgumentException
-	 *             if requestUrl is null
-	 */
-	public synchronized final void setRequestUrl(@Nonnull String requestUrl) {
-		Preconditions.checkNotNull(requestUrl);
-		mRequestUrl = requestUrl;
-		mHash = null; // reset hash value
-	}
-
-	@Override
-	@CheckForNull
-	public synchronized String getRequestUrl() {
-		return mRequestUrl;
+		if (DroidConfig.DEBUG) {
+			Logger.getLogger(HttpTransport.class.getName()).setLevel(Level.CONFIG);
+		}
 	}
 
 	/**
@@ -217,15 +201,97 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 		return execute();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * This implementation uses the default {@link DefaultHttpRequestsManager}
+	 * to build the request.
+	 */
 	@Override
 	@CheckForNull
 	@NotForUIThread
-	public abstract E execute() throws Exception;
+	public E execute() throws Exception {
+		return execute(DefaultHttpRequestsManager.get());
+	}
 
 	@Override
 	@CheckForNull
 	@NotForUIThread
-	public abstract E execute(@Nonnull HttpRequestsManager connManager) throws Exception;
+	public E execute(@Nonnull HttpRequestsManager connManager) throws Exception {
+		// TODO: refactor this
+		HttpResponse response = null;
+		final String requestUrl = mRequestUrl;
+		Preconditions.checkNotNull(requestUrl, "Null request URL");
+
+		try {
+			final HttpRequest request = connManager.buildRequest(mHttpMethod, requestUrl, null);
+
+			// set request custom parameters and content
+			configRequest(request);
+			request.setUnsuccessfulResponseHandler(getHttpUnsuccessfulResponseHandler());
+
+			if (DroidConfig.DEBUG) {
+				Log.w(getTag(), "Executing " + mHttpMethod + " request to: " + requestUrl);
+			}
+
+			// Execute the request through the HTTP requests manager
+			response = request.execute();
+
+			final int statusCode = response.getStatusCode();
+			if (DroidConfig.DEBUG) {
+				Log.w(getTag(), "Response status code: " + statusCode);
+			}
+
+			// set parser and proceed with parsing the response content
+			request.setParser(getObjectParser());
+
+			// check for the HTTP status code
+			if (response.isSuccessStatusCode()) { // codes 200-299
+				/*
+				 * Call the sub-class parser. If an error occurs, an IOException
+				 * will be thrown and caught into the outer try-catch
+				 */
+				final E model = parseResponse(response);
+
+				if (DroidConfig.DEBUG) {
+					Log.v(getTag(), "Parsed response: " + model);
+				}
+
+				// request is effectively successful, return model object
+				if (mCallback != null) {
+					mCallback.onSuccess(model);
+				}
+				return model;
+			} else {
+				final String message = response.getStatusMessage();
+				if (mCallback != null) {
+					mCallback.onError(statusCode, message);
+				}
+				return null;
+			}
+		} catch (Exception e) {
+			if (DroidConfig.DEBUG) {
+				e.printStackTrace();
+			}
+
+			// the failed request has thrown an exception
+			if (mCallback != null) {
+				mCallback.onException(e);
+			}
+			throw e; // propagate exception
+		} finally {
+			if (response != null) {
+				try {
+					response.disconnect();
+				} catch (IOException e) { // won't affect the result
+					if (DroidConfig.DEBUG) {
+						e.printStackTrace();
+					}
+				}
+			}
+			mCallback = null; // reset callback
+		}
+	}
 
 	/**
 	 * Asynchronously executes a request using the passed
@@ -254,6 +320,31 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	}
 
 	/**
+	 * Dynamically set the request URL (and invalidate the request's hash value
+	 * if already set).
+	 * 
+	 * Keep in mind that overriding the request URL after a hash key (
+	 * {@link #hash()} value) has been lazily initialized can create caches
+	 * inconsistencies.
+	 * 
+	 * @param requestUrl
+	 *            The request URL string
+	 * @throws IllegalArgumentException
+	 *             if requestUrl is null
+	 */
+	public final synchronized void setRequestUrl(@Nonnull String requestUrl) {
+		Preconditions.checkNotNull(requestUrl);
+		mRequestUrl = requestUrl;
+		mHash = null; // reset hash value
+	}
+
+	@Override
+	@CheckForNull
+	public final synchronized String getRequestUrl() {
+		return mRequestUrl;
+	}
+
+	/**
 	 * Sets the 'Authorization' header for this request
 	 * 
 	 * @param request
@@ -273,6 +364,8 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 *            The current HTTP request
 	 */
 	protected abstract void configRequest(@Nonnull HttpRequest request);
+
+	protected abstract ObjectParser getObjectParser();
 
 	@CheckForNull
 	protected abstract E parseResponse(HttpResponse response) throws IOException,
