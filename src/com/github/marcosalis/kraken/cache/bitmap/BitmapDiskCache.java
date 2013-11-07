@@ -63,10 +63,9 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 
 	private static final String PATH = "bitmap";
 
-	private static final long PURGE_AFTER = DroidUtils.DAY * 3;
-
-	private static final Bitmap.CompressFormat COMPRESS_FORMAT = CompressFormat.JPEG;
-	private static final int COMPRESS_QUALITY = 85;
+	private static final long DEFAULT_PURGE_AFTER = DroidUtils.DAY * 2;
+	private static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = CompressFormat.JPEG;
+	private static final int DEFAULT_COMPRESS_QUALITY = 85;
 
 	/**
 	 * {@link ReentrantLock} used to guarantee that only one bitmap gets decoded
@@ -120,14 +119,35 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	 * @throws IllegalArgumentException
 	 *             if key or image are null
 	 */
+	@NotForUIThread
 	public boolean put(@Nonnull String key, @Nonnull byte[] image) {
 		return putBitmap(key, image);
+	}
+
+	/**
+	 * Puts a {@link Bitmap} into the disk cache.
+	 * 
+	 * <b>Note:</b> saving a file from a Bitmap requires a new compression,
+	 * avoid it directly storing the original byte array with
+	 * {@link #put(String, byte[])} whenever possible.
+	 * 
+	 * @param key
+	 *            The cache item key
+	 * @param image
+	 *            The byte array containing the image
+	 * @return true if successful, false otherwise (I/O error while storing)
+	 * @throws IllegalArgumentException
+	 *             if key or image are null
+	 */
+	@NotForUIThread
+	public boolean put(@Nonnull String key, @Nonnull Bitmap bitmap) {
+		return putBitmap(key, bitmap);
 	}
 
 	@Override
 	@NotForUIThread
 	public final void clearOld() {
-		purge(PURGE_AFTER);
+		purge(DEFAULT_PURGE_AFTER);
 	}
 
 	/**
@@ -158,12 +178,11 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 				if (!bitmapFile.delete() && DroidConfig.DEBUG) {
 					Log.w(TAG, "Damaged cache entry: " + fileName);
 				}
-			} else { // cache hit, update file modification time
+			} else {
 				/*
-				 * Not "touching" bitmaps anymore, the download date defines the
-				 * expiration.
+				 * This is a cache hit, we don't "touch" the file as the
+				 * download date defines the expiration.
 				 */
-				// touchFile(bitmapFile);
 			}
 			return bitmap;
 		} else {
@@ -190,10 +209,8 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 		try {
 			File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it
-			if (bitmapFile.exists()) {
-				if (!bitmapFile.delete()) {
-					return false;
-				}
+			if (bitmapFile.exists() && !bitmapFile.delete()) {
+				return false;
 			}
 			Files.write(image, bitmapFile);
 		} catch (IOException e) {
@@ -205,28 +222,27 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	/**
 	 * Save a Bitmap into the file system putting it in the cache.
 	 * 
-	 * @deprecated Saving a file from a Bitmap requires a new compression, avoid
-	 *             it directly storing the original byte array with
-	 *             {@link #putBitmap(String, byte[])} whenever possible.
+	 * <b>Note:</b> saving a file from a Bitmap requires a new compression,
+	 * avoid it directly storing the original byte array with
+	 * {@link #putBitmap(String, byte[])} whenever possible.
+	 * 
 	 * @param fileName
 	 *            The name of the file to store
 	 * @param bitmap
 	 *            The Bitmap to store
 	 * @return true if successful, false otherwise
 	 */
-	@Deprecated
-	protected final boolean putBitmap(String fileName, Bitmap bitmap) {
+	protected final boolean putBitmap(@Nonnull String fileName, @Nonnull Bitmap bitmap) {
 		Preconditions.checkNotNull(fileName);
 		Preconditions.checkNotNull(bitmap);
 		try {
-			File bitmapFile = new File(mCacheLocation, fileName);
+			final File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it
-			if (bitmapFile.exists()) {
-				if (!bitmapFile.delete())
-					return false;
+			if (bitmapFile.exists() && !bitmapFile.delete()) {
+				return false;
 			}
-			FileOutputStream fos = new FileOutputStream(bitmapFile);
-			bitmap.compress(COMPRESS_FORMAT, COMPRESS_QUALITY, fos);
+			final FileOutputStream fos = new FileOutputStream(bitmapFile);
+			bitmap.compress(DEFAULT_COMPRESS_FORMAT, DEFAULT_COMPRESS_QUALITY, fos);
 			fos.flush();
 			fos.close();
 		} catch (IOException e) {

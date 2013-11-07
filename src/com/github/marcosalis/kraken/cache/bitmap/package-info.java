@@ -1,4 +1,5 @@
 /*
+ * Copyright 2013 Luluvise Ltd
  * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +16,8 @@
  */
 
 /**
- * This package contains the classes relative to caching of bitmaps.
+ * This package contains the classes for effectively loading, caching and setting bitmaps into {@link ImageView}s
  * 
- * @since 1.0
  * @author Marco Salis
  */
 package com.github.marcosalis.kraken.cache.bitmap;

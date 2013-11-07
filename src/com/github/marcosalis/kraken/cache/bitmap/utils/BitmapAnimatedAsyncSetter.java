@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.utils;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;

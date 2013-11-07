@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.utils;
 
 import java.lang.ref.SoftReference;
 
@@ -31,12 +31,13 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
+import com.github.marcosalis.kraken.cache.bitmap.internal.AbstractBitmapCache;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 
 /**
- * Callback class to use with a {@link BitmapProxy} to set the bitmap to an
+ * Callback class to use with a {@link AbstractBitmapCache} to set the bitmap to an
  * {@link ImageView} if this is still existing and attached to an Activity.
  * 
  * TODO: handle placeholder setting when the bitmap loading fails

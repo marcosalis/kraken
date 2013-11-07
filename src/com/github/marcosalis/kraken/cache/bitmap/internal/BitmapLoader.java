@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.internal;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -36,9 +36,10 @@ import android.util.Log;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
+import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
-import com.github.marcosalis.kraken.content.bitmap.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.http.ByteArrayDownloader;
@@ -47,7 +48,7 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 
 /**
- * General loader for a {@link Bitmap} from a {@link BitmapProxy}.<br>
+ * General loader for a {@link Bitmap} from a {@link AbstractBitmapCache}.<br>
  * If the mode set for the request is {@link AccessPolicy#PRE_FETCH}, the
  * retrieved image is only downloaded and put in the memory cache if necessary.
  * 
@@ -128,9 +129,9 @@ class BitmapLoader implements Callable<Bitmap> {
 		final MemoizerCallable memoizer = new MemoizerCallable(mDownloadsCache, mCache, mDiskCache,
 				mUrl, mBitmapCallback);
 		// attempt prioritizing the download task if already in queue
-		BitmapProxy.moveDownloadToFront(key);
+		AbstractBitmapCache.moveDownloadToFront(key);
 		// submit new memoizer task to downloder executor
-		BitmapProxy.submitInDownloader(key, memoizer);
+		AbstractBitmapCache.submitInDownloader(key, memoizer);
 
 		return null;
 	}
@@ -141,7 +142,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	 * want to download from the server.
 	 * 
 	 * This computation gets executed with the
-	 * {@link BitmapProxy#submitInDownloader(Callable)} method.
+	 * {@link AbstractBitmapCache#submitInDownloader(Callable)} method.
 	 */
 	@Immutable
 	private static class MemoizerCallable implements Callable<Bitmap> {

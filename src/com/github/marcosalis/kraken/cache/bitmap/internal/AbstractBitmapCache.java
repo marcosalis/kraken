@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.internal;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -36,8 +36,10 @@ import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentCache.OnEntryRemovedListener;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.content.AbstractContentProxy;
@@ -50,12 +52,12 @@ import com.google.common.annotations.Beta;
 
 /**
  * Abstract base class for a {@link Bitmap} content proxy. Every
- * {@link BitmapProxy} subclass can hold one or more (in order to be able to
- * fine-tune the size of each of them) memory caches and a disk cache, which are
- * managed separately.
+ * {@link AbstractBitmapCache} subclass can hold one or more (in order to be
+ * able to fine-tune the size of each of them) memory caches and a disk cache,
+ * which are managed separately.
  * 
- * Every {@link BitmapProxy} shares the same executors, one for querying the
- * cache for a Bitmap (memory and disk I/O can be required) and another for
+ * Every {@link AbstractBitmapCache} shares the same executors, one for querying
+ * the cache for a Bitmap (memory and disk I/O can be required) and another for
  * executing image download requests without preventing the other cache requests
  * to block. The executor maximum thread pool size varies depending on the
  * number of CPU cores in the device.
@@ -68,7 +70,7 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @Immutable
-public abstract class BitmapProxy extends AbstractContentProxy implements
+public abstract class AbstractBitmapCache extends AbstractContentProxy implements BitmapCache,
 		OnEntryRemovedListener<String, Bitmap> {
 
 	static {
@@ -101,7 +103,7 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 		DOWNLOAD_FUTURES = new Memoizer<String, Bitmap>(dwExecutorSize);
 	}
 
-	private static final String TAG = BitmapProxy.class.getSimpleName();
+	private static final String TAG = AbstractBitmapCache.class.getSimpleName();
 
 	private static final ThreadPoolExecutor BITMAP_EXECUTOR;
 	private static final ReorderingThreadPoolExecutor<String> DOWNLOADER_EXECUTOR;
@@ -121,7 +123,7 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 	 * @param runnable
 	 *            The {@link Runnable} to execute (must be non null)
 	 */
-	public static synchronized final void executeInDownloader(@Nonnull Runnable runnable) {
+	static synchronized final void executeInDownloader(@Nonnull Runnable runnable) {
 		DOWNLOADER_EXECUTOR.execute(runnable);
 	}
 
@@ -131,8 +133,7 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 	 * @param callable
 	 *            The {@link Callable} to execute (must be non null)
 	 */
-	public static synchronized final Future<Bitmap> submitInDownloader(
-			@Nonnull Callable<Bitmap> callable) {
+	static synchronized final Future<Bitmap> submitInDownloader(@Nonnull Callable<Bitmap> callable) {
 		return DOWNLOADER_EXECUTOR.submit(callable);
 	}
 
@@ -144,7 +145,7 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 	 * @param callable
 	 *            The {@link Callable} to execute (must be non null)
 	 */
-	public static synchronized final Future<Bitmap> submitInDownloader(@Nonnull String key,
+	static synchronized final Future<Bitmap> submitInDownloader(@Nonnull String key,
 			@Nonnull Callable<Bitmap> callable) {
 		return DOWNLOADER_EXECUTOR.submitWithKey(key, callable);
 	}
@@ -157,7 +158,7 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 	 *            The string key corresponding to the bitmap
 	 */
 	@NotForUIThread
-	public static synchronized final void moveDownloadToFront(@Nonnull String key) {
+	static synchronized final void moveDownloadToFront(@Nonnull String key) {
 		DOWNLOADER_EXECUTOR.moveToFront(key);
 	}
 
@@ -187,8 +188,8 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 
 	/**
 	 * Method to be called by subclasses to get a bitmap content from any
-	 * {@link BitmapProxy} by passing the main request parameters and type of
-	 * actions.
+	 * {@link AbstractBitmapCache} by passing the main request parameters and
+	 * type of actions.
 	 * 
 	 * <b>This needs to be called from the UI thread except when using
 	 * {@link AccessPolicy#PRE_FETCH} mode</b>, as the image setting is
@@ -214,7 +215,7 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 	 * @return The {@link Future} that holds the Bitmap loading
 	 */
 	@CheckForNull
-	protected Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
+	protected final Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
 			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
 			@Nullable AccessPolicy action, BitmapAsyncSetter setter,
 			@CheckForNull Drawable placeholder) {
@@ -251,8 +252,9 @@ public abstract class BitmapProxy extends AbstractContentProxy implements
 	 * with null placeholder.
 	 */
 	@CheckForNull
-	protected Future<Bitmap> getBitmap(BitmapLruCache<String> cache, BitmapDiskCache diskCache,
-			CacheUrlKey url, AccessPolicy action, BitmapAsyncSetter callback) {
+	protected final Future<Bitmap> getBitmap(BitmapLruCache<String> cache,
+			BitmapDiskCache diskCache, CacheUrlKey url, AccessPolicy action,
+			BitmapAsyncSetter callback) {
 		return getBitmap(cache, diskCache, url, action, callback, null);
 	}
 
