@@ -64,18 +64,18 @@ public class BitmapLruCache<K> extends LruCache<K, Bitmap> implements ContentCac
 	 * Call {@link ActivityManager#getMemoryClass()} to properly size this cache
 	 * depending on the maximum available application memory heap.
 	 * 
-	 * @param cacheLogName
-	 *            The (optional) name of the cache (for logging purposes)
 	 * @param maxSize
 	 *            The max memory occupation, in bytes, that the cache will ever
 	 *            occupy when full.
+	 * @param cacheLogName
+	 *            The (optional) name of the cache (for logging purposes)
 	 * @param listener
 	 *            An (optional) {@link OnEntryRemovedListener} to allow Bitmap
 	 *            entries to be removed when using another component that keeps
 	 *            references to them (such as a {@link CacheMemoizer} to
 	 *            populate the cache), in order to avoid memory leaks and OOM.
 	 */
-	public BitmapLruCache(@Nullable String cacheLogName, @Nonnegative int maxSize,
+	public BitmapLruCache(@Nonnegative int maxSize, @Nullable String cacheLogName,
 			@Nullable OnEntryRemovedListener<K, Bitmap> listener) {
 		super(maxSize);
 		mLogName = cacheLogName;

@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.concurrent.Immutable;
 
 import android.graphics.Bitmap;
@@ -48,6 +49,7 @@ import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.github.marcosalis.kraken.utils.concurrent.ReorderingThreadPoolExecutor;
+import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.common.annotations.Beta;
 
 /**
@@ -99,8 +101,6 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 
 		BITMAP_EXECUTOR_Q = executorQueue;
 		DOWNLOADER_EXECUTOR_Q = downloaderQueue;
-
-		DOWNLOAD_FUTURES = new Memoizer<String, Bitmap>(dwExecutorSize);
 	}
 
 	private static final String TAG = AbstractBitmapCache.class.getSimpleName();
@@ -111,11 +111,6 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	/* private executors blocking queues */
 	private static final LinkedBlockingQueue<Runnable> BITMAP_EXECUTOR_Q;
 	private static final BlockingQueue<Runnable> DOWNLOADER_EXECUTOR_Q;
-
-	/**
-	 * {@link Memoizer} used for loading Bitmaps from the cache.
-	 */
-	private static final Memoizer<String, Bitmap> DOWNLOAD_FUTURES;
 
 	/**
 	 * Executes a runnable task in the bitmap downloader thread pool.
@@ -180,10 +175,20 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 		}
 	}
 
+	/**
+	 * {@link Memoizer} used for loading Bitmaps from the cache.
+	 */
+	private final Memoizer<String, Bitmap> mBitmapMemoizer;
+
+	AbstractBitmapCache() {
+		final int concurrencyLevel = DOWNLOADER_EXECUTOR.getMaximumPoolSize();
+		mBitmapMemoizer = new Memoizer<String, Bitmap>(concurrencyLevel);
+	}
+
 	@Override
 	public void onEntryRemoved(boolean evicted, String key, Bitmap value) {
 		// remove evicted bitmaps from the downloads memoizer to allow GC
-		DOWNLOAD_FUTURES.remove(key);
+		mBitmapMemoizer.remove(key);
 	}
 
 	/**
@@ -217,21 +222,22 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	@CheckForNull
 	protected final Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
 			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
-			@Nullable AccessPolicy action, BitmapAsyncSetter setter,
+			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter setter,
 			@CheckForNull Drawable placeholder) {
 		final boolean preFetch = (action == AccessPolicy.PRE_FETCH);
 		Bitmap bitmap;
 
 		if ((bitmap = cache.get(url.hash())) != null) {
 			// cache hit at the very first attempt, no other actions needed
-			if (!preFetch) { // set Bitmap if we are not just pre-fetching
+			if (!preFetch && setter != null) {
+				// set Bitmap if we are not just pre-fetching
 				/*
 				 * This is supposed to be called from the UI thread and be
 				 * synchronous.
 				 */
 				setter.setBitmapSync(url, bitmap);
 			}
-			return null; // no Future to return
+			return SettableFutureTask.fromResult(bitmap);
 		} else {
 			if (!preFetch) {
 				// set temporary placeholder if we are not just pre-fetching
@@ -241,7 +247,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 			} else {
 				setter = null; // make sure there's no callback
 			}
-			return BITMAP_EXECUTOR.submit(new BitmapLoader(DOWNLOAD_FUTURES, cache, diskCache, url,
+			return BITMAP_EXECUTOR.submit(new BitmapLoader(mBitmapMemoizer, cache, diskCache, url,
 					setter));
 		}
 	}
@@ -252,10 +258,17 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 * with null placeholder.
 	 */
 	@CheckForNull
-	protected final Future<Bitmap> getBitmap(BitmapLruCache<String> cache,
-			BitmapDiskCache diskCache, CacheUrlKey url, AccessPolicy action,
-			BitmapAsyncSetter callback) {
+	protected final Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
+			@Nonnull BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
+			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter callback) {
 		return getBitmap(cache, diskCache, url, action, callback, null);
+	}
+
+	@Override
+	@OverridingMethodsMustInvokeSuper
+	public void clearMemoryCache() {
+		super.clearCache();
+		mBitmapMemoizer.clear();
 	}
 
 }

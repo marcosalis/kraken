@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -46,8 +47,8 @@ import com.google.common.io.Files;
  * they are retrieved from the cache.
  * 
  * No size constraints are imposed, the purge methods are in charge of keeping
- * the cache size reasonable, make sure to call them occasionally and always
- * when the device disk is running out of memory.
+ * the cache size reasonable, make sure to call them frequently enough and
+ * always when the device storage is running out of space.
  * 
  * In order not to degrade UI performances when decoding a {@link Bitmap} from
  * the disk, only one simultaneous decoding is permitted.
@@ -63,7 +64,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 
 	private static final String PATH = "bitmap";
 
-	private static final long DEFAULT_PURGE_AFTER = DroidUtils.DAY * 2;
+	public static final long DEFAULT_PURGE_AFTER = DroidUtils.DAY * 2;
 	private static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = CompressFormat.JPEG;
 	private static final int DEFAULT_COMPRESS_QUALITY = 85;
 
@@ -74,19 +75,29 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	 */
 	private static final ReentrantLock DECODE_LOCK = new ReentrantLock();
 
+	private final int mBitmapExpirationSec;
+
 	/**
 	 * Builds a {@link BitmapDiskCache} in the passed sub-folder. Note that the
 	 * {@link CacheLocation#EXTERNAL} cache is always used. If no external
 	 * caches are present, it falls back to the internal one.
 	 * 
+	 * @param context
+	 *            The context to retrieve the cache location
 	 * @param subFolder
 	 *            The relative path to the cache folder where to store the cache
-	 *            (if it doesn't exist, the folder is created)
+	 *            (the folder is created if it doesn't exist)
+	 * @param purgeAfterSec
+	 *            Expiration time, in seconds, for the items in disk cache (must
+	 *            be >= {@link #MIN_EXPIRE_IN_SEC})
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
-	public BitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder) throws IOException {
+	public BitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder,
+			@Nonnegative int purgeAfterSec) throws IOException {
 		super(context, CacheLocation.EXTERNAL, PATH + File.separator + subFolder, true);
+		Preconditions.checkArgument(purgeAfterSec >= MIN_EXPIRE_IN_SEC);
+		mBitmapExpirationSec = purgeAfterSec;
 		if (DroidConfig.DEBUG) {
 			Log.d(TAG, "Disk cache created at: " + mCacheLocation.getAbsolutePath());
 		}
@@ -147,7 +158,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	@Override
 	@NotForUIThread
 	public final void clearOld() {
-		purge(DEFAULT_PURGE_AFTER);
+		purge(mBitmapExpirationSec);
 	}
 
 	/**
