@@ -51,13 +51,34 @@ public class SettableFutureTask<E> extends FutureTask<E> {
 	}
 
 	/**
-	 * Directly set the result value of this FutureTask. This method just makes
-	 * the {@link FutureTask#set(Object)} method public.
+	 * Directly set the result value of this FutureTask. This method just
+	 * exposes the {@link FutureTask#set(Object)} method.
 	 */
 	@Override
 	public void set(E v) {
 		// we allow callers to directly set the value of the task
 		super.set(v);
+	}
+
+	/**
+	 * Builds a new {@link FutureTask} that wraps the passed computation result.
+	 * 
+	 * @param wrapped
+	 *            The result to wrap
+	 * @return The built {@link FutureTask}
+	 */
+	@Nonnull
+	public static <E> FutureTask<E> fromResult(@Nullable final E wrapped) {
+		final SettableFutureTask<E> futureTask = new SettableFutureTask<E>(new Callable<E>() {
+			@Override
+			public E call() throws Exception {
+				return wrapped;
+			}
+		});
+		// explicitly set the result or the computation will hang
+		// (doesn't happen when using a Runnable)
+		futureTask.set(wrapped);
+		return futureTask;
 	}
 
 }
