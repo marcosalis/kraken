@@ -181,7 +181,7 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	 *             if olderThan is less than {@value #MIN_EXPIRE_IN_SEC}
 	 */
 	@NotForUIThread
-	protected void purge(final long olderThanSec) {
+	protected void purge(long olderThanSec) {
 		Preconditions.checkArgument(olderThanSec >= MIN_EXPIRE_IN_SEC, "olderThanSec too short");
 		cleanCacheDir(olderThanSec);
 	}

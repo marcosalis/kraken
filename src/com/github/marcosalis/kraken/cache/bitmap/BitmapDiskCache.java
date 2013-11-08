@@ -75,7 +75,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	 */
 	private static final ReentrantLock DECODE_LOCK = new ReentrantLock();
 
-	private final int mBitmapExpirationSec;
+	private final long mBitmapExpirationSec;
 
 	/**
 	 * Builds a {@link BitmapDiskCache} in the passed sub-folder. Note that the
@@ -94,7 +94,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	 *             if the cache cannot be created
 	 */
 	public BitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder,
-			@Nonnegative int purgeAfterSec) throws IOException {
+			@Nonnegative long purgeAfterSec) throws IOException {
 		super(context, CacheLocation.EXTERNAL, PATH + File.separator + subFolder, true);
 		Preconditions.checkArgument(purgeAfterSec >= MIN_EXPIRE_IN_SEC);
 		mBitmapExpirationSec = purgeAfterSec;
@@ -136,7 +136,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	}
 
 	/**
-	 * Puts a {@link Bitmap} into the disk cache.
+	 * Compresses a {@link Bitmap} and puts it into the disk cache.
 	 * 
 	 * <b>Note:</b> saving a file from a Bitmap requires a new compression,
 	 * avoid it directly storing the original byte array with
@@ -231,7 +231,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	}
 
 	/**
-	 * Save a Bitmap into the file system putting it in the cache.
+	 * Compress and save a Bitmap into the file system putting it in the cache.
 	 * 
 	 * <b>Note:</b> saving a file from a Bitmap requires a new compression,
 	 * avoid it directly storing the original byte array with
