@@ -6,8 +6,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
-        tools:ignore="UsesMinSdkAttributes" />
+        android:minSdkVersion="8" tools:ignore="UsesMinSdkAttributes"/>
 
     <!-- Required for some tests when using project as target package -->
     <uses-permission android:name="android.permission.INTERNET" />

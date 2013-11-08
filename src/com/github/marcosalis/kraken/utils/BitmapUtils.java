@@ -23,6 +23,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -34,6 +35,7 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 
@@ -89,15 +91,25 @@ public class BitmapUtils {
 	}
 
 	/**
-	 * Calculates the byte occupation of the passed Bitmap
+	 * Calculates the byte occupation of the passed Bitmap, in a
+	 * backwards-compatible fashion ({@link Bitmap#getByteCount()} is available
+	 * from API 12 onwards).
 	 * 
 	 * @param bitmap
 	 * @return The actual size in bytes
 	 */
 	@Nonnegative
+	@SuppressLint("NewApi")
 	public static int getSize(@Nonnull Bitmap bitmap) {
-		// getBytesCount() on API 12 does exactly the same
-		return bitmap.getRowBytes() * bitmap.getHeight();
+		final int sdkInt = Build.VERSION.SDK_INT;
+		if (sdkInt < 12) {
+			// getBytesCount() on API 12 does exactly the same
+			return bitmap.getRowBytes() * bitmap.getHeight();
+		} else if (sdkInt < 19) {
+			return bitmap.getByteCount();
+		} else { // needed from API 19
+			return bitmap.getAllocationByteCount();
+		}
 	}
 
 	/**

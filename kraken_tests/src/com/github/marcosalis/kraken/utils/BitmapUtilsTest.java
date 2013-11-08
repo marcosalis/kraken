@@ -16,7 +16,10 @@
 package com.github.marcosalis.kraken.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.test.AndroidTestCase;
@@ -41,9 +44,22 @@ public class BitmapUtilsTest extends AndroidTestCase {
 		super.tearDown();
 	}
 
-	public void testGetSizeInt() {
+	public void testGetSizeIntInt() {
 		int actualSize = BitmapUtils.getSize(200, 200);
 		final int expectedSize = 200 * 200 * 4;
+		assertEquals(expectedSize, actualSize);
+	}
+
+	public void testGetSizeBitmap() {
+		InputStream is = null;
+		try {
+			is = getContext().getAssets().open("droid.jpg");
+		} catch (IOException e) {
+			fail("Can't retrieve bitmap asset");
+		}
+		final Bitmap droid = BitmapFactory.decodeStream(is);
+		final int actualSize = BitmapUtils.getSize(droid);
+		final int expectedSize = 500 * 500 * 4;
 		assertEquals(expectedSize, actualSize);
 	}
 
