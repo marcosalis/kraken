@@ -56,6 +56,13 @@ public class DroidUtilsTest extends InstrumentationTestCase {
 				DroidUtils.getIOBoundPoolSize() > DroidUtils.getCpuBoundPoolSize());
 	}
 
+	public void testGetApplicationMemoryClass() {
+		final int memoryClass = DroidUtils.getApplicationMemoryClass(getInstrumentation()
+				.getTargetContext());
+		final int minMemoryClass = 16 * 1024 * 1024; // ActivityManager docs
+		assertTrue(minMemoryClass <= memoryClass);
+	}
+
 	public void testGetDefaultDisplayMetrics() {
 		assertNotNull(DroidUtils.getDefaultDisplayMetrics(getInstrumentation().getTargetContext()));
 	}

@@ -37,8 +37,8 @@ import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 
 /**
- * Callback class to use with a {@link AbstractBitmapCache} to set the bitmap to an
- * {@link ImageView} if this is still existing and attached to an Activity.
+ * Callback class to use with a {@link AbstractBitmapCache} to set the bitmap to
+ * an {@link ImageView} if this is still existing and attached to an Activity.
  * 
  * TODO: handle placeholder setting when the bitmap loading fails
  * 

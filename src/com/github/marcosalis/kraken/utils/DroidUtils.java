@@ -33,6 +33,7 @@ import javax.annotation.concurrent.Immutable;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -157,11 +158,25 @@ public class DroidUtils {
 	}
 
 	/**
+	 * Returns the upper memory usage limit in bytes for the current application
+	 * retrieved from {@link ActivityManager#getMemoryClass()}. Using a
+	 * percentage of this value is a reliable way to limit memory caches.
+	 * 
+	 * @param context
+	 *            The {@link Context} to retrieve the {@link ActivityManager}
+	 * @return The application memory class in bytes
+	 */
+	public static int getApplicationMemoryClass(@Nonnull Context context) {
+		final ActivityManager manager = (ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE);
+		return manager.getMemoryClass() * 1024 * 1024; // to bytes
+	}
+
+	/**
 	 * Retrieves the {@link DisplayMetrics} for the device's default display.
 	 * 
 	 * @param context
-	 *            The {@link Context} to use to retrieve the
-	 *            {@link WindowManager}
+	 *            The {@link Context} to retrieve the {@link WindowManager}
 	 * @return The retrieved {@link DisplayMetrics}
 	 */
 	@Nonnull

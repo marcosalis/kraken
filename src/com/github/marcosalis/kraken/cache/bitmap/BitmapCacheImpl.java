@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.bitmap.internal;
+package com.github.marcosalis.kraken.cache.bitmap;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -26,9 +26,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.internal.AbstractBitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
@@ -46,10 +44,12 @@ import com.google.common.annotations.Beta;
 class BitmapCacheImpl extends AbstractBitmapCache {
 
 	private final BitmapLruCache<String> mMemoryCache;
+	@CheckForNull
 	private final BitmapDiskCache mDiskCache;
 
-	BitmapCacheImpl(@Nonnull BitmapLruCache<String> cache, @Nonnull BitmapDiskCache diskCache) {
+	BitmapCacheImpl(@Nonnull BitmapLruCache<String> cache, @Nullable BitmapDiskCache diskCache) {
 		mMemoryCache = cache;
+		cache.setOnEntryRemovedListener(this);
 		mDiskCache = diskCache;
 	}
 
@@ -91,12 +91,16 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 
 	@Override
 	public void clearDiskCache(DiskCacheClearMode mode) {
-		mDiskCache.clear();
+		if (mDiskCache != null) {
+			mDiskCache.clear();
+		}
 	}
 
 	@Override
 	public void scheduleClearDiskCache() {
-		mDiskCache.scheduleClearAll();
+		if (mDiskCache != null) {
+			mDiskCache.scheduleClearAll();
+		}
 	}
 
 }

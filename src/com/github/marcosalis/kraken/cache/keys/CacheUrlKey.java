@@ -48,5 +48,5 @@ public interface CacheUrlKey extends CacheKey, Parcelable {
 	 */
 	@Nonnull
 	public String getUrl();
-	
+
 }

@@ -21,16 +21,22 @@ import java.util.concurrent.ConcurrentMap;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 import android.support.v4.util.LruCache;
 
 import com.google.common.annotations.Beta;
+import com.google.common.cache.Cache;
 
 /**
  * Extension of the Android's {@link LruCache} to support some of the methods of
  * a {@link ConcurrentMap}.
  * 
  * TODO: unit tests
+ * 
+ * TODO: use Guava's {@link Cache} instead? It's really concurrent (backed by a
+ * ConcurrentHashMap implementation, whereas LruCache operations block on the
+ * whole structure) and automatically handles blocking load with Future's get().
  * 
  * @since 1.0
  * @author Marco Salis
@@ -90,10 +96,8 @@ public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
+	@OverridingMethodsMustInvokeSuper
 	public void clear() {
 		evictAll();
 	}

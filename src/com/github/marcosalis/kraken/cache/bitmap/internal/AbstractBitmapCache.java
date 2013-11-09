@@ -180,7 +180,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 */
 	private final Memoizer<String, Bitmap> mBitmapMemoizer;
 
-	AbstractBitmapCache() {
+	protected AbstractBitmapCache() {
 		final int concurrencyLevel = DOWNLOADER_EXECUTOR.getMaximumPoolSize();
 		mBitmapMemoizer = new Memoizer<String, Bitmap>(concurrencyLevel);
 	}
@@ -259,7 +259,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 */
 	@CheckForNull
 	protected final Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
-			@Nonnull BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
+			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
 			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter callback) {
 		return getBitmap(cache, diskCache, url, action, callback, null);
 	}
