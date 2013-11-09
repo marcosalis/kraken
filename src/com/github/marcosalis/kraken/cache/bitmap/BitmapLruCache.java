@@ -50,12 +50,6 @@ public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements Bit
 
 	private static final String TAG = BitmapLruCache.class.getSimpleName();
 
-	/**
-	 * Default maximum percentage of the application memory to use when
-	 * configuring the LRU cache.
-	 */
-	public static final float DEFAULT_MAX_MEMORY_PERCENTAGE = 10f;
-
 	@CheckForNull
 	private final String mLogName;
 	@CheckForNull

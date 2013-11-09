@@ -17,14 +17,17 @@ package com.github.marcosalis.kraken.cache.bitmap;
 
 import java.io.IOException;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 
 import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.EmptyMemoryCache;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
@@ -44,10 +47,12 @@ public class BitmapCacheBuilder {
 	final Context context;
 
 	// first level cache config
+	boolean memoryCacheEnabled = true;
 	int memoryCacheMaxBytes;
 	String memoryCacheLogName = "BitmapCache";
 
 	// disk cache config
+	boolean diskCacheEnabled = true;
 	String diskCacheDirectory;
 	long purgeableAfterSeconds;
 
@@ -55,10 +60,18 @@ public class BitmapCacheBuilder {
 		this.context = context;
 	}
 
+	@Nonnull
+	public BitmapCacheBuilder disableMemoryCache() {
+		memoryCacheEnabled = false;
+		return this;
+	}
+
 	/**
 	 * Sets the memory cache occupation limit in bytes. Use of
 	 * {@link #maxMemoryCachePercentage(float)} is recommended as it enforces a
 	 * proportional limit on the application memory class.
+	 * 
+	 * Calling this method automatically enables the memory cache.
 	 * 
 	 * @param maxBytes
 	 * @return This builder
@@ -66,6 +79,7 @@ public class BitmapCacheBuilder {
 	@Nonnull
 	public BitmapCacheBuilder maxMemoryCacheBytes(@Nonnegative int maxBytes) {
 		Preconditions.checkArgument(maxBytes > 0);
+		memoryCacheEnabled = true;
 		memoryCacheMaxBytes = maxBytes;
 		return this;
 	}
@@ -77,6 +91,8 @@ public class BitmapCacheBuilder {
 	 * Defaults to {@link BitmapLruCache#DEFAULT_MAX_MEMORY_PERCENTAGE}.
 	 * Percentages above 30% are not recommended for a typical application.
 	 * 
+	 * Calling this method automatically enables the memory cache.
+	 * 
 	 * @param percentage
 	 *            A percentage value (0 < percentage <= 100)
 	 * @return This builder
@@ -84,6 +100,7 @@ public class BitmapCacheBuilder {
 	@Nonnull
 	public BitmapCacheBuilder maxMemoryCachePercentage(@Nonnegative float percentage) {
 		Preconditions.checkArgument(percentage > 0f && percentage <= 100f);
+		memoryCacheEnabled = true;
 		final int appMemoryClass = DroidUtils.getApplicationMemoryClass(context);
 		memoryCacheMaxBytes = (int) ((appMemoryClass / 100f) * percentage); // %
 		return this;
@@ -102,10 +119,18 @@ public class BitmapCacheBuilder {
 		return this;
 	}
 
+	@Nonnull
+	public BitmapCacheBuilder disableDiskCache() {
+		diskCacheEnabled = false;
+		return this;
+	}
+
 	/**
 	 * Sets the <b>mandatory</b> disk cache directory name. Must be a valid
 	 * Linux file name. Keep this consistent at each cache instantiation or the
 	 * disk cache will be lost.
+	 * 
+	 * Calling this method automatically enables the disk cache.
 	 * 
 	 * @param cacheDirectory
 	 *            The cache directory (with no trailing slashes)
@@ -113,6 +138,7 @@ public class BitmapCacheBuilder {
 	 */
 	@Nonnull
 	public BitmapCacheBuilder diskCacheDirectoryName(@Nonnull String cacheDirectory) {
+		diskCacheEnabled = true;
 		diskCacheDirectory = cacheDirectory;
 		return this;
 	}
@@ -126,6 +152,8 @@ public class BitmapCacheBuilder {
 	 * 
 	 * Defaults to {@link BitmapDiskCache#DEFAULT_PURGE_AFTER} if not set.
 	 * 
+	 * Calling this method automatically enables the disk cache.
+	 * 
 	 * @param seconds
 	 *            The cache items expiration. Must be >=
 	 *            {@link DiskCache#MIN_EXPIRE_IN_SEC}
@@ -134,6 +162,7 @@ public class BitmapCacheBuilder {
 	@Nonnull
 	public BitmapCacheBuilder diskCachePurgeableAfter(long seconds) {
 		Preconditions.checkArgument(seconds >= DiskCache.MIN_EXPIRE_IN_SEC);
+		diskCacheEnabled = true;
 		purgeableAfterSeconds = seconds;
 		return this;
 	}
@@ -152,30 +181,51 @@ public class BitmapCacheBuilder {
 		checkMandatoryValuesConsistency();
 		setConfigDefaults();
 
-		final BitmapLruCache<String> lruCache = buildLruCache();
+		final BitmapMemoryCache<String> lruCache = buildMemoryCache();
 		final BitmapDiskCache diskCache = buildDiskCache();
 		return new BitmapCacheImpl(lruCache, diskCache);
 	}
 
 	private void checkMandatoryValuesConsistency() {
-		Preconditions.checkNotNull(diskCacheDirectory, "Disk cache directory not set");
+		if (diskCacheEnabled) {
+			Preconditions.checkArgument(diskCacheDirectory != null, "Disk cache directory not set");
+		}
 	}
 
 	private void setConfigDefaults() {
-		if (memoryCacheMaxBytes == 0) {
-			maxMemoryCachePercentage(BitmapLruCache.DEFAULT_MAX_MEMORY_PERCENTAGE);
+		if (memoryCacheEnabled && memoryCacheMaxBytes == 0) {
+			maxMemoryCachePercentage(BitmapMemoryCache.DEFAULT_MAX_MEMORY_PERCENTAGE);
 		}
-		if (purgeableAfterSeconds == 0) {
+		if (diskCacheEnabled && purgeableAfterSeconds == 0) {
 			diskCachePurgeableAfter(BitmapDiskCache.DEFAULT_PURGE_AFTER);
 		}
 	}
 
-	private BitmapLruCache<String> buildLruCache() {
-		return new BitmapLruCache<String>(memoryCacheMaxBytes, memoryCacheLogName);
+	@Nonnull
+	private BitmapMemoryCache<String> buildMemoryCache() {
+		if (memoryCacheEnabled) {
+			return new BitmapLruCache<String>(memoryCacheMaxBytes, memoryCacheLogName);
+		} else {
+			return new EmptyBitmapMemoryCache(memoryCacheLogName);
+		}
 	}
 
+	@CheckForNull
 	private BitmapDiskCache buildDiskCache() throws IOException {
-		return new BitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
+		if (diskCacheEnabled) {
+			return new BitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
+		}
+		return null;
+	}
+
+	/**
+	 * {@link EmptyMemoryCache} implementation for bitmap memory caches.
+	 */
+	private static class EmptyBitmapMemoryCache extends EmptyMemoryCache<String, Bitmap> implements
+			BitmapMemoryCache<String> {
+		public EmptyBitmapMemoryCache(String cacheLogName) {
+			super(cacheLogName);
+		}
 	}
 
 }

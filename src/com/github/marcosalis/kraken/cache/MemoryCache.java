@@ -19,17 +19,29 @@ package com.github.marcosalis.kraken.cache;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.google.common.annotations.Beta;
 
 /**
- * Public interface for a 1st level, memory based cache.<br>
- * It holds no methods for now.
+ * Public interface for a 1st level, memory based cache.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
 public interface MemoryCache<K, V> extends ContentCache<K, V> {
+
+	/**
+	 * Sets an (optional) {@link OnEntryRemovedListener} to allow cache entries
+	 * to be removed when using another component that keeps references to them
+	 * (such as a {@link Memoizer} to populate the cache), in order to avoid
+	 * memory leaks and OOM. This is especially crucial when dealing with big
+	 * objects in memory such as bitmaps.
+	 * 
+	 * @param listener
+	 *            The listener to set or null to unset it
+	 */
+	public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, V> listener);
 
 	/**
 	 * Retrieves an element from the memory cache by its cache key.

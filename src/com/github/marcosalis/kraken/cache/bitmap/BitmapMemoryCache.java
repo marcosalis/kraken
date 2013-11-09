@@ -15,16 +15,14 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import javax.annotation.Nullable;
-
 import android.graphics.Bitmap;
 
 import com.github.marcosalis.kraken.cache.MemoryCache;
-import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.google.common.annotations.Beta;
 
 /**
- * Public interface for a 1st level, memory based cache for bitmaps.
+ * Public interface for a 1st level, memory based cache for bitmaps. It holds no
+ * additional methods at the moment.
  * 
  * @since 1.0
  * @author Marco Salis
@@ -33,14 +31,9 @@ import com.google.common.annotations.Beta;
 public interface BitmapMemoryCache<K> extends MemoryCache<K, Bitmap> {
 
 	/**
-	 * Sets an (optional) {@link OnEntryRemovedListener} to allow Bitmap entries
-	 * to be removed when using another component that keeps references to them
-	 * (such as a {@link Memoizer} to populate the cache), in order to avoid
-	 * memory leaks and OOM.
-	 * 
-	 * @param listener
-	 *            The listener to set or null to unset it
+	 * Default maximum percentage of the application memory to use when
+	 * configuring a bitmap memory cache.
 	 */
-	public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, Bitmap> listener);
+	public static final float DEFAULT_MAX_MEMORY_PERCENTAGE = 10f;
 
 }

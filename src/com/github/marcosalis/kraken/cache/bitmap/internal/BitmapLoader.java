@@ -142,7 +142,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	 * whether there is another running and unfinished task for the Bitmap we
 	 * want to download from the server.
 	 * 
-	 * This computation gets executed with the
+	 * This computation gets executed through the
 	 * {@link AbstractBitmapCache#submitInDownloader(Callable)} method.
 	 */
 	@Immutable

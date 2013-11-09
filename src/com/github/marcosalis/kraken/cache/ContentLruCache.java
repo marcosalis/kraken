@@ -102,4 +102,12 @@ public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache
 		evictAll();
 	}
 
+	/**
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public void setOnEntryRemovedListener(OnEntryRemovedListener<K, V> listener) {
+		throw new UnsupportedOperationException();
+	}
+
 }
