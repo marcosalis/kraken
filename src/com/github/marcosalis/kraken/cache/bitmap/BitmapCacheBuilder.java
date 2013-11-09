@@ -29,6 +29,8 @@ import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.EmptyMemoryCache;
 import com.github.marcosalis.kraken.utils.DroidUtils;
+import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
@@ -183,7 +185,8 @@ public class BitmapCacheBuilder {
 
 		final BitmapMemoryCache<String> lruCache = buildMemoryCache();
 		final BitmapDiskCache diskCache = buildDiskCache();
-		return new BitmapCacheImpl(lruCache, diskCache);
+		final HttpRequestFactory factory = DefaultHttpRequestsManager.get().getRequestFactory();
+		return new BitmapCacheImpl(lruCache, diskCache, factory);
 	}
 
 	private void checkMandatoryValuesConsistency() {

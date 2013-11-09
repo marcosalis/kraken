@@ -44,7 +44,6 @@ import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.http.ByteArrayDownloader;
-import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 
@@ -53,45 +52,70 @@ import com.google.common.annotations.Beta;
  * If the mode set for the request is {@link AccessPolicy#PRE_FETCH}, the
  * retrieved image is only downloaded and put in the memory cache if necessary.
  * 
- * FIXME: some tests showed that, very rarely, two threads can get to download
- * the same bitmap twice: investigate this
+ * FIXME: some tests showed that, very rarely, a race condition occurs for which
+ * two threads can get to download the same bitmap twice: investigate this
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
 @Immutable
-class BitmapLoader implements Callable<Bitmap> {
+public class BitmapLoader implements Callable<Bitmap> {
+
+	/**
+	 * Configuration class that holds all the external components that a
+	 * {@link BitmapLoader} needs to access.
+	 */
+	@Immutable
+	public static class Config {
+		public final Memoizer<String, Bitmap> downloadsCache;
+		public final BitmapMemoryCache<String> memoryCache;
+		public final BitmapDiskCache diskCache;
+		public final HttpRequestFactory requestFactory;
+
+		/**
+		 * Creates a {@link BitmapLoader} immutable configuration.
+		 * 
+		 * @param downloads
+		 *            The {@link CacheMemoizer} used to retrieve cached items
+		 * @param cache
+		 *            The {@link BitmapLruCache} where bitmaps in memory are
+		 *            stored
+		 * @param diskCache
+		 *            The (optional) {@link BitmapDiskCache} where bitmaps saved
+		 *            on disk are handled
+		 * @param factory
+		 *            The {@link HttpRequestFactory} to download the bitmap
+		 */
+		public Config(@Nonnull Memoizer<String, Bitmap> downloadsCache,
+				@Nonnull BitmapMemoryCache<String> memoryCache,
+				@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory requestFactory) {
+			this.downloadsCache = downloadsCache;
+			this.memoryCache = memoryCache;
+			this.diskCache = diskCache;
+			this.requestFactory = requestFactory;
+		}
+	}
 
 	private static final String TAG = BitmapLoader.class.getSimpleName();
 
-	private final Memoizer<String, Bitmap> mDownloadsCache;
-	private final BitmapMemoryCache<String> mMemoryCache;
-	private final BitmapDiskCache mDiskCache;
+	private final BitmapLoader.Config mLoaderConfig;
 	private final CacheUrlKey mUrl;
 	private final BitmapAsyncSetter mBitmapCallback;
 
 	/**
 	 * Instantiates a {@link BitmapLoader}.
 	 * 
-	 * @param downloads
-	 *            The {@link CacheMemoizer} used to retrieve cached items
-	 * @param cache
-	 *            The {@link BitmapLruCache} where bitmaps in memory are stored
-	 * @param diskCache
-	 *            The (optional) {@link BitmapDiskCache} where bitmaps saved on
-	 *            disk are handled
+	 * @param config
+	 *            The {@link BitmapLoader#Config} for this loader
 	 * @param key
 	 *            The {@link CacheUrlKey} to retrieve the bitmap
 	 * @param callback
 	 *            {@link BitmapAsyncSetter} for the image (can be null)
 	 */
-	public BitmapLoader(@Nonnull Memoizer<String, Bitmap> downloads,
-			@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
-			@Nonnull CacheUrlKey key, @Nullable BitmapAsyncSetter callback) {
-		mDownloadsCache = downloads;
-		mMemoryCache = cache;
-		mDiskCache = diskCache;
+	public BitmapLoader(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key,
+			@Nullable BitmapAsyncSetter callback) {
+		mLoaderConfig = config;
 		mUrl = key;
 		mBitmapCallback = callback;
 	}
@@ -99,11 +123,13 @@ class BitmapLoader implements Callable<Bitmap> {
 	@Override
 	@CheckForNull
 	public Bitmap call() {
+		final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
+		final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
 		final String key = mUrl.hash();
 		Bitmap bitmap;
 
 		// 1- check memory cache again
-		if ((bitmap = mMemoryCache.get(key)) != null) { // memory cache hit
+		if ((bitmap = memoryCache.get(key)) != null) { // memory cache hit
 			if (mBitmapCallback != null) {
 				mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.MEMORY);
 			}
@@ -111,13 +137,13 @@ class BitmapLoader implements Callable<Bitmap> {
 		}
 
 		// 2- check disk cache
-		if (mDiskCache != null) {
-			if ((bitmap = mDiskCache.get(key)) != null) {
+		if (diskCache != null) {
+			if ((bitmap = diskCache.get(key)) != null) {
 				// disk cache hit, load file into Bitmap
 				if (mBitmapCallback != null) {
 					mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.DISK);
 				} // and put it into memory cache
-				mMemoryCache.put(key, bitmap);
+				memoryCache.put(key, bitmap);
 				return bitmap;
 			}
 		}
@@ -127,8 +153,7 @@ class BitmapLoader implements Callable<Bitmap> {
 		 * We delegate the task to another, separated executor to download
 		 * images to avoid blocking delivery of cached images to the UI
 		 */
-		final MemoizerCallable memoizer = new MemoizerCallable(mDownloadsCache, mMemoryCache,
-				mDiskCache, mUrl, mBitmapCallback);
+		final MemoizerCallable memoizer = new MemoizerCallable(mLoaderConfig, mUrl, mBitmapCallback);
 		// attempt prioritizing the download task if already in queue
 		AbstractBitmapCache.moveDownloadToFront(key);
 		// submit new memoizer task to downloder executor
@@ -148,18 +173,13 @@ class BitmapLoader implements Callable<Bitmap> {
 	@Immutable
 	private static class MemoizerCallable implements Callable<Bitmap> {
 
-		private final Memoizer<String, Bitmap> mDownloadsCache;
-		private final BitmapMemoryCache<String> mMemoryCache;
-		private final BitmapDiskCache mDiskCache;
+		private final BitmapLoader.Config mLoaderConfig;
 		private final CacheUrlKey mUrl;
 		private final BitmapAsyncSetter mBitmapCallback;
 
-		public MemoizerCallable(Memoizer<String, Bitmap> downloads,
-				BitmapMemoryCache<String> cache, BitmapDiskCache diskCache, CacheUrlKey url,
+		public MemoizerCallable(@Nonnull BitmapLoader.Config config, CacheUrlKey url,
 				BitmapAsyncSetter callback) {
-			mDownloadsCache = downloads;
-			mMemoryCache = cache;
-			mDiskCache = diskCache;
+			mLoaderConfig = config;
 			mUrl = url;
 			mBitmapCallback = callback;
 		}
@@ -168,9 +188,9 @@ class BitmapLoader implements Callable<Bitmap> {
 		@CheckForNull
 		public Bitmap call() throws InterruptedException {
 			try {
-				final DownloaderCallable downloader = new DownloaderCallable(mMemoryCache,
-						mDiskCache, mUrl, mBitmapCallback);
-				final Bitmap bitmap = mDownloadsCache.execute(mUrl.hash(), downloader);
+				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mUrl,
+						mBitmapCallback);
+				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(mUrl.hash(), downloader);
 				if (mBitmapCallback != null) {
 					mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.NETWORK);
 				}
@@ -199,15 +219,13 @@ class BitmapLoader implements Callable<Bitmap> {
 		static final AtomicInteger downloaderCounter = new AtomicInteger();
 		static final AtomicInteger failuresCounter = new AtomicInteger();
 
-		private final BitmapMemoryCache<String> mMemoryCache;
-		private final BitmapDiskCache mDiskCache;
+		private final BitmapLoader.Config mLoaderConfig;
 		private final CacheUrlKey mKey;
 		private final BitmapAsyncSetter mBitmapCallback;
 
-		public DownloaderCallable(BitmapMemoryCache<String> cache, BitmapDiskCache diskCache,
-				CacheUrlKey url, BitmapAsyncSetter callback) {
-			mMemoryCache = cache;
-			mDiskCache = diskCache;
+		public DownloaderCallable(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey url,
+				@Nullable BitmapAsyncSetter callback) {
+			mLoaderConfig = config;
 			mKey = url;
 			mBitmapCallback = callback;
 		}
@@ -224,7 +242,7 @@ class BitmapLoader implements Callable<Bitmap> {
 				startDownload = System.currentTimeMillis();
 			}
 
-			final HttpRequestFactory factory = DefaultHttpRequestsManager.get().getRequestFactory();
+			final HttpRequestFactory factory = mLoaderConfig.requestFactory;
 			final byte[] imageBytes = ByteArrayDownloader.downloadByteArray(factory, url);
 
 			long endDownload = 0;
@@ -249,12 +267,15 @@ class BitmapLoader implements Callable<Bitmap> {
 						}
 					} // end debugging
 
-					mMemoryCache.put(key, bitmap);
+					final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
+					final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
+
+					memoryCache.put(key, bitmap);
 					if (mBitmapCallback != null) {
 						mBitmapCallback.onBitmapReceived(mKey, bitmap, BitmapSource.NETWORK);
 					}
-					if (mDiskCache != null) {
-						mDiskCache.put(key, imageBytes);
+					if (diskCache != null) {
+						diskCache.put(key, imageBytes);
 					}
 				}
 			} else { // download failed
@@ -274,8 +295,7 @@ class BitmapLoader implements Callable<Bitmap> {
 		final int counterInt = counter.get();
 		final int failuresInt = failures.get();
 		final long averageMs = (counterInt != 0) ? timer.get() / counterInt : 0;
-		final int failuresPerc = (counterInt != 0) ? (int) (100 / (float) counterInt) * failuresInt
-				: 0;
+		final int failuresPerc = (counterInt != 0) ? (int) (100f / counterInt) * failuresInt : 0;
 		Log.i(TAG, counterInt + " bitmaps downloaded in average ms " + averageMs + " - "
 				+ failuresPerc + "% failures");
 		// reset stats

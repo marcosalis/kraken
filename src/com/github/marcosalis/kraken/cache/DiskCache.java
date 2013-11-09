@@ -81,8 +81,8 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	 * get deleted (used to speed up setting of last modification date by
 	 * avoiding calling I/O write OS methods when unnecessary).
 	 */
-	public static final long MIN_EXPIRE_IN_SEC = DroidUtils.HOUR * 6;
-	public static final long MIN_EXPIRE_IN_MS = MIN_EXPIRE_IN_SEC * 1000;
+	public static final long MIN_EXPIRE_IN_SEC = DroidUtils.HOUR * 3;
+	protected static final long MIN_EXPIRE_IN_MS = MIN_EXPIRE_IN_SEC * 1000;
 	/**
 	 * Default expiration time for the {@link DiskCache} subclasses (in seconds)
 	 */

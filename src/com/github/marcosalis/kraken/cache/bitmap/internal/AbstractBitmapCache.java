@@ -247,8 +247,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 			} else {
 				setter = null; // make sure there's no callback
 			}
-			return BITMAP_EXECUTOR.submit(new BitmapLoader(mBitmapMemoizer, cache, diskCache, url,
-					setter));
+			return BITMAP_EXECUTOR.submit(new BitmapLoader(getLoaderConfig(), url, setter));
 		}
 	}
 
@@ -263,6 +262,20 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter callback) {
 		return getBitmap(cache, diskCache, url, action, callback, null);
 	}
+
+	@Nonnull
+	protected final Memoizer<String, Bitmap> getMemoizer() {
+		return mBitmapMemoizer;
+	}
+
+	/**
+	 * Implement to provide the {@link BitmapLoader} configuration for this
+	 * cache.
+	 * 
+	 * @return The common instance of {@link BitmapLoader#Config}
+	 */
+	@Nonnull
+	protected abstract BitmapLoader.Config getLoaderConfig();
 
 	@Override
 	@OverridingMethodsMustInvokeSuper

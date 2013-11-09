@@ -27,11 +27,13 @@ import android.graphics.drawable.Drawable;
 
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.internal.AbstractBitmapCache;
+import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapLoader;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 
 /**
@@ -46,11 +48,14 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	private final BitmapMemoryCache<String> mMemoryCache;
 	@CheckForNull
 	private final BitmapDiskCache mDiskCache;
+	private final BitmapLoader.Config mLoaderConfig;
 
-	BitmapCacheImpl(@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache) {
+	BitmapCacheImpl(@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
+			@Nonnull HttpRequestFactory factory) {
 		mMemoryCache = cache;
 		cache.setOnEntryRemovedListener(this);
 		mDiskCache = diskCache;
+		mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory);
 	}
 
 	@Override
@@ -101,6 +106,12 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 		if (mDiskCache != null) {
 			mDiskCache.scheduleClearAll();
 		}
+	}
+
+	@Nonnull
+	@Override
+	protected BitmapLoader.Config getLoaderConfig() {
+		return mLoaderConfig;
 	}
 
 }
