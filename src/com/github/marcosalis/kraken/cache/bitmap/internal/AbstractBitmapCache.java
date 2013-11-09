@@ -39,7 +39,7 @@ import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentCache.OnEntryRemovedListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
@@ -193,8 +193,8 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 
 	/**
 	 * Method to be called by subclasses to get a bitmap content from any
-	 * {@link AbstractBitmapCache} by passing the main request parameters and
-	 * type of actions.
+	 * {@link BitmapCache} by passing the main request parameters and type of
+	 * actions.
 	 * 
 	 * <b>This needs to be called from the UI thread except when using
 	 * {@link AccessPolicy#PRE_FETCH} mode</b>, as the image setting is
@@ -202,7 +202,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 * the memory cache.
 	 * 
 	 * @param cache
-	 *            The {@link BitmapLruCache} memory cache to use
+	 *            The {@link BitmapMemoryCache} memory cache to use
 	 * @param diskCache
 	 *            The {@link BitmapDiskCache} to use
 	 * @param url
@@ -220,7 +220,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 * @return The {@link Future} that holds the Bitmap loading
 	 */
 	@CheckForNull
-	protected final Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
+	protected final Future<Bitmap> getBitmap(@Nonnull BitmapMemoryCache<String> cache,
 			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
 			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter setter,
 			@CheckForNull Drawable placeholder) {
@@ -254,11 +254,11 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 
 	/**
 	 * See
-	 * {@link #getBitmap(BitmapLruCache, BitmapDiskCache, CacheUrlKey, AccessPolicy, BitmapAsyncSetter, Drawable)}
+	 * {@link #getBitmap(BitmapMemoryCache, BitmapDiskCache, CacheUrlKey, AccessPolicy, BitmapAsyncSetter, Drawable)}
 	 * with null placeholder.
 	 */
 	@CheckForNull
-	protected final Future<Bitmap> getBitmap(@Nonnull BitmapLruCache<String> cache,
+	protected final Future<Bitmap> getBitmap(@Nonnull BitmapMemoryCache<String> cache,
 			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
 			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter callback) {
 		return getBitmap(cache, diskCache, url, action, callback, null);

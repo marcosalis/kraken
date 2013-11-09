@@ -16,6 +16,9 @@
  */
 package com.github.marcosalis.kraken.cache;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -27,5 +30,33 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface MemoryCache<K, V> extends ContentCache<K, V> {
+
+	/**
+	 * Retrieves an element from the memory cache by its cache key.
+	 * 
+	 * @param key
+	 *            The cache key for the requested item
+	 * @return The value (or null if not present)
+	 */
+	public V get(@Nonnull K key);
+
+	/**
+	 * Puts an element into the cache.
+	 * 
+	 * @param key
+	 *            The item cache key
+	 * @param value
+	 *            The cache value or null to unset
+	 * @return The old element for the passed key if present
+	 */
+	public V put(@Nonnull K key, @Nullable V value);
+
+	/**
+	 * Removes the entry for the passed key if it exists.
+	 * 
+	 * @param key
+	 * @return the previous value mapped by key
+	 */
+	public V remove(K key);
 
 }

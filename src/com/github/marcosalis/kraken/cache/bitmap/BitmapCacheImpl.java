@@ -43,11 +43,11 @@ import com.google.common.annotations.Beta;
 @Beta
 class BitmapCacheImpl extends AbstractBitmapCache {
 
-	private final BitmapLruCache<String> mMemoryCache;
+	private final BitmapMemoryCache<String> mMemoryCache;
 	@CheckForNull
 	private final BitmapDiskCache mDiskCache;
 
-	BitmapCacheImpl(@Nonnull BitmapLruCache<String> cache, @Nullable BitmapDiskCache diskCache) {
+	BitmapCacheImpl(@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache) {
 		mMemoryCache = cache;
 		cache.setOnEntryRemovedListener(this);
 		mDiskCache = diskCache;
@@ -86,7 +86,7 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	@Override
 	public void clearMemoryCache() {
 		super.clearMemoryCache();
-		mMemoryCache.evictAll();
+		mMemoryCache.clear();
 	}
 
 	@Override

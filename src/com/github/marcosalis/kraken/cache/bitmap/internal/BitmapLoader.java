@@ -36,6 +36,7 @@ import android.util.Log;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
@@ -65,7 +66,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	private static final String TAG = BitmapLoader.class.getSimpleName();
 
 	private final Memoizer<String, Bitmap> mDownloadsCache;
-	private final BitmapLruCache<String> mCache;
+	private final BitmapMemoryCache<String> mMemoryCache;
 	private final BitmapDiskCache mDiskCache;
 	private final CacheUrlKey mUrl;
 	private final BitmapAsyncSetter mBitmapCallback;
@@ -86,10 +87,10 @@ class BitmapLoader implements Callable<Bitmap> {
 	 *            {@link BitmapAsyncSetter} for the image (can be null)
 	 */
 	public BitmapLoader(@Nonnull Memoizer<String, Bitmap> downloads,
-			@Nonnull BitmapLruCache<String> cache, @Nullable BitmapDiskCache diskCache,
+			@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
 			@Nonnull CacheUrlKey key, @Nullable BitmapAsyncSetter callback) {
 		mDownloadsCache = downloads;
-		mCache = cache;
+		mMemoryCache = cache;
 		mDiskCache = diskCache;
 		mUrl = key;
 		mBitmapCallback = callback;
@@ -102,7 +103,7 @@ class BitmapLoader implements Callable<Bitmap> {
 		Bitmap bitmap;
 
 		// 1- check memory cache again
-		if ((bitmap = mCache.get(key)) != null) { // memory cache hit
+		if ((bitmap = mMemoryCache.get(key)) != null) { // memory cache hit
 			if (mBitmapCallback != null) {
 				mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.MEMORY);
 			}
@@ -116,7 +117,7 @@ class BitmapLoader implements Callable<Bitmap> {
 				if (mBitmapCallback != null) {
 					mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.DISK);
 				} // and put it into memory cache
-				mCache.put(key, bitmap);
+				mMemoryCache.put(key, bitmap);
 				return bitmap;
 			}
 		}
@@ -126,8 +127,8 @@ class BitmapLoader implements Callable<Bitmap> {
 		 * We delegate the task to another, separated executor to download
 		 * images to avoid blocking delivery of cached images to the UI
 		 */
-		final MemoizerCallable memoizer = new MemoizerCallable(mDownloadsCache, mCache, mDiskCache,
-				mUrl, mBitmapCallback);
+		final MemoizerCallable memoizer = new MemoizerCallable(mDownloadsCache, mMemoryCache,
+				mDiskCache, mUrl, mBitmapCallback);
 		// attempt prioritizing the download task if already in queue
 		AbstractBitmapCache.moveDownloadToFront(key);
 		// submit new memoizer task to downloder executor
@@ -148,15 +149,16 @@ class BitmapLoader implements Callable<Bitmap> {
 	private static class MemoizerCallable implements Callable<Bitmap> {
 
 		private final Memoizer<String, Bitmap> mDownloadsCache;
-		private final BitmapLruCache<String> mCache;
+		private final BitmapMemoryCache<String> mMemoryCache;
 		private final BitmapDiskCache mDiskCache;
 		private final CacheUrlKey mUrl;
 		private final BitmapAsyncSetter mBitmapCallback;
 
-		public MemoizerCallable(Memoizer<String, Bitmap> downloads, BitmapLruCache<String> cache,
-				BitmapDiskCache diskCache, CacheUrlKey url, BitmapAsyncSetter callback) {
+		public MemoizerCallable(Memoizer<String, Bitmap> downloads,
+				BitmapMemoryCache<String> cache, BitmapDiskCache diskCache, CacheUrlKey url,
+				BitmapAsyncSetter callback) {
 			mDownloadsCache = downloads;
-			mCache = cache;
+			mMemoryCache = cache;
 			mDiskCache = diskCache;
 			mUrl = url;
 			mBitmapCallback = callback;
@@ -166,8 +168,8 @@ class BitmapLoader implements Callable<Bitmap> {
 		@CheckForNull
 		public Bitmap call() throws InterruptedException {
 			try {
-				final DownloaderCallable downloader = new DownloaderCallable(mCache, mDiskCache,
-						mUrl, mBitmapCallback);
+				final DownloaderCallable downloader = new DownloaderCallable(mMemoryCache,
+						mDiskCache, mUrl, mBitmapCallback);
 				final Bitmap bitmap = mDownloadsCache.execute(mUrl.hash(), downloader);
 				if (mBitmapCallback != null) {
 					mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.NETWORK);
@@ -197,14 +199,14 @@ class BitmapLoader implements Callable<Bitmap> {
 		static final AtomicInteger downloaderCounter = new AtomicInteger();
 		static final AtomicInteger failuresCounter = new AtomicInteger();
 
-		private final BitmapLruCache<String> mCache;
+		private final BitmapMemoryCache<String> mMemoryCache;
 		private final BitmapDiskCache mDiskCache;
 		private final CacheUrlKey mKey;
 		private final BitmapAsyncSetter mBitmapCallback;
 
-		public DownloaderCallable(BitmapLruCache<String> cache, BitmapDiskCache diskCache,
+		public DownloaderCallable(BitmapMemoryCache<String> cache, BitmapDiskCache diskCache,
 				CacheUrlKey url, BitmapAsyncSetter callback) {
-			mCache = cache;
+			mMemoryCache = cache;
 			mDiskCache = diskCache;
 			mKey = url;
 			mBitmapCallback = callback;
@@ -247,7 +249,7 @@ class BitmapLoader implements Callable<Bitmap> {
 						}
 					} // end debugging
 
-					mCache.put(key, bitmap);
+					mMemoryCache.put(key, bitmap);
 					if (mBitmapCallback != null) {
 						mBitmapCallback.onBitmapReceived(mKey, bitmap, BitmapSource.NETWORK);
 					}

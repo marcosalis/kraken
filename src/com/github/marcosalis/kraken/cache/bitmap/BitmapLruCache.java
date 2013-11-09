@@ -31,7 +31,6 @@ import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentLruCache;
 import com.github.marcosalis.kraken.utils.BitmapUtils;
 import com.github.marcosalis.kraken.utils.DroidUtils;
-import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.google.common.annotations.Beta;
 
 /**
@@ -47,7 +46,7 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @ThreadSafe
-public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> {
+public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements BitmapMemoryCache<K> {
 
 	private static final String TAG = BitmapLruCache.class.getSimpleName();
 
@@ -81,15 +80,6 @@ public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> {
 		}
 	}
 
-	/**
-	 * Sets an (optional) {@link OnEntryRemovedListener} to allow Bitmap entries
-	 * to be removed when using another component that keeps references to them
-	 * (such as a {@link Memoizer} to populate the cache), in order to avoid
-	 * memory leaks and OOM.
-	 * 
-	 * @param listener
-	 *            The listener to set or null to unset it
-	 */
 	public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, Bitmap> listener) {
 		mEntryRemovedListener = listener;
 	}
