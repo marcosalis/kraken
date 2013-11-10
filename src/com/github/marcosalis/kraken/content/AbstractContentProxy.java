@@ -157,9 +157,6 @@ public abstract class AbstractContentProxy implements ContentProxy {
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@OverridingMethodsMustInvokeSuper
 	public void clearCache() {

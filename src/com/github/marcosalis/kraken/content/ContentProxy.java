@@ -43,23 +43,21 @@ public interface ContentProxy {
 
 	/**
 	 * Synchronously clears permanent "disk" (DB or flash storage) cache items
-	 * of this content manager according to the passed
+	 * of this content proxy according to the passed
 	 * {@link DiskCache.DiskCacheClearMode}
 	 */
 	public void clearDiskCache(DiskCache.DiskCacheClearMode mode);
 
 	/**
-	 * Completely wipes any permanent "disk" (DB or flash storage) cache of this
-	 * content manager.
+	 * Completely wipes any permanent "disk" (DB or flash storage) cache for
+	 * this content proxy.
 	 * 
 	 * Note: implementations must be asynchronous and non-blocking.
 	 */
 	public void scheduleClearDiskCache();
 
 	/**
-	 * Completely wipe any kind of cache of this content manager.
-	 * 
-	 * Note: implementations must be asynchronous and non-blocking.
+	 * Synchronously wipe any kind of cache for this content proxy.
 	 */
 	public void clearCache();
 

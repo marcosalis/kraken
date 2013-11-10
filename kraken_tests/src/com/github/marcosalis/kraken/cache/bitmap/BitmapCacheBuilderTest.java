@@ -36,7 +36,7 @@ import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.OnBitmapImageSetListener;
+import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.OnBitmapSetIntoViewListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.utils.DroidUtils;
@@ -270,12 +270,12 @@ public class BitmapCacheBuilderTest extends InstrumentationTestCase {
 
 	// utility methods
 
-	private void assertBitmapRetrieveSuccess(final BitmapCache cache, final CacheUrlKey key,
+	private void assertBitmapRetrieveSuccess(BitmapCache cache, CacheUrlKey key,
 			final BitmapSource expectedSource) throws InterruptedException {
 		final CountDownLatch latchMemory = new CountDownLatch(1);
-		final OnBitmapImageSetListener listener = new OnBitmapImageSetListener() {
+		final OnBitmapSetIntoViewListener listener = new OnBitmapSetIntoViewListener() {
 			@Override
-			public void onBitmapImageSet(@Nonnull CacheUrlKey url, @Nonnull Bitmap bitmap,
+			public void onSetIntoImageView(@Nonnull CacheUrlKey url, @Nonnull Bitmap bitmap,
 					@Nonnull BitmapSource source) {
 				assertNotNull(bitmap);
 				assertEquals(expectedSource, source);

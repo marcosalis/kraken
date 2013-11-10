@@ -79,7 +79,7 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	}
 
 	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nullable OnBitmapImageSetListener listener) {
+			@Nullable OnBitmapSetIntoViewListener listener) {
 		this(key, imgView, AnimationMode.NOT_IN_MEMORY, listener, -1);
 	}
 
@@ -96,7 +96,7 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 *            Android fade-in animation.
 	 */
 	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nonnull AnimationMode mode, @Nullable OnBitmapImageSetListener listener,
+			@Nonnull AnimationMode mode, @Nullable OnBitmapSetIntoViewListener listener,
 			int customAnimationId) {
 		super(key, imgView, listener);
 		mAnimationMode = mode;

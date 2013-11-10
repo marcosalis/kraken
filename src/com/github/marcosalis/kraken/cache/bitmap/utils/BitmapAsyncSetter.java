@@ -62,10 +62,10 @@ import com.google.common.annotations.Beta;
 public class BitmapAsyncSetter {
 
 	/**
-	 * Callback interface to be used when the caller needs to know when the
-	 * bitmap has actually been set into the image view.
+	 * Callback interface to be used when the caller needs to know if and when
+	 * the bitmap has actually been set into the image view.
 	 */
-	public interface OnBitmapImageSetListener {
+	public interface OnBitmapSetIntoViewListener {
 		/**
 		 * Called when the retrieved bitmap image has been set into the
 		 * {@link ImageView}
@@ -77,7 +77,7 @@ public class BitmapAsyncSetter {
 		 * @param source
 		 *            The {@link BitmapSource} of the bitmap
 		 */
-		public void onBitmapImageSet(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
+		public void onSetIntoImageView(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
 				@Nonnull BitmapSource source);
 	}
 
@@ -105,7 +105,7 @@ public class BitmapAsyncSetter {
 	private final CacheUrlKey mCacheKey;
 	/* we only use soft references to avoid possible memory leaks */
 	private final SoftReference<ImageView> mImageView;
-	private final SoftReference<OnBitmapImageSetListener> mListener;
+	private final SoftReference<OnBitmapSetIntoViewListener> mListener;
 
 	/**
 	 * Creates a new {@link BitmapAsyncSetter} with no listener.
@@ -131,12 +131,12 @@ public class BitmapAsyncSetter {
 	 *            null)
 	 */
 	public BitmapAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nullable OnBitmapImageSetListener listener) {
+			@Nullable OnBitmapSetIntoViewListener listener) {
 		mCacheKey = key;
 		imgView.setTag(key.hash()); // set view tag for identification
 		mImageView = new SoftReference<ImageView>(imgView);
 		if (listener != null) {
-			mListener = new SoftReference<OnBitmapImageSetListener>(listener);
+			mListener = new SoftReference<OnBitmapSetIntoViewListener>(listener);
 		} else {
 			mListener = null;
 		}
@@ -169,9 +169,9 @@ public class BitmapAsyncSetter {
 		if (view != null) {
 			setImageBitmap(view, bitmap, BitmapSource.MEMORY);
 			if (mListener != null) { // notify caller
-				final OnBitmapImageSetListener listener = mListener.get();
+				final OnBitmapSetIntoViewListener listener = mListener.get();
 				if (listener != null) {
-					listener.onBitmapImageSet(mCacheKey, bitmap, BitmapSource.MEMORY);
+					listener.onSetIntoImageView(mCacheKey, bitmap, BitmapSource.MEMORY);
 				}
 			}
 		} else if (BITMAP_DEBUG) { // debugging
@@ -209,9 +209,9 @@ public class BitmapAsyncSetter {
 							if (tag != null && tag.equals(mCacheKey.hash())) {
 								setImageBitmap(innerViewRef, bitmap, source);
 								if (mListener != null) { // notify caller
-									final OnBitmapImageSetListener listener = mListener.get();
+									final OnBitmapSetIntoViewListener listener = mListener.get();
 									if (listener != null) {
-										listener.onBitmapImageSet(mCacheKey, bitmap, source);
+										listener.onSetIntoImageView(mCacheKey, bitmap, source);
 										mListener.clear();
 									}
 								}
