@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.internal;
 
 import java.util.concurrent.Future;
 
@@ -25,8 +25,9 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
-import com.github.marcosalis.kraken.cache.bitmap.internal.AbstractBitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapLoader;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;

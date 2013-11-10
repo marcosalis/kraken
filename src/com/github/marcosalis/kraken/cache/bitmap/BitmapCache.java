@@ -33,6 +33,9 @@ import com.google.common.annotations.Beta;
 /**
  * Public interface to access a {@link Bitmap} cache.
  * 
+ * TODO: allow downloading a bitmap without necessarily setting it into an
+ * ImageView.
+ * 
  * @since 1.0
  * @author Marco Salis
  */

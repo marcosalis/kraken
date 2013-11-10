@@ -53,7 +53,7 @@ import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.common.annotations.Beta;
 
 /**
- * Abstract base class for a {@link Bitmap} content proxy. Every
+ * Abstract base class for a {@link Bitmap} content cache. Every
  * {@link AbstractBitmapCache} subclass can hold one or more (in order to be
  * able to fine-tune the size of each of them) memory caches and a disk cache,
  * which are managed separately.

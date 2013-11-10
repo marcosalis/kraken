@@ -60,14 +60,14 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @Immutable
-public class BitmapLoader implements Callable<Bitmap> {
+class BitmapLoader implements Callable<Bitmap> {
 
 	/**
 	 * Configuration class that holds all the external components that a
 	 * {@link BitmapLoader} needs to access.
 	 */
 	@Immutable
-	public static class Config {
+	static class Config {
 		public final Memoizer<String, Bitmap> downloadsCache;
 		public final BitmapMemoryCache<String> memoryCache;
 		public final BitmapDiskCache diskCache;

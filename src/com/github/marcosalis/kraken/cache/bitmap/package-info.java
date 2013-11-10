@@ -1,5 +1,4 @@
 /*
- * Copyright 2013 Luluvise Ltd
  * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,7 @@
  */
 
 /**
- * This package contains the classes for effectively loading, caching and setting bitmaps into {@link ImageView}s
+ * This package contains the public library classes for downloading, caching and setting bitmaps into {@link ImageView}s.
  * 
  * @author Marco Salis
  */

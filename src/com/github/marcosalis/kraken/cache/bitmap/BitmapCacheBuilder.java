@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.EmptyMemoryCache;
+import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheFactory;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 import com.google.api.client.http.HttpRequestFactory;
@@ -35,9 +36,34 @@ import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
 /**
- * Public builder to customize and initialize a {@link BitmapCache}.
+ * Public builder to customize and initialize a {@link BitmapCache}. See
+ * {@link BitmapLruCache} and {@link BitmapDiskCache} for the default memory and
+ * disk caches specifications.
  * 
- * <b>Example usage:</b> TODO
+ * <p>
+ * <b>Example usage:</b>
+ * 
+ * <p>
+ * <code><pre>
+ * BitmapCache cache = new BitmapCacheBuilder(context)
+ * 	.maxMemoryCachePercentage(15)
+ * 	.memoryCacheLogName("Profile bitmaps cache")
+ * 	.diskCacheDirectoryName("profile_bitmaps")
+ * 	.diskCachePurgeableAfter(DroidUtils.DAY)
+ * 	.build();
+ * </pre></code>
+ * </p>
+ * 
+ * </p>
+ * 
+ * <p>
+ * <b>TODO list:</b>
+ * <ul>
+ * <li>Save into caches a resampled/resized version of a Bitmap</li>
+ * <li>Allow selection and use of other disk/memory cache policies (LFU)</li>
+ * <li>Effective automatic disk cache purge policy implementation</li>
+ * </ul>
+ * </p>
  * 
  * @since 1.0
  * @author Marco Salis
@@ -202,10 +228,10 @@ public class BitmapCacheBuilder {
 		checkMandatoryValuesConsistency();
 		setConfigDefaults();
 
-		final BitmapMemoryCache<String> lruCache = buildMemoryCache();
+		final BitmapMemoryCache<String> memoryCache = buildMemoryCache();
 		final BitmapDiskCache diskCache = buildDiskCache();
 		final HttpRequestFactory factory = getRequestFactory();
-		return new BitmapCacheImpl(lruCache, diskCache, factory);
+		return BitmapCacheFactory.buildDefaultBitmapCache(memoryCache, diskCache, factory);
 	}
 
 	private void checkMandatoryValuesConsistency() {
