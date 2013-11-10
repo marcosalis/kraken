@@ -15,7 +15,6 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.CheckForNull;
@@ -31,8 +30,6 @@ import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapLoader;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
-import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
-import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 
@@ -60,22 +57,6 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 
 	@Override
 	@CheckForNull
-	@NotForUIThread
-	public Bitmap getBitmap(@Nonnull CacheUrlKey key) throws Exception {
-		final Future<Bitmap> future = getBitmap(mMemoryCache, mDiskCache, key, AccessPolicy.NORMAL,
-				null);
-		if (future != null) {
-			try {
-				return future.get();
-			} catch (ExecutionException e) {
-				throw Memoizer.launderThrowable(e);
-			}
-		}
-		return null;
-	}
-
-	@Override
-	@CheckForNull
 	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
 			@Nullable BitmapAsyncSetter setter) {
 		return getBitmap(mMemoryCache, mDiskCache, key, AccessPolicy.NORMAL, setter);
@@ -97,7 +78,7 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	@Override
 	public void clearDiskCache(DiskCacheClearMode mode) {
 		if (mDiskCache != null) {
-			mDiskCache.clear();
+			mDiskCache.clear(mode);
 		}
 	}
 

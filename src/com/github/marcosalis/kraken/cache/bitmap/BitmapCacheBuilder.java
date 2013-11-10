@@ -58,6 +58,9 @@ public class BitmapCacheBuilder {
 	String diskCacheDirectory;
 	long purgeableAfterSeconds;
 
+	// other config
+	HttpRequestFactory requestFactory;
+
 	public BitmapCacheBuilder(@Nonnull Context context) {
 		this.context = context;
 	}
@@ -170,6 +173,22 @@ public class BitmapCacheBuilder {
 	}
 
 	/**
+	 * Sets a custom {@link HttpRequestFactory} for downloading the bitmaps.
+	 * 
+	 * Defaults to {@link DefaultHttpRequestsManager#getRequestFactory()} if not
+	 * set.
+	 * 
+	 * @param factory
+	 *            The request factory to use
+	 * @return This builder
+	 */
+	@Nonnull
+	public BitmapCacheBuilder httpRequestFactory(@Nonnull HttpRequestFactory factory) {
+		requestFactory = factory;
+		return this;
+	}
+
+	/**
 	 * Builds the configured bitmap cache.
 	 * 
 	 * @return The built {@link BitmapCache} instance
@@ -185,7 +204,7 @@ public class BitmapCacheBuilder {
 
 		final BitmapMemoryCache<String> lruCache = buildMemoryCache();
 		final BitmapDiskCache diskCache = buildDiskCache();
-		final HttpRequestFactory factory = DefaultHttpRequestsManager.get().getRequestFactory();
+		final HttpRequestFactory factory = getRequestFactory();
 		return new BitmapCacheImpl(lruCache, diskCache, factory);
 	}
 
@@ -219,6 +238,15 @@ public class BitmapCacheBuilder {
 			return new BitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
 		}
 		return null;
+	}
+
+	@Nonnull
+	private HttpRequestFactory getRequestFactory() {
+		if (requestFactory != null) {
+			return requestFactory;
+		} else {
+			return DefaultHttpRequestsManager.get().getRequestFactory();
+		}
 	}
 
 	/**

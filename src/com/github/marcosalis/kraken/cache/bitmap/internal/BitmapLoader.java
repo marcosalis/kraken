@@ -131,7 +131,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 		// 1- check memory cache again
 		if ((bitmap = memoryCache.get(key)) != null) { // memory cache hit
 			if (mBitmapCallback != null) {
-				mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.MEMORY);
+				mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.MEMORY);
 			}
 			return bitmap;
 		}
@@ -141,7 +141,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 			if ((bitmap = diskCache.get(key)) != null) {
 				// disk cache hit, load file into Bitmap
 				if (mBitmapCallback != null) {
-					mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.DISK);
+					mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.DISK);
 				} // and put it into memory cache
 				memoryCache.put(key, bitmap);
 				return bitmap;
@@ -159,6 +159,10 @@ public class BitmapLoader implements Callable<Bitmap> {
 		// submit new memoizer task to downloder executor
 		AbstractBitmapCache.submitInDownloader(key, memoizer);
 
+		/*
+		 * FIXME: returning null here means that bitmaps coming from the network
+		 * don't get returned in the Future representing this task completion.
+		 */
 		return null;
 	}
 
@@ -192,7 +196,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 						mBitmapCallback);
 				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(mUrl.hash(), downloader);
 				if (mBitmapCallback != null) {
-					mBitmapCallback.onBitmapReceived(mUrl, bitmap, BitmapSource.NETWORK);
+					mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.NETWORK);
 				}
 				return bitmap;
 			} catch (InterruptedException e) {
@@ -272,7 +276,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 
 					memoryCache.put(key, bitmap);
 					if (mBitmapCallback != null) {
-						mBitmapCallback.onBitmapReceived(mKey, bitmap, BitmapSource.NETWORK);
+						mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.NETWORK);
 					}
 					if (diskCache != null) {
 						diskCache.put(key, imageBytes);

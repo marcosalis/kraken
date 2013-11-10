@@ -205,7 +205,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 *            The {@link BitmapMemoryCache} memory cache to use
 	 * @param diskCache
 	 *            The {@link BitmapDiskCache} to use
-	 * @param url
+	 * @param key
 	 *            The {@link CacheUrlKey} of the image to retrieve
 	 * @param action
 	 *            The {@link AccessPolicy} to perform, one of
@@ -221,13 +221,13 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 */
 	@CheckForNull
 	protected final Future<Bitmap> getBitmap(@Nonnull BitmapMemoryCache<String> cache,
-			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
+			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey key,
 			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter setter,
 			@CheckForNull Drawable placeholder) {
 		final boolean preFetch = (action == AccessPolicy.PRE_FETCH);
 		Bitmap bitmap;
 
-		if ((bitmap = cache.get(url.hash())) != null) {
+		if ((bitmap = cache.get(key.hash())) != null) {
 			// cache hit at the very first attempt, no other actions needed
 			if (!preFetch && setter != null) {
 				// set Bitmap if we are not just pre-fetching
@@ -235,7 +235,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 				 * This is supposed to be called from the UI thread and be
 				 * synchronous.
 				 */
-				setter.setBitmapSync(url, bitmap);
+				setter.setBitmapSync(bitmap);
 			}
 			return SettableFutureTask.fromResult(bitmap);
 		} else {
@@ -247,7 +247,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 			} else {
 				setter = null; // make sure there's no callback
 			}
-			return BITMAP_EXECUTOR.submit(new BitmapLoader(getLoaderConfig(), url, setter));
+			return BITMAP_EXECUTOR.submit(new BitmapLoader(getLoaderConfig(), key, setter));
 		}
 	}
 
@@ -280,7 +280,6 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	@Override
 	@OverridingMethodsMustInvokeSuper
 	public void clearMemoryCache() {
-		super.clearCache();
 		mBitmapMemoizer.clear();
 	}
 

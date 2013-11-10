@@ -27,6 +27,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.google.common.annotations.Beta;
 
 /**
@@ -73,28 +74,31 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 
 	/* Constructors from superclass */
 
-	public BitmapAnimatedAsyncSetter(@Nonnull ImageView imgView) {
-		this(imgView, AnimationMode.NOT_IN_MEMORY, null, -1);
+	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView) {
+		this(key, imgView, AnimationMode.NOT_IN_MEMORY, null, -1);
 	}
 
-	public BitmapAnimatedAsyncSetter(@Nonnull ImageView imgView,
+	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
 			@Nullable OnBitmapImageSetListener listener) {
-		this(imgView, AnimationMode.NOT_IN_MEMORY, listener, -1);
+		this(key, imgView, AnimationMode.NOT_IN_MEMORY, listener, -1);
 	}
 
 	/**
 	 * @see BitmapAsyncSetter#BitmapAsyncSetter(ImageView,
-	 *      OnBitmapImageSetListener)
+	 *      BitmapAsyncSetter#OnBitmapImageSetListener)
 	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} for the bitmap
 	 * @param mode
 	 *            The {@link AnimationMode} to use
 	 * @param customAnimationId
 	 *            The ID of a custom animation to load, or -1 to use the default
 	 *            Android fade-in animation.
 	 */
-	public BitmapAnimatedAsyncSetter(@Nonnull ImageView imgView, @Nonnull AnimationMode mode,
-			@Nullable OnBitmapImageSetListener listener, int customAnimationId) {
-		super(imgView, listener);
+	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
+			@Nonnull AnimationMode mode, @Nullable OnBitmapImageSetListener listener,
+			int customAnimationId) {
+		super(key, imgView, listener);
 		mAnimationMode = mode;
 		mCustomAnimationId = customAnimationId;
 	}

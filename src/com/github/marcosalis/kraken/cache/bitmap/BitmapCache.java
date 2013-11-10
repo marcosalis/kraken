@@ -40,9 +40,6 @@ import com.google.common.annotations.Beta;
 public interface BitmapCache extends ContentProxy {
 
 	@CheckForNull
-	public Bitmap getBitmap(@Nonnull CacheUrlKey key) throws Exception;
-
-	@CheckForNull
 	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
 			@Nullable BitmapAsyncSetter setter);
 
