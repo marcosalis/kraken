@@ -74,8 +74,8 @@ public class BitmapAsyncSetter implements OnBitmapRetrievalListener {
 	 */
 	public interface OnBitmapSetListener {
 		/**
-		 * Called when the retrieved bitmap image has been set into the
-		 * {@link ImageView}
+		 * Called from the UI thread when the retrieved bitmap image has been
+		 * set into the {@link ImageView}
 		 * 
 		 * @param key
 		 *            The {@link CacheUrlKey} of the bitmap

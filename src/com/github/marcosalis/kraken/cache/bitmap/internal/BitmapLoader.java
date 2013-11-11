@@ -300,8 +300,24 @@ class BitmapLoader implements Callable<Bitmap> {
 
 					// save downloaded bitmap in caches
 					memoryCache.put(key, bitmap);
+
+					long startSave = 0;
+					if (DroidConfig.DEBUG) {
+						startSave = System.currentTimeMillis();
+					}
+
+					/*
+					 * Note: the bitmap retrieval callback is not executed
+					 * before saving to disk cache anymore. Verify if this can
+					 * have significant performance impacts.
+					 */
 					if (diskCache != null) {
 						diskCache.put(key, imageBytes);
+					}
+
+					if (DroidConfig.DEBUG) {
+						final long endSave = System.currentTimeMillis();
+						Log.v(TAG, key + " disk save took ms " + (endSave - startSave));
 					}
 				}
 			} else { // download failed

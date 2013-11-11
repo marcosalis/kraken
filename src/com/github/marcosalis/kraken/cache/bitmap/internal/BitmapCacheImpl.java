@@ -30,6 +30,7 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
+import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
@@ -59,21 +60,43 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 		mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory);
 	}
 
+	@Nonnull
+	@Override
+	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+			@Nonnull OnBitmapRetrievalListener listener) {
+		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
+		final boolean isRefresh = policy == AccessPolicy.REFRESH;
+
+		if (isRefresh) {
+			return BitmapLoader.executeDownload(mLoaderConfig, key, listener);
+		} else {
+			final Future<Bitmap> future = getBitmapFromMemory(key, listener);
+			if (future != null) {
+				// cache hit at memory level, we can avoid further overhead of
+				// executing tasks as an optimization
+				return future;
+			} else {
+				return BITMAP_EXECUTOR
+						.submit(new BitmapLoader(mLoaderConfig, key, policy, listener));
+			}
+		}
+	}
+
 	@Override
 	public void preloadBitmap(@Nonnull CacheUrlKey key) {
 		BITMAP_EXECUTOR.submit(new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH, null));
 	}
 
+	@Nonnull
 	@Override
-	@CheckForNull
-	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
+	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key,
 			@Nullable BitmapAsyncSetter setter) {
 		return getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
+	@Nonnull
 	@Override
-	@CheckForNull
-	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nullable BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
 		return getBitmap(key, policy, setter, placeholder);
 	}
@@ -100,18 +123,17 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	 *            if the bitmap is not in the memory cache
 	 * @return The {@link Future} that holds the Bitmap loading
 	 */
-	@CheckForNull
+	@Nonnull
 	protected final Future<Bitmap> getBitmap(@Nonnull CacheUrlKey key,
 			@Nonnull AccessPolicy policy, @Nonnull BitmapAsyncSetter setter,
 			@Nullable Drawable placeholder) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
-		Bitmap bitmap = null;
-		if (!isRefresh && (bitmap = mMemoryCache.get(key.hash())) != null) {
+		final Future<Bitmap> future;
+		if (!isRefresh && (future = getBitmapFromMemory(key, setter)) != null) {
 			// cache hit at the very first attempt, no other actions needed
-			setter.setBitmapSync(bitmap);
-			return SettableFutureTask.fromResult(bitmap);
+			return future;
 		} else {
 			// set temporary placeholder
 			if (placeholder != null) {
@@ -123,6 +145,21 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 				return BitmapLoader.executeDownload(mLoaderConfig, key, setter);
 			}
 		}
+	}
+
+	@CheckForNull
+	private Future<Bitmap> getBitmapFromMemory(@Nonnull CacheUrlKey key,
+			@Nonnull OnBitmapRetrievalListener listener) {
+		Bitmap bitmap = null;
+		if ((bitmap = mMemoryCache.get(key.hash())) != null) {
+			if (listener instanceof BitmapAsyncSetter) {
+				((BitmapAsyncSetter) listener).setBitmapSync(bitmap);
+			} else {
+				listener.onBitmapRetrieved(key, bitmap, BitmapSource.MEMORY);
+			}
+			return SettableFutureTask.fromResult(bitmap);
+		}
+		return null;
 	}
 
 	@Nonnull

@@ -17,7 +17,6 @@ package com.github.marcosalis.kraken.cache.bitmap;
 
 import java.util.concurrent.Future;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -34,8 +33,8 @@ import com.google.common.annotations.Beta;
 /**
  * Public interface to access a {@link Bitmap}s cache.
  * 
- * TODO: allow downloading a bitmap without necessarily setting it into an
- * ImageView.
+ * All the methods implementations are asynchronous and must be executed from
+ * the UI thread.
  * 
  * @since 1.0
  * @author Marco Salis
@@ -46,26 +45,41 @@ public interface BitmapCache extends ContentProxy {
 	/**
 	 * Callback interface to retrieve the result of a Bitmap loading from a
 	 * {@link BitmapCache}.
+	 * 
+	 * The callback methods can be executed in an internal pool thread, not in
+	 * the caller thread. Make sure you are handling this when dealing with UI
+	 * and non-thread safe code.
 	 */
 	@Beta
 	public interface OnBitmapRetrievalListener {
 
+		/**
+		 * Called when a Bitmap has been retrieved from the cache.
+		 * 
+		 * @param key
+		 *            The bitmap's {@link CacheUrlKey}
+		 * @param bitmap
+		 *            The retrieved Bitmap
+		 * @param source
+		 *            The {@link BitmapSource} from where the bitmap has been
+		 *            retrieved
+		 */
 		public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
 				@Nonnull BitmapSource source);
 	}
 
-	// @CheckForNull
-	// public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
-	// @Nonnull OnBitmapRetrievalListener listener);
+	@Nonnull
+	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+			@Nonnull OnBitmapRetrievalListener listener);
 
 	public void preloadBitmap(@Nonnull CacheUrlKey key);
 
-	@CheckForNull
-	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
+	@Nonnull
+	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key,
 			@Nullable BitmapAsyncSetter setter);
 
-	@CheckForNull
-	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+	@Nonnull
+	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nullable BitmapAsyncSetter setter, @Nullable Drawable placeholder);
 
 }
