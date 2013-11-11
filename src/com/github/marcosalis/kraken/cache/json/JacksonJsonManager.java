@@ -40,6 +40,7 @@ import com.google.common.annotations.Beta;
  * 
  * TODO: do we really need a singleton enum here?
  * 
+ * @deprecated
  * @since 1.0
  * @author Marco Salis
  */

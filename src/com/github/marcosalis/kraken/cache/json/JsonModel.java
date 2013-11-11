@@ -55,6 +55,7 @@ import com.google.common.collect.ImmutableMap;
  */
 @Beta
 @Immutable
+@SuppressWarnings("deprecation")
 public abstract class JsonModel {
 
 	/**
@@ -73,7 +74,6 @@ public abstract class JsonModel {
 	@SuppressWarnings("rawtypes")
 	protected static final ImmutableMap EMPTY_MAP = ImmutableMap.of();
 
-	@SuppressWarnings("deprecation")
 	private static final ObjectMapper JSON_MAPPER = JacksonJsonManager.getObjectMapper();
 
 	/**
@@ -96,7 +96,6 @@ public abstract class JsonModel {
 	 * object, avoid using this method inside production code for logging
 	 * purposes only.
 	 */
-	@SuppressWarnings("deprecation")
 	@Override
 	@CheckForNull
 	public String toString() {

@@ -30,6 +30,7 @@ import com.google.common.base.Preconditions;
  * Simple extension of {@link AbstractHttpContent} to be used with JSON content
  * to be mapped with the default Jackson parser.
  * 
+ * @deprecated
  * @since 1.0
  * @author Marco Salis
  */
