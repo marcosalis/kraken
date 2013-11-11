@@ -60,8 +60,9 @@ import com.google.common.base.Preconditions;
  * <b>TODO list:</b>
  * <ul>
  * <li>Save into caches a resampled/resized version of a Bitmap</li>
- * <li>Allow selection and use of other disk/memory cache policies (LFU)</li>
+ * <li>Allow selection and use of other disk/memory cache policies (LFU?)</li>
  * <li>Effective automatic disk cache purge policy implementation</li>
+ * <li>Allow custom pre/post processing of the downloaded bitmap</li>
  * </ul>
  * </p>
  * 

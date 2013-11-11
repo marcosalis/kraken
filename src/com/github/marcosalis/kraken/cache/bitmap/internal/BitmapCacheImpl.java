@@ -60,7 +60,7 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	@CheckForNull
 	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
 			@Nullable BitmapAsyncSetter setter) {
-		return getBitmap(mMemoryCache, mDiskCache, key, AccessPolicy.NORMAL, setter);
+		return getBitmap(mMemoryCache, mDiskCache, key, AccessPolicy.NORMAL, setter, null);
 	}
 
 	@Override

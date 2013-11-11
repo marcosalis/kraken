@@ -60,7 +60,7 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 		FROM_NETWORK,
 		/**
 		 * Always animate (use with care: the performance impact can be
-		 * noticeable for long lists of bitmaps)
+		 * noticeable when scrolling long lists of bitmaps)
 		 */
 		ALWAYS;
 	}
@@ -79,7 +79,7 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	}
 
 	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nullable OnBitmapSetIntoViewListener listener) {
+			@Nullable OnBitmapSetListener listener) {
 		this(key, imgView, AnimationMode.NOT_IN_MEMORY, listener, -1);
 	}
 
@@ -96,7 +96,7 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 *            Android fade-in animation.
 	 */
 	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nonnull AnimationMode mode, @Nullable OnBitmapSetIntoViewListener listener,
+			@Nonnull AnimationMode mode, @Nullable OnBitmapSetListener listener,
 			int customAnimationId) {
 		super(key, imgView, listener);
 		mAnimationMode = mode;

@@ -33,24 +33,31 @@ import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 
 /**
+ * <p>
  * Callback class to use with a {@link BitmapCache} to set the bitmap to an
  * {@link ImageView} if this is still existing and attached to an Activity,
  * either synchronously from the UI thread or asynchronously after querying a
  * disk cache or the network from another thread.
+ * </p>
  * 
+ * <p>
  * In order to ensure that the ImageView still refers to the requested bitmap (=
  * it hasn't been recycled, for example), the setter constructors set the tag of
  * the view ({@link ImageView#setTag(Object)}) to the {@link CacheUrlKey} hash.
  * Do not reset the tag or the bitmap won't be set.
+ * </p>
  * 
+ * <p>
  * The references to the passed {@link ImageView} and listener are
  * {@link SoftReference}, so that it's possible to safely pass an object that
  * retains a {@link Context} to this object constructors.
+ * </p>
  * 
  * TODO: handle placeholder setting when the bitmap loading fails
  * 
@@ -59,13 +66,13 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @ThreadSafe
-public class BitmapAsyncSetter {
+public class BitmapAsyncSetter implements OnBitmapRetrievalListener {
 
 	/**
 	 * Callback interface to be used when the caller needs to know if and when
 	 * the bitmap has actually been set into the image view.
 	 */
-	public interface OnBitmapSetIntoViewListener {
+	public interface OnBitmapSetListener {
 		/**
 		 * Called when the retrieved bitmap image has been set into the
 		 * {@link ImageView}
@@ -82,7 +89,7 @@ public class BitmapAsyncSetter {
 	}
 
 	/**
-	 * Possible origin of a cache item
+	 * Possible origin of a cache item TODO: move from here
 	 */
 	public enum BitmapSource {
 		MEMORY,
@@ -105,7 +112,7 @@ public class BitmapAsyncSetter {
 	private final CacheUrlKey mCacheKey;
 	/* we only use soft references to avoid possible memory leaks */
 	private final SoftReference<ImageView> mImageView;
-	private final SoftReference<OnBitmapSetIntoViewListener> mListener;
+	private final SoftReference<OnBitmapSetListener> mListener;
 
 	/**
 	 * Creates a new {@link BitmapAsyncSetter} with no listener.
@@ -131,12 +138,12 @@ public class BitmapAsyncSetter {
 	 *            null)
 	 */
 	public BitmapAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nullable OnBitmapSetIntoViewListener listener) {
+			@Nullable OnBitmapSetListener listener) {
 		mCacheKey = key;
 		imgView.setTag(key.hash()); // set view tag for identification
 		mImageView = new SoftReference<ImageView>(imgView);
 		if (listener != null) {
-			mListener = new SoftReference<OnBitmapSetIntoViewListener>(listener);
+			mListener = new SoftReference<OnBitmapSetListener>(listener);
 		} else {
 			mListener = null;
 		}
@@ -169,14 +176,21 @@ public class BitmapAsyncSetter {
 		if (view != null) {
 			setImageBitmap(view, bitmap, BitmapSource.MEMORY);
 			if (mListener != null) { // notify caller
-				final OnBitmapSetIntoViewListener listener = mListener.get();
+				final OnBitmapSetListener listener = mListener.get();
 				if (listener != null) {
 					listener.onSetIntoImageView(mCacheKey, bitmap, BitmapSource.MEMORY);
 				}
 			}
+			mImageView.clear();
 		} else if (BITMAP_DEBUG) { // debugging
 			Log.w(TAG, "Trying to access synchronously null image view!");
 		}
+	}
+
+	@Override
+	public final void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
+			@Nonnull BitmapSource source) {
+		setBitmapAsync(bitmap, source);
 	}
 
 	/**
@@ -191,11 +205,13 @@ public class BitmapAsyncSetter {
 	 */
 	@NotForUIThread
 	@OverridingMethodsMustInvokeSuper
-	public void onBitmapReceived(@Nonnull Bitmap bitmap, @Nonnull final BitmapSource source) {
+	protected synchronized void setBitmapAsync(@Nonnull Bitmap bitmap,
+			@Nonnull final BitmapSource source) {
 		// do not pass this reference to the runnable
 		final ImageView view = mImageView.get();
 		if (view != null) {
 			final SoftReference<Bitmap> bitmapRef = new SoftReference<Bitmap>(bitmap);
+
 			mHandler.post(new Runnable() {
 				@Override
 				public void run() {
@@ -209,7 +225,7 @@ public class BitmapAsyncSetter {
 							if (tag != null && tag.equals(mCacheKey.hash())) {
 								setImageBitmap(innerViewRef, bitmap, source);
 								if (mListener != null) { // notify caller
-									final OnBitmapSetIntoViewListener listener = mListener.get();
+									final OnBitmapSetListener listener = mListener.get();
 									if (listener != null) {
 										listener.onSetIntoImageView(mCacheKey, bitmap, source);
 										mListener.clear();

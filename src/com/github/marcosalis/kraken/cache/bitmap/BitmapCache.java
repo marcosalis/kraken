@@ -25,13 +25,14 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
+import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.content.ContentProxy;
 import com.google.common.annotations.Beta;
 
 /**
- * Public interface to access a {@link Bitmap} cache.
+ * Public interface to access a {@link Bitmap}s cache.
  * 
  * TODO: allow downloading a bitmap without necessarily setting it into an
  * ImageView.
@@ -41,6 +42,23 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface BitmapCache extends ContentProxy {
+
+	/**
+	 * Callback interface to retrieve the result of a Bitmap loading from a
+	 * {@link BitmapCache}.
+	 */
+	@Beta
+	public interface OnBitmapRetrievalListener {
+
+		public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
+				@Nonnull BitmapSource source);
+	}
+
+	// @CheckForNull
+	// public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
+	// @Nonnull OnBitmapRetrievalListener listener);
+	//
+	// public void preloadBitmap(@Nonnull CacheUrlKey key);
 
 	@CheckForNull
 	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,

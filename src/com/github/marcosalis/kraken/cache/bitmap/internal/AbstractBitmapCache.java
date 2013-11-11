@@ -51,6 +51,7 @@ import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.github.marcosalis.kraken.utils.concurrent.ReorderingThreadPoolExecutor;
 import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 
 /**
  * Abstract base class for a {@link Bitmap} content cache. Every
@@ -196,9 +197,8 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 * {@link BitmapCache} by passing the main request parameters and type of
 	 * actions.
 	 * 
-	 * <b>This needs to be called from the UI thread except when using
-	 * {@link AccessPolicy#PRE_FETCH} mode</b>, as the image setting is
-	 * asynchronous except in the case we already have the image available in
+	 * <b>This needs to be called from the UI thread</b>, as the image setting
+	 * is asynchronous except in the case we already have the image available in
 	 * the memory cache.
 	 * 
 	 * @param cache
@@ -208,12 +208,12 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	 * @param key
 	 *            The {@link CacheUrlKey} of the image to retrieve
 	 * @param action
-	 *            The {@link AccessPolicy} to perform, one of
-	 *            {@link AccessPolicy#NORMAL} or {@link AccessPolicy#PRE_FETCH}
+	 *            The {@link AccessPolicy} to use, can be one of
+	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
+	 *            or {@link AccessPolicy#REFRESH}
 	 * @param setter
 	 *            The {@link BitmapAsyncSetter} to set the bitmap in an
-	 *            {@link ImageView}. Can be null with
-	 *            {@link AccessPolicy#PRE_FETCH}
+	 *            {@link ImageView}
 	 * @param placeholder
 	 *            An (optional) {@link Drawable} temporary placeholder, only set
 	 *            if the bitmap is not in the memory cache
@@ -222,45 +222,22 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	@CheckForNull
 	protected final Future<Bitmap> getBitmap(@Nonnull BitmapMemoryCache<String> cache,
 			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey key,
-			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter setter,
-			@CheckForNull Drawable placeholder) {
-		final boolean preFetch = (action == AccessPolicy.PRE_FETCH);
-		Bitmap bitmap;
+			@Nonnull AccessPolicy policy, @Nonnull BitmapAsyncSetter setter,
+			@Nullable Drawable placeholder) {
+		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 
-		if ((bitmap = cache.get(key.hash())) != null) {
+		Bitmap bitmap = null;
+		if (policy != AccessPolicy.REFRESH && (bitmap = cache.get(key.hash())) != null) {
 			// cache hit at the very first attempt, no other actions needed
-			if (!preFetch && setter != null) {
-				// set Bitmap if we are not just pre-fetching
-				/*
-				 * This is supposed to be called from the UI thread and be
-				 * synchronous.
-				 */
-				setter.setBitmapSync(bitmap);
-			}
+			setter.setBitmapSync(bitmap);
 			return SettableFutureTask.fromResult(bitmap);
 		} else {
-			if (!preFetch) {
-				// set temporary placeholder if we are not just pre-fetching
-				if (placeholder != null) {
-					setter.setPlaceholderSync(placeholder);
-				}
-			} else {
-				setter = null; // make sure there's no callback
+			// set temporary placeholder
+			if (placeholder != null) {
+				setter.setPlaceholderSync(placeholder);
 			}
-			return BITMAP_EXECUTOR.submit(new BitmapLoader(getLoaderConfig(), key, setter));
+			return BITMAP_EXECUTOR.submit(new BitmapLoader(getLoaderConfig(), key, policy, setter));
 		}
-	}
-
-	/**
-	 * See
-	 * {@link #getBitmap(BitmapMemoryCache, BitmapDiskCache, CacheUrlKey, AccessPolicy, BitmapAsyncSetter, Drawable)}
-	 * with null placeholder.
-	 */
-	@CheckForNull
-	protected final Future<Bitmap> getBitmap(@Nonnull BitmapMemoryCache<String> cache,
-			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey url,
-			@Nullable AccessPolicy action, @Nullable BitmapAsyncSetter callback) {
-		return getBitmap(cache, diskCache, url, action, callback, null);
 	}
 
 	@Nonnull

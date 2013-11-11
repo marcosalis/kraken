@@ -28,16 +28,17 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
@@ -59,7 +60,7 @@ import com.google.common.annotations.Beta;
  * @author Marco Salis
  */
 @Beta
-@Immutable
+@NotThreadSafe
 class BitmapLoader implements Callable<Bitmap> {
 
 	/**
@@ -100,8 +101,9 @@ class BitmapLoader implements Callable<Bitmap> {
 	private static final String TAG = BitmapLoader.class.getSimpleName();
 
 	private final BitmapLoader.Config mLoaderConfig;
-	private final CacheUrlKey mUrl;
-	private final BitmapAsyncSetter mBitmapCallback;
+	private final CacheUrlKey mKey;
+	private final AccessPolicy mPolicy;
+	private OnBitmapRetrievalListener mBitmapCallback;
 
 	/**
 	 * Instantiates a {@link BitmapLoader}.
@@ -110,59 +112,74 @@ class BitmapLoader implements Callable<Bitmap> {
 	 *            The {@link BitmapLoader#Config} for this loader
 	 * @param key
 	 *            The {@link CacheUrlKey} to retrieve the bitmap
+	 * @param policy
+	 *            The {@link AccessPolicy} to load the bitmap
 	 * @param callback
-	 *            {@link BitmapAsyncSetter} for the image (can be null)
+	 *            {@link OnBitmapRetrievalListener} for the image (can be null)
 	 */
 	public BitmapLoader(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key,
-			@Nullable BitmapAsyncSetter callback) {
+			@Nonnull AccessPolicy policy, @Nullable OnBitmapRetrievalListener callback) {
 		mLoaderConfig = config;
-		mUrl = key;
+		mKey = key;
+		mPolicy = policy;
 		mBitmapCallback = callback;
 	}
 
 	@Override
 	@CheckForNull
 	public Bitmap call() {
+		// TODO: refactor this
 		final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
 		final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
-		final String key = mUrl.hash();
+		final String key = mKey.hash();
 		Bitmap bitmap;
 
-		// 1- check memory cache again
-		if ((bitmap = memoryCache.get(key)) != null) { // memory cache hit
-			if (mBitmapCallback != null) {
-				mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.MEMORY);
-			}
-			return bitmap;
-		}
+		try {
+			if (mPolicy != AccessPolicy.REFRESH) {
+				// 1- check memory cache again
+				if ((bitmap = memoryCache.get(key)) != null) {
+					// memory cache hit
+					if (mBitmapCallback != null) {
+						mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.MEMORY);
+					}
+					return bitmap;
+				}
 
-		// 2- check disk cache
-		if (diskCache != null) {
-			if ((bitmap = diskCache.get(key)) != null) {
-				// disk cache hit, load file into Bitmap
-				if (mBitmapCallback != null) {
-					mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.DISK);
-				} // and put it into memory cache
-				memoryCache.put(key, bitmap);
-				return bitmap;
+				// 2- check disk cache
+				if (diskCache != null) {
+					if ((bitmap = diskCache.get(key)) != null) {
+						// disk cache hit, load file into Bitmap
+						if (mBitmapCallback != null) {
+							mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.DISK);
+						} // and put it into memory cache
+						memoryCache.put(key, bitmap);
+						return bitmap;
+					}
+				}
 			}
+			/*
+			 * 3- Memory and disk cache miss, execute GET request to retrieve
+			 * image.
+			 * 
+			 * We delegate the task to another, separated executor to download
+			 * images to avoid blocking delivery of cached images to the UI
+			 */
+			if (mPolicy != AccessPolicy.CACHE_ONLY) {
+				final MemoizerCallable memoizer = new MemoizerCallable(mLoaderConfig, mKey,
+						mBitmapCallback);
+				// attempt prioritizing the download task if already in queue
+				AbstractBitmapCache.moveDownloadToFront(key);
+				// submit new memoizer task to downloder executor
+				AbstractBitmapCache.submitInDownloader(key, memoizer);
+			}
+			/*
+			 * FIXME: returning null here means that bitmaps coming from the
+			 * network don't get returned in the Future representing this task
+			 * completion.
+			 */
+		} finally {
+			mBitmapCallback = null; // avoid leaks
 		}
-		/*
-		 * 3- Memory and disk cache miss, execute GET request to retrieve image.
-		 * 
-		 * We delegate the task to another, separated executor to download
-		 * images to avoid blocking delivery of cached images to the UI
-		 */
-		final MemoizerCallable memoizer = new MemoizerCallable(mLoaderConfig, mUrl, mBitmapCallback);
-		// attempt prioritizing the download task if already in queue
-		AbstractBitmapCache.moveDownloadToFront(key);
-		// submit new memoizer task to downloder executor
-		AbstractBitmapCache.submitInDownloader(key, memoizer);
-
-		/*
-		 * FIXME: returning null here means that bitmaps coming from the network
-		 * don't get returned in the Future representing this task completion.
-		 */
 		return null;
 	}
 
@@ -178,13 +195,13 @@ class BitmapLoader implements Callable<Bitmap> {
 	private static class MemoizerCallable implements Callable<Bitmap> {
 
 		private final BitmapLoader.Config mLoaderConfig;
-		private final CacheUrlKey mUrl;
-		private final BitmapAsyncSetter mBitmapCallback;
+		private final CacheUrlKey mKey;
+		private OnBitmapRetrievalListener mBitmapCallback;
 
 		public MemoizerCallable(@Nonnull BitmapLoader.Config config, CacheUrlKey url,
-				BitmapAsyncSetter callback) {
+				OnBitmapRetrievalListener callback) {
 			mLoaderConfig = config;
-			mUrl = url;
+			mKey = url;
 			mBitmapCallback = callback;
 		}
 
@@ -192,11 +209,11 @@ class BitmapLoader implements Callable<Bitmap> {
 		@CheckForNull
 		public Bitmap call() throws InterruptedException {
 			try {
-				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mUrl,
+				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mKey,
 						mBitmapCallback);
-				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(mUrl.hash(), downloader);
+				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(mKey.hash(), downloader);
 				if (mBitmapCallback != null) {
-					mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.NETWORK);
+					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.NETWORK);
 				}
 				return bitmap;
 			} catch (InterruptedException e) {
@@ -204,6 +221,8 @@ class BitmapLoader implements Callable<Bitmap> {
 			} catch (Exception e) {
 				LogUtils.logException(e);
 				return null; // something unexpected happened, can do nothing
+			} finally {
+				mBitmapCallback = null; // avoid leaks
 			}
 		}
 	}
@@ -222,13 +241,14 @@ class BitmapLoader implements Callable<Bitmap> {
 		static final AtomicLong downloaderTimer = new AtomicLong();
 		static final AtomicInteger downloaderCounter = new AtomicInteger();
 		static final AtomicInteger failuresCounter = new AtomicInteger();
+		// for logging purposes only
 
 		private final BitmapLoader.Config mLoaderConfig;
 		private final CacheUrlKey mKey;
-		private final BitmapAsyncSetter mBitmapCallback;
+		private OnBitmapRetrievalListener mBitmapCallback;
 
 		public DownloaderCallable(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey url,
-				@Nullable BitmapAsyncSetter callback) {
+				@Nullable OnBitmapRetrievalListener callback) {
 			mLoaderConfig = config;
 			mKey = url;
 			mBitmapCallback = callback;
@@ -237,57 +257,62 @@ class BitmapLoader implements Callable<Bitmap> {
 		@Override
 		@CheckForNull
 		public Bitmap call() throws IOException {
-			final String key = mKey.hash();
-			final String url = mKey.getUrl();
-			Bitmap bitmap = null;
+			try {
 
-			long startDownload = 0;
-			if (DroidConfig.DEBUG) {
-				startDownload = System.currentTimeMillis();
-			}
+				final String key = mKey.hash();
+				final String url = mKey.getUrl();
+				Bitmap bitmap = null;
 
-			final HttpRequestFactory factory = mLoaderConfig.requestFactory;
-			final byte[] imageBytes = ByteArrayDownloader.downloadByteArray(factory, url);
-
-			long endDownload = 0;
-			if (DroidConfig.DEBUG) {
-				endDownload = System.currentTimeMillis();
-			}
-			if (imageBytes != null) { // download successful
-				bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-				if (bitmap != null) { // decoding successful
-
-					if (DroidConfig.DEBUG) { // debugging
-						final long endDecoding = System.currentTimeMillis();
-						// logging download statistics
-						final long downloadTime = endDownload - startDownload;
-						downloaderTimer.addAndGet(downloadTime);
-						downloaderCounter.incrementAndGet();
-						Log.d(TAG, key + " download took ms " + downloadTime);
-						Log.v(TAG, key + " decoding took ms " + (endDecoding - endDownload));
-						if (!downloaderStats.add(key)) {
-							// bitmap was already downloaded!
-							Log.w(TAG, "Downloading " + key + " bitmap twice: " + url);
-						}
-					} // end debugging
-
-					final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
-					final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
-
-					memoryCache.put(key, bitmap);
-					if (mBitmapCallback != null) {
-						mBitmapCallback.onBitmapReceived(bitmap, BitmapSource.NETWORK);
-					}
-					if (diskCache != null) {
-						diskCache.put(key, imageBytes);
-					}
-				}
-			} else { // download failed
+				long startDownload = 0;
 				if (DroidConfig.DEBUG) {
-					failuresCounter.incrementAndGet();
+					startDownload = System.currentTimeMillis();
 				}
+
+				final HttpRequestFactory factory = mLoaderConfig.requestFactory;
+				final byte[] imageBytes = ByteArrayDownloader.downloadByteArray(factory, url);
+
+				long endDownload = 0;
+				if (DroidConfig.DEBUG) {
+					endDownload = System.currentTimeMillis();
+				}
+				if (imageBytes != null) { // download successful
+					bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+					if (bitmap != null) { // decoding successful
+
+						if (DroidConfig.DEBUG) { // debugging
+							final long endDecoding = System.currentTimeMillis();
+							// logging download statistics
+							final long downloadTime = endDownload - startDownload;
+							downloaderTimer.addAndGet(downloadTime);
+							downloaderCounter.incrementAndGet();
+							Log.d(TAG, key + " download took ms " + downloadTime);
+							Log.v(TAG, key + " decoding took ms " + (endDecoding - endDownload));
+							if (!downloaderStats.add(key)) {
+								// bitmap was already downloaded!
+								Log.w(TAG, "Downloading " + key + " bitmap twice: " + url);
+							}
+						} // end debugging
+
+						final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
+						final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
+
+						memoryCache.put(key, bitmap);
+						if (mBitmapCallback != null) {
+							mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.NETWORK);
+						}
+						if (diskCache != null) {
+							diskCache.put(key, imageBytes);
+						}
+					}
+				} else { // download failed
+					if (DroidConfig.DEBUG) {
+						failuresCounter.incrementAndGet();
+					}
+				}
+				return bitmap;
+			} finally {
+				mBitmapCallback = null; // avoid leaks
 			}
-			return bitmap;
 		}
 	}
 
