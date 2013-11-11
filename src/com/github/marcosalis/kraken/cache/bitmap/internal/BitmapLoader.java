@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -165,12 +166,7 @@ class BitmapLoader implements Callable<Bitmap> {
 			 * images to avoid blocking delivery of cached images to the UI
 			 */
 			if (mPolicy != AccessPolicy.CACHE_ONLY) {
-				final MemoizerCallable memoizer = new MemoizerCallable(mLoaderConfig, mKey,
-						mBitmapCallback);
-				// attempt prioritizing the download task if already in queue
-				AbstractBitmapCache.moveDownloadToFront(key);
-				// submit new memoizer task to downloder executor
-				AbstractBitmapCache.submitInDownloader(key, memoizer);
+				executeDownload(mLoaderConfig, mKey, mBitmapCallback);
 			}
 			/*
 			 * FIXME: returning null here means that bitmaps coming from the
@@ -183,6 +179,17 @@ class BitmapLoader implements Callable<Bitmap> {
 		return null;
 	}
 
+	@Nonnull
+	public static Future<Bitmap> executeDownload(@Nonnull BitmapLoader.Config config,
+			@Nonnull CacheUrlKey key, @Nullable OnBitmapRetrievalListener callback) {
+		final MemoizerCallable memoizer = new MemoizerCallable(config, key, callback);
+		final String hash = key.hash();
+		// attempt prioritizing the download task if already in queue
+		AbstractBitmapCache.moveDownloadToFront(hash);
+		// submit new memoizer task to downloder executor
+		return AbstractBitmapCache.submitInDownloader(hash, memoizer);
+	}
+
 	/**
 	 * Memoizer-related task. It uses the {@link CacheMemoizer} item to check
 	 * whether there is another running and unfinished task for the Bitmap we
@@ -191,7 +198,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	 * This computation gets executed through the
 	 * {@link AbstractBitmapCache#submitInDownloader(Callable)} method.
 	 */
-	@Immutable
+	@NotThreadSafe
 	private static class MemoizerCallable implements Callable<Bitmap> {
 
 		private final BitmapLoader.Config mLoaderConfig;
@@ -209,10 +216,10 @@ class BitmapLoader implements Callable<Bitmap> {
 		@CheckForNull
 		public Bitmap call() throws InterruptedException {
 			try {
-				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mKey,
-						mBitmapCallback);
+				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mKey);
 				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(mKey.hash(), downloader);
-				if (mBitmapCallback != null) {
+				if (bitmap != null && mBitmapCallback != null) {
+					LogUtils.log(Log.ERROR, TAG, "MemoizerCallable for : " + mKey.hash());
 					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.NETWORK);
 				}
 				return bitmap;
@@ -245,74 +252,64 @@ class BitmapLoader implements Callable<Bitmap> {
 
 		private final BitmapLoader.Config mLoaderConfig;
 		private final CacheUrlKey mKey;
-		private OnBitmapRetrievalListener mBitmapCallback;
 
-		public DownloaderCallable(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey url,
-				@Nullable OnBitmapRetrievalListener callback) {
+		public DownloaderCallable(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey url) {
 			mLoaderConfig = config;
 			mKey = url;
-			mBitmapCallback = callback;
 		}
 
 		@Override
 		@CheckForNull
 		public Bitmap call() throws IOException {
-			try {
+			final String key = mKey.hash();
+			final String url = mKey.getUrl();
+			Bitmap bitmap = null;
 
-				final String key = mKey.hash();
-				final String url = mKey.getUrl();
-				Bitmap bitmap = null;
-
-				long startDownload = 0;
-				if (DroidConfig.DEBUG) {
-					startDownload = System.currentTimeMillis();
-				}
-
-				final HttpRequestFactory factory = mLoaderConfig.requestFactory;
-				final byte[] imageBytes = ByteArrayDownloader.downloadByteArray(factory, url);
-
-				long endDownload = 0;
-				if (DroidConfig.DEBUG) {
-					endDownload = System.currentTimeMillis();
-				}
-				if (imageBytes != null) { // download successful
-					bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-					if (bitmap != null) { // decoding successful
-
-						if (DroidConfig.DEBUG) { // debugging
-							final long endDecoding = System.currentTimeMillis();
-							// logging download statistics
-							final long downloadTime = endDownload - startDownload;
-							downloaderTimer.addAndGet(downloadTime);
-							downloaderCounter.incrementAndGet();
-							Log.d(TAG, key + " download took ms " + downloadTime);
-							Log.v(TAG, key + " decoding took ms " + (endDecoding - endDownload));
-							if (!downloaderStats.add(key)) {
-								// bitmap was already downloaded!
-								Log.w(TAG, "Downloading " + key + " bitmap twice: " + url);
-							}
-						} // end debugging
-
-						final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
-						final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
-
-						memoryCache.put(key, bitmap);
-						if (mBitmapCallback != null) {
-							mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.NETWORK);
-						}
-						if (diskCache != null) {
-							diskCache.put(key, imageBytes);
-						}
-					}
-				} else { // download failed
-					if (DroidConfig.DEBUG) {
-						failuresCounter.incrementAndGet();
-					}
-				}
-				return bitmap;
-			} finally {
-				mBitmapCallback = null; // avoid leaks
+			long startDownload = 0;
+			if (DroidConfig.DEBUG) {
+				startDownload = System.currentTimeMillis();
 			}
+
+			final HttpRequestFactory factory = mLoaderConfig.requestFactory;
+			final byte[] imageBytes = ByteArrayDownloader.downloadByteArray(factory, url);
+
+			long endDownload = 0;
+			if (DroidConfig.DEBUG) {
+				endDownload = System.currentTimeMillis();
+			}
+			if (imageBytes != null) { // download successful
+				bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+				if (bitmap != null) { // decoding successful
+
+					if (DroidConfig.DEBUG) { // debugging
+						final long endDecoding = System.currentTimeMillis();
+						// logging download statistics
+						final long downloadTime = endDownload - startDownload;
+						downloaderTimer.addAndGet(downloadTime);
+						downloaderCounter.incrementAndGet();
+						Log.d(TAG, key + " download took ms " + downloadTime);
+						Log.v(TAG, key + " decoding took ms " + (endDecoding - endDownload));
+						if (!downloaderStats.add(key)) {
+							// bitmap was already downloaded!
+							Log.w(TAG, "Downloading " + key + " bitmap twice: " + url);
+						}
+					} // end debugging
+
+					final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
+					final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
+
+					// save downloaded bitmap in caches
+					memoryCache.put(key, bitmap);
+					if (diskCache != null) {
+						diskCache.put(key, imageBytes);
+					}
+				}
+			} else { // download failed
+				if (DroidConfig.DEBUG) {
+					failuresCounter.incrementAndGet();
+				}
+			}
+			return bitmap;
 		}
 	}
 

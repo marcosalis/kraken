@@ -23,25 +23,17 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.concurrent.Immutable;
 
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Process;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentCache.OnEntryRemovedListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
-import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.content.AbstractContentProxy;
 import com.github.marcosalis.kraken.utils.DroidUtils;
@@ -49,9 +41,7 @@ import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.github.marcosalis.kraken.utils.concurrent.ReorderingThreadPoolExecutor;
-import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.common.annotations.Beta;
-import com.google.common.base.Preconditions;
 
 /**
  * Abstract base class for a {@link Bitmap} content cache. Every
@@ -106,7 +96,7 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 
 	private static final String TAG = AbstractBitmapCache.class.getSimpleName();
 
-	private static final ThreadPoolExecutor BITMAP_EXECUTOR;
+	static final ThreadPoolExecutor BITMAP_EXECUTOR;
 	private static final ReorderingThreadPoolExecutor<String> DOWNLOADER_EXECUTOR;
 
 	/* private executors blocking queues */
@@ -190,54 +180,6 @@ public abstract class AbstractBitmapCache extends AbstractContentProxy implement
 	public void onEntryRemoved(boolean evicted, String key, Bitmap value) {
 		// remove evicted bitmaps from the downloads memoizer to allow GC
 		mBitmapMemoizer.remove(key);
-	}
-
-	/**
-	 * Method to be called by subclasses to get a bitmap content from any
-	 * {@link BitmapCache} by passing the main request parameters and type of
-	 * actions.
-	 * 
-	 * <b>This needs to be called from the UI thread</b>, as the image setting
-	 * is asynchronous except in the case we already have the image available in
-	 * the memory cache.
-	 * 
-	 * @param cache
-	 *            The {@link BitmapMemoryCache} memory cache to use
-	 * @param diskCache
-	 *            The {@link BitmapDiskCache} to use
-	 * @param key
-	 *            The {@link CacheUrlKey} of the image to retrieve
-	 * @param action
-	 *            The {@link AccessPolicy} to use, can be one of
-	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
-	 *            or {@link AccessPolicy#REFRESH}
-	 * @param setter
-	 *            The {@link BitmapAsyncSetter} to set the bitmap in an
-	 *            {@link ImageView}
-	 * @param placeholder
-	 *            An (optional) {@link Drawable} temporary placeholder, only set
-	 *            if the bitmap is not in the memory cache
-	 * @return The {@link Future} that holds the Bitmap loading
-	 */
-	@CheckForNull
-	protected final Future<Bitmap> getBitmap(@Nonnull BitmapMemoryCache<String> cache,
-			@Nullable BitmapDiskCache diskCache, @Nonnull CacheUrlKey key,
-			@Nonnull AccessPolicy policy, @Nonnull BitmapAsyncSetter setter,
-			@Nullable Drawable placeholder) {
-		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
-
-		Bitmap bitmap = null;
-		if (policy != AccessPolicy.REFRESH && (bitmap = cache.get(key.hash())) != null) {
-			// cache hit at the very first attempt, no other actions needed
-			setter.setBitmapSync(bitmap);
-			return SettableFutureTask.fromResult(bitmap);
-		} else {
-			// set temporary placeholder
-			if (placeholder != null) {
-				setter.setPlaceholderSync(placeholder);
-			}
-			return BITMAP_EXECUTOR.submit(new BitmapLoader(getLoaderConfig(), key, policy, setter));
-		}
 	}
 
 	@Nonnull

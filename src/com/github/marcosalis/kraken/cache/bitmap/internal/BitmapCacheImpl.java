@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
@@ -31,8 +32,10 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
+import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
 
 /**
  * Concrete default implementation for a {@link BitmapCache}.
@@ -57,17 +60,75 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	}
 
 	@Override
+	public void preloadBitmap(@Nonnull CacheUrlKey key) {
+		BITMAP_EXECUTOR.submit(new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH, null));
+	}
+
+	@Override
 	@CheckForNull
 	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key,
 			@Nullable BitmapAsyncSetter setter) {
-		return getBitmap(mMemoryCache, mDiskCache, key, AccessPolicy.NORMAL, setter, null);
+		return getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
 	@Override
 	@CheckForNull
 	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nullable BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
-		return getBitmap(mMemoryCache, mDiskCache, key, policy, setter, placeholder);
+		return getBitmap(key, policy, setter, placeholder);
+	}
+
+	/**
+	 * Get a bitmap content from the {@link BitmapCache} and set it into an
+	 * ImageView using the passed {@link BitmapAsyncSetter}.
+	 * 
+	 * <b>This needs to be called from the UI thread</b>, as the image setting
+	 * is asynchronous except in the case we already have the image available in
+	 * the memory cache.
+	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} of the image to retrieve
+	 * @param action
+	 *            The {@link AccessPolicy} to use, can be one of
+	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
+	 *            or {@link AccessPolicy#REFRESH}
+	 * @param setter
+	 *            The {@link BitmapAsyncSetter} to set the bitmap in an
+	 *            {@link ImageView}
+	 * @param placeholder
+	 *            An (optional) {@link Drawable} temporary placeholder, only set
+	 *            if the bitmap is not in the memory cache
+	 * @return The {@link Future} that holds the Bitmap loading
+	 */
+	@CheckForNull
+	protected final Future<Bitmap> getBitmap(@Nonnull CacheUrlKey key,
+			@Nonnull AccessPolicy policy, @Nonnull BitmapAsyncSetter setter,
+			@Nullable Drawable placeholder) {
+		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
+		final boolean isRefresh = policy == AccessPolicy.REFRESH;
+
+		Bitmap bitmap = null;
+		if (!isRefresh && (bitmap = mMemoryCache.get(key.hash())) != null) {
+			// cache hit at the very first attempt, no other actions needed
+			setter.setBitmapSync(bitmap);
+			return SettableFutureTask.fromResult(bitmap);
+		} else {
+			// set temporary placeholder
+			if (placeholder != null) {
+				setter.setPlaceholderSync(placeholder);
+			}
+			if (!isRefresh) {
+				return BITMAP_EXECUTOR.submit(new BitmapLoader(mLoaderConfig, key, policy, setter));
+			} else {
+				return BitmapLoader.executeDownload(mLoaderConfig, key, setter);
+			}
+		}
+	}
+
+	@Nonnull
+	@Override
+	protected BitmapLoader.Config getLoaderConfig() {
+		return mLoaderConfig;
 	}
 
 	@Override
@@ -88,12 +149,6 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 		if (mDiskCache != null) {
 			mDiskCache.scheduleClearAll();
 		}
-	}
-
-	@Nonnull
-	@Override
-	protected BitmapLoader.Config getLoaderConfig() {
-		return mLoaderConfig;
 	}
 
 }

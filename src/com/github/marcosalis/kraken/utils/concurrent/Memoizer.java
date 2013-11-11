@@ -29,6 +29,7 @@ import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
+import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 import com.google.common.cache.LoadingCache;
 
@@ -84,6 +85,7 @@ public class Memoizer<K, V> {
 	 *             if the {@link Callable} threw an exception
 	 */
 	@CheckForNull
+	@NotForUIThread
 	public V execute(@Nonnull final K key, @Nonnull Callable<V> task) throws Exception {
 		// we try to retrieve item from our task cache
 		Future<V> future = mTaskCache.get(key);
