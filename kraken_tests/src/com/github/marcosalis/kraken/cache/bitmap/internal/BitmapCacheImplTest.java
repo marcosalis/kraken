@@ -92,10 +92,6 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		super.tearDown();
 	}
 
-	public void testGetLoaderConfig() {
-		assertNotNull(mCache.getLoaderConfig());
-	}
-
 	public void testGetBitmapAsync_normal() throws InterruptedException {
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);

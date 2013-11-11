@@ -27,6 +27,7 @@ import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
@@ -47,7 +48,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Marco Salis
  */
 @Beta
-class BitmapCacheImpl extends AbstractBitmapCache {
+class BitmapCacheImpl extends BitmapCacheBase {
 
 	private final BitmapMemoryCache<String> mMemoryCache;
 	@CheckForNull
@@ -78,8 +79,8 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 				// executing tasks as an optimization
 				return future;
 			} else {
-				return BITMAP_EXECUTOR
-						.submit(new BitmapLoader(mLoaderConfig, key, policy, listener));
+				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, listener);
+				return BitmapCacheBase.submitInExecutor(loader);
 			}
 		}
 	}
@@ -87,7 +88,9 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	@Override
 	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 	public void preloadBitmap(@Nonnull CacheUrlKey key) {
-		BITMAP_EXECUTOR.submit(new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH, null));
+		final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH,
+				null);
+		BitmapCacheBase.submitInExecutor(loader);
 	}
 
 	@Nonnull
@@ -142,7 +145,8 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 				setter.setPlaceholderSync(placeholder);
 			}
 			if (!isRefresh) {
-				return BITMAP_EXECUTOR.submit(new BitmapLoader(mLoaderConfig, key, policy, setter));
+				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, setter);
+				return BitmapCacheBase.submitInExecutor(loader);
 			} else {
 				return BitmapLoader.executeDownload(mLoaderConfig, key, setter);
 			}
@@ -162,12 +166,6 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 			return SettableFutureTask.fromResult(bitmap);
 		}
 		return null;
-	}
-
-	@Nonnull
-	@Override
-	protected BitmapLoader.Config getLoaderConfig() {
-		return mLoaderConfig;
 	}
 
 	@Override

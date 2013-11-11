@@ -37,6 +37,7 @@ import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
@@ -50,7 +51,7 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 
 /**
- * General loader for a {@link Bitmap} from a {@link AbstractBitmapCache}.<br>
+ * General loader for a {@link Bitmap} from a {@link BitmapCacheBase}.<br>
  * If the mode set for the request is {@link AccessPolicy#PRE_FETCH}, the
  * retrieved image is only downloaded and put in the memory cache if necessary.
  * 
@@ -62,7 +63,7 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @NotThreadSafe
-class BitmapLoader implements Callable<Bitmap> {
+public class BitmapLoader implements Callable<Bitmap> {
 
 	/**
 	 * Configuration class that holds all the external components that a
@@ -118,7 +119,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	 * @param callback
 	 *            {@link OnBitmapRetrievalListener} for the image (can be null)
 	 */
-	public BitmapLoader(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key,
+	BitmapLoader(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key,
 			@Nonnull AccessPolicy policy, @Nullable OnBitmapRetrievalListener callback) {
 		mLoaderConfig = config;
 		mKey = key;
@@ -180,14 +181,14 @@ class BitmapLoader implements Callable<Bitmap> {
 	}
 
 	@Nonnull
-	public static Future<Bitmap> executeDownload(@Nonnull BitmapLoader.Config config,
+	static Future<Bitmap> executeDownload(@Nonnull BitmapLoader.Config config,
 			@Nonnull CacheUrlKey key, @Nullable OnBitmapRetrievalListener callback) {
 		final MemoizerCallable memoizer = new MemoizerCallable(config, key, callback);
 		final String hash = key.hash();
 		// attempt prioritizing the download task if already in queue
-		AbstractBitmapCache.moveDownloadToFront(hash);
+		BitmapCacheBase.moveDownloadToFront(hash);
 		// submit new memoizer task to downloder executor
-		return AbstractBitmapCache.submitInDownloader(hash, memoizer);
+		return BitmapCacheBase.submitInDownloader(hash, memoizer);
 	}
 
 	/**
@@ -196,7 +197,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	 * want to download from the server.
 	 * 
 	 * This computation gets executed through the
-	 * {@link AbstractBitmapCache#submitInDownloader(Callable)} method.
+	 * {@link BitmapCacheBase#submitInDownloader(String, Callable)} method.
 	 */
 	@NotThreadSafe
 	private static class MemoizerCallable implements Callable<Bitmap> {
@@ -219,7 +220,6 @@ class BitmapLoader implements Callable<Bitmap> {
 				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mKey);
 				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(mKey.hash(), downloader);
 				if (bitmap != null && mBitmapCallback != null) {
-					LogUtils.log(Log.ERROR, TAG, "MemoizerCallable for : " + mKey.hash());
 					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.NETWORK);
 				}
 				return bitmap;
@@ -330,7 +330,7 @@ class BitmapLoader implements Callable<Bitmap> {
 	}
 
 	// for debugging purposes only
-	static void clearStatsLog() {
+	public static void clearStatsLog() {
 		final AtomicLong timer = DownloaderCallable.downloaderTimer;
 		final AtomicInteger counter = DownloaderCallable.downloaderCounter;
 		final AtomicInteger failures = DownloaderCallable.failuresCounter;

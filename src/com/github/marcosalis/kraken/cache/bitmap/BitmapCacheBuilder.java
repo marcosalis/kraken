@@ -52,9 +52,14 @@ import com.google.common.base.Preconditions;
  * 	.diskCachePurgeableAfter(DroidUtils.DAY)
  * 	.build();
  * </pre></code>
- * </p>
  * 
- * </p>
+ * <p>
+ * The threading policies and executors are common to all bitmap caches, so that
+ * callers can use separate caches with different settings and limit the thread
+ * count constant. The default (recommended) threading policy, that sizes
+ * executors depending on the number of device CPU cores, can be overridden by
+ * calling
+ * <code>{@link BitmapCacheBase#setThreadingPolicy(BitmapThreadingPolicy)}</code>
  * 
  * <p>
  * <b>TODO list:</b>
@@ -64,7 +69,6 @@ import com.google.common.base.Preconditions;
  * <li>Effective automatic disk cache purge policy implementation</li>
  * <li>Allow custom pre/post processing of the downloaded bitmap</li>
  * </ul>
- * </p>
  * 
  * @since 1.0
  * @author Marco Salis

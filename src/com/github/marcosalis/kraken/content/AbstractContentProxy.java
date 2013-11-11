@@ -38,8 +38,6 @@ import com.google.common.annotations.Beta;
  * Just provides some library static utility methods to execute
  * content-retrieval related tasks.
  * 
- * TODO: unit tests
- * 
  * @since 1.0
  * @author Marco Salis
  */
@@ -75,11 +73,6 @@ public abstract class AbstractContentProxy implements ContentProxy {
 		final ThreadPoolExecutor lowPriorityExecutor = new ThreadPoolExecutor(1, 1, 0L,
 				TimeUnit.MILLISECONDS, lowPriorityQueue, lowPriorityFactory);
 		LOW_PRIORITY_EXECUTOR = lowPriorityExecutor;
-
-		// keep queues static references
-		PROXY_EXECUTOR_Q = executorQueue;
-		PRE_FETCH_EXECUTOR_Q = prefetchQueue;
-		LOW_PRIORITY_EXECUTOR_Q = lowPriorityQueue;
 	}
 
 	/**
@@ -98,11 +91,6 @@ public abstract class AbstractContentProxy implements ContentProxy {
 	 * therefore don't necessarily need to be completed in a short time.
 	 */
 	private static final ThreadPoolExecutor LOW_PRIORITY_EXECUTOR;
-
-	/* private executors blocking queues */
-	private static final LinkedBlockingQueue<Runnable> PROXY_EXECUTOR_Q;
-	private static final LinkedBlockingQueue<Runnable> PRE_FETCH_EXECUTOR_Q;
-	private static final LinkedBlockingQueue<Runnable> LOW_PRIORITY_EXECUTOR_Q;
 
 	/**
 	 * Executes a task in the main, standard priority common thread pool.
@@ -142,9 +130,9 @@ public abstract class AbstractContentProxy implements ContentProxy {
 	 * the executors.
 	 */
 	public static synchronized final void clearExecutors() {
-		PROXY_EXECUTOR_Q.clear();
-		PRE_FETCH_EXECUTOR_Q.clear();
-		LOW_PRIORITY_EXECUTOR_Q.clear();
+		PROXY_EXECUTOR.getQueue().clear();
+		PRE_FETCH_EXECUTOR.getQueue().clear();
+		LOW_PRIORITY_EXECUTOR.getQueue().clear();
 
 		if (DroidConfig.DEBUG) { // logging some stats
 			Log.d(TAG, "Executors tasks cleared");
