@@ -38,6 +38,8 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Concrete default implementation for a {@link BitmapCache}.
  * 
@@ -83,21 +85,21 @@ class BitmapCacheImpl extends AbstractBitmapCache {
 	}
 
 	@Override
+	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 	public void preloadBitmap(@Nonnull CacheUrlKey key) {
 		BITMAP_EXECUTOR.submit(new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH, null));
 	}
 
 	@Nonnull
 	@Override
-	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key,
-			@Nullable BitmapAsyncSetter setter) {
+	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull BitmapAsyncSetter setter) {
 		return getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
 	@Nonnull
 	@Override
 	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nullable BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
+			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
 		return getBitmap(key, policy, setter, placeholder);
 	}
 

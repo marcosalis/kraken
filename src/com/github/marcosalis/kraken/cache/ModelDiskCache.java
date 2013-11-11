@@ -35,6 +35,8 @@ import com.google.api.client.util.ObjectParser;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Disk cache that stores a POJO/DTO object into its JSON representation in text
  * files.
@@ -95,6 +97,7 @@ public class ModelDiskCache<V> extends DiskCache<V> {
 	 * @return The cached item, null if not present or an error occurred
 	 */
 	@CheckForNull
+	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 	public V get(@Nonnull String key) {
 		File jsonFile = new File(mCacheLocation, key);
 		if (!jsonFile.exists()) {
@@ -127,6 +130,7 @@ public class ModelDiskCache<V> extends DiskCache<V> {
 	 *         occurred
 	 */
 	@CheckForNull
+	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
 	public V get(@Nonnull String key, long expiration) {
 		File jsonFile = new File(mCacheLocation, key);
 		if (!jsonFile.exists()) {

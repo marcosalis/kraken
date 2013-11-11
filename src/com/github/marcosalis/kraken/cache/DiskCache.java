@@ -219,18 +219,20 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	 */
 	@NotForUIThread
 	@VisibleForTesting
-	final void cleanCacheDir() {
+	final boolean cleanCacheDir() {
+		boolean success = true;
 		if (mCacheLocation.exists()) {
 			final File[] files = mCacheLocation.listFiles();
 			if (files != null) {
 				// iterate over files in the directory
 				for (File f : files) {
 					if (f.isFile()) { // ignore sub dirs
-						f.delete();
+						success = success && f.delete();
 					}
 				}
 			}
 		}
+		return success;
 	}
 
 	/**
@@ -272,13 +274,15 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	 * 
 	 * @param file
 	 *            The {@link File} to "touch" if necessary
+	 * @return true if the file has been "touched", false otherwise
 	 */
 	@NotForUIThread
-	protected static final void touchFile(@Nonnull File file) {
+	protected static final boolean touchFile(@Nonnull File file) {
 		final long now = System.currentTimeMillis();
 		if (file.lastModified() < (now - MIN_EXPIRE_IN_MS)) {
-			file.setLastModified(now);
+			return file.setLastModified(now);
 		}
+		return false;
 	}
 
 	/**

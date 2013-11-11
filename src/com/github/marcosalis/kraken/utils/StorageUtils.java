@@ -204,7 +204,9 @@ public class StorageUtils {
 		if (cacheDir != null) {
 			tempDir = new File(cacheDir.getAbsolutePath() + TEMP_FOLDER);
 			if (!tempDir.exists()) {
-				tempDir.mkdir();
+				if (!tempDir.mkdir()) {
+					return null;
+				}
 			}
 		}
 		return tempDir;

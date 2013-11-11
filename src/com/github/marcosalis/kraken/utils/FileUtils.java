@@ -94,11 +94,13 @@ public class FileUtils {
 	public static boolean createDir(@Nonnull File directory) {
 		if (!directory.exists() || directory.isFile()) {
 			if (directory.isFile()) {
-				directory.delete();
+				if (!directory.delete()) {
+					return false;
+				}
 			}
-			directory.mkdirs();
+			return directory.mkdirs();
 		}
-		return directory.exists();
+		return true;
 	}
 
 	/**

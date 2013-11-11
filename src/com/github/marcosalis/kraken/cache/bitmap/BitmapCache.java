@@ -75,11 +75,10 @@ public interface BitmapCache extends ContentProxy {
 	public void preloadBitmap(@Nonnull CacheUrlKey key);
 
 	@Nonnull
-	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key,
-			@Nullable BitmapAsyncSetter setter);
+	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull BitmapAsyncSetter setter);
 
 	@Nonnull
 	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nullable BitmapAsyncSetter setter, @Nullable Drawable placeholder);
+			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder);
 
 }
