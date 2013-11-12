@@ -33,6 +33,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
 
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
@@ -44,7 +45,6 @@ import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapS
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
-import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.testing.framework.TestAssertsWrapper;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.google.api.client.http.HttpRequestFactory;

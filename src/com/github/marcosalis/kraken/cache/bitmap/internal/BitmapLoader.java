@@ -36,6 +36,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
@@ -43,7 +44,6 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
-import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.http.ByteArrayDownloader;

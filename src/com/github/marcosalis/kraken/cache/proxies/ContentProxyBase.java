@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content;
+package com.github.marcosalis.kraken.cache.proxies;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,7 +34,9 @@ import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.google.common.annotations.Beta;
 
 /**
- * Abstract base implementation of {@link ContentProxy}.<br>
+ * <p>
+ * Abstract base implementation of {@link ContentProxy}.
+ * <p>
  * Just provides some library static utility methods to execute
  * content-retrieval related tasks.
  * 
@@ -43,9 +45,9 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @ThreadSafe
-public abstract class AbstractContentProxy implements ContentProxy {
+public abstract class ContentProxyBase implements ContentProxy {
 
-	private static final String TAG = AbstractContentProxy.class.getSimpleName();
+	private static final String TAG = ContentProxyBase.class.getSimpleName();
 
 	static {
 		final int executorSize = DroidUtils.getIOBoundPoolSize();

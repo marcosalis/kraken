@@ -14,21 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content;
+package com.github.marcosalis.kraken.cache.proxies;
 
 import com.github.marcosalis.kraken.cache.DiskCache;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
 import com.google.common.annotations.Beta;
 
 /**
- * Interface for general content proxies.
+ * <p>
+ * Interface for <i>content proxies</i>.
  * 
- * The purpose of a content proxy (or content provider) is to ensure a level of
- * abstraction for clients of the proxy, in order to avoid the need for them to
- * manage the way a content is retrieved: the calls to the proxy should be the
- * same whether the content is available in a cache or needs to be retrieved
- * from a server. A {@link ContentLoader} is used internally to effectively
- * retrieve the requested content.
+ * <p>
+ * The purpose of a "content proxy" (or content provider) is to ensure a level
+ * of abstraction for the client code, in order to avoid the need for it to
+ * explicitly handle and manage the way a content is retrieved: the calls to the
+ * proxy must be the same whether the content is available in a cache or needs
+ * to be retrieved from a server. A {@link ContentLoader} is used internally to
+ * effectively retrieve the requested content.
+ * 
+ * All {@link ContentProxy} implementations should be thread safe.
  * 
  * @since 1.0
  * @author Marco Salis
@@ -42,15 +46,15 @@ public interface ContentProxy {
 	public void clearMemoryCache();
 
 	/**
-	 * Synchronously clears permanent "disk" (DB or flash storage) cache items
-	 * of this content proxy according to the passed
+	 * Synchronously clears permanent storage (DB or flash disk) cache items of
+	 * this content proxy according to the passed
 	 * {@link DiskCache.DiskCacheClearMode}
 	 */
 	public void clearDiskCache(DiskCache.DiskCacheClearMode mode);
 
 	/**
-	 * Completely wipes any permanent "disk" (DB or flash storage) cache for
-	 * this content proxy.
+	 * Completely wipes any permanent storage (DB or flash disk) cache for this
+	 * content proxy.
 	 * 
 	 * Note: implementations must be asynchronous and non-blocking.
 	 */

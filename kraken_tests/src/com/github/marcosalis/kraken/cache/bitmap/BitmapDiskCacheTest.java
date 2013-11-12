@@ -74,7 +74,7 @@ public class BitmapDiskCacheTest extends AndroidTestCase {
 		final Bitmap bitmap = mDiskCache.getBitmap("test_put_bytearray");
 		assertNotNull(bitmap);
 		assertSameSize(mTestBitmap, bitmap);
-		
+
 		// test overwrite
 		bos = new ByteArrayOutputStream();
 		mTestBitmapCropped.compress(CompressFormat.PNG, 0, bos);

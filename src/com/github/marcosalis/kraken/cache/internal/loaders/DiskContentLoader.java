@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.loaders;
+package com.github.marcosalis.kraken.cache.internal.loaders;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
@@ -28,6 +28,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.ContentLruCache;
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;

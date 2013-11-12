@@ -33,7 +33,7 @@ import com.github.marcosalis.kraken.cache.ContentCache.OnEntryRemovedListener;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapLoader;
 import com.github.marcosalis.kraken.cache.bitmap.threading.BitmapThreadingPolicy;
 import com.github.marcosalis.kraken.cache.bitmap.threading.DefaultBitmapThreadingPolicy;
-import com.github.marcosalis.kraken.content.AbstractContentProxy;
+import com.github.marcosalis.kraken.cache.proxies.ContentProxyBase;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.concurrent.ReorderingThreadPoolExecutor;
@@ -62,7 +62,7 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @Immutable
-public abstract class BitmapCacheBase extends AbstractContentProxy implements BitmapCache,
+public abstract class BitmapCacheBase extends ContentProxyBase implements BitmapCache,
 		OnEntryRemovedListener<String, Bitmap> {
 
 	private static final String TAG = BitmapCacheBase.class.getSimpleName();

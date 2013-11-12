@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content;
+package com.github.marcosalis.kraken.cache.internal;
 
 import java.io.File;
 
@@ -24,12 +24,12 @@ import javax.annotation.concurrent.ThreadSafe;
 import android.content.Context;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
+import com.github.marcosalis.kraken.cache.internal.loaders.ModelDiskContentLoaderFactory;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader.ContentUpdateCallback;
 import com.github.marcosalis.kraken.cache.json.JsonModel;
-import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader.ContentUpdateCallback;
-import com.github.marcosalis.kraken.cache.loaders.ModelDiskContentLoaderFactory;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;

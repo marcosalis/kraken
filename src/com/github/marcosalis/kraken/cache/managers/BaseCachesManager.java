@@ -14,46 +14,55 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content.manager;
+package com.github.marcosalis.kraken.cache.managers;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
+import android.app.Application;
+
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
-import com.github.marcosalis.kraken.content.ContentProxy;
+import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.utils.DroidUtils;
+import com.github.marcosalis.kraken.utils.android.DroidApplication;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 
 /**
- * Base implementation of an application global contents manager.<br>
- * Provides methods to put and get global content managers from a single
- * endpoint, and utility functionalities to reduce, clear and manage their
- * caches.
+ * <p>
+ * Base implementation of an application {@link CachesManager}.
+ * 
+ * <p>
+ * You should preferably create the instance in the
+ * {@link Application#onCreate()} method and retain it in the
+ * {@link Application} class. See {@link DroidApplication} for documentation on
+ * how to use a custom application class.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
 @ThreadSafe
-public class BaseContentManager<E> implements ContentManager<E> {
+public class BaseCachesManager<E> implements CachesManager<E> {
 
+	@Nonnull
 	private final ConcurrentMap<E, ContentProxy> mContents;
 
-	public BaseContentManager(int initSize) {
+	public BaseCachesManager(int initSize) {
 		mContents = new ConcurrentHashMap<E, ContentProxy>(initSize, 0.75f,
 				DroidUtils.getCpuBoundPoolSize());
 	}
 
 	@Override
-	public boolean registerContent(E contentId, ContentProxy content) {
+	public boolean registerContent(@Nonnull E contentId, @Nonnull ContentProxy content) {
 		return (mContents.putIfAbsent(contentId, content) == null);
 	}
 
 	@Override
-	public ContentProxy getContent(E contentId) {
+	public ContentProxy getContent(@Nonnull E contentId) {
 		return mContents.get(contentId);
 	}
 
@@ -63,22 +72,16 @@ public class BaseContentManager<E> implements ContentManager<E> {
 	 * @param contentId
 	 *            The identificator of the content to remove
 	 */
-	protected void removeContent(E contentId) {
+	protected void removeContent(@Nonnull E contentId) {
 		mContents.remove(contentId);
 	}
 
-	/**
-	 * @see ContentManager#clearAllCaches()
-	 */
 	@Override
 	public void clearAllCaches() {
 		clearMemoryCaches();
 		scheduleClearDiskCaches();
 	}
 
-	/**
-	 * @see ContentManager#clearMemoryCaches()
-	 */
 	@Override
 	public void clearMemoryCaches() {
 		for (ContentProxy content : mContents.values()) {
@@ -86,9 +89,6 @@ public class BaseContentManager<E> implements ContentManager<E> {
 		}
 	}
 
-	/**
-	 * @see ContentManager#scheduleClearDiskCaches()
-	 */
 	@Override
 	public void scheduleClearDiskCaches() {
 		for (ContentProxy content : mContents.values()) {
@@ -96,9 +96,6 @@ public class BaseContentManager<E> implements ContentManager<E> {
 		}
 	}
 
-	/**
-	 * @see ContentManager#clearDiskCaches(DiskCacheClearMode)
-	 */
 	@Override
 	@NotForUIThread
 	public void clearDiskCaches(DiskCacheClearMode mode) {

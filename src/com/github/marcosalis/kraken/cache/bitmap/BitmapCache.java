@@ -23,11 +23,11 @@ import javax.annotation.Nullable;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
-import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
-import com.github.marcosalis.kraken.content.ContentProxy;
+import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.google.common.annotations.Beta;
 
 /**

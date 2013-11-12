@@ -1,5 +1,4 @@
 /*
- * Copyright 2013 Luluvise Ltd
  * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,14 +15,9 @@
  */
 
 /**
- * This package and its sub-packages contains a collection of static utility classes for different uses,
- * mainly related to general Android programming and controller/UI components subclasses extended
- * with new features.
- * 
- * All the public interfaces of the classes marked with the {@link Beta} annotation in this package 
- * and sub-packages are subject to change without notice.
+ * This package contains classes that provide default implementations of content proxies cache management.
  * 
  * @since 1.0
  * @author Marco Salis
  */
-package com.github.marcosalis.kraken.utils;
+package com.github.marcosalis.kraken.cache.proxies;

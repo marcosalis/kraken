@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content;
+package com.github.marcosalis.kraken.cache.internal;
 
 import java.io.IOException;
 import java.util.concurrent.Callable;
@@ -28,15 +28,16 @@ import android.content.Context;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.ContentLruCache;
 import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
+import com.github.marcosalis.kraken.cache.internal.loaders.DiskContentLoader;
+import com.github.marcosalis.kraken.cache.internal.loaders.ModelDiskContentLoaderFactory;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader.ContentUpdateCallback;
 import com.github.marcosalis.kraken.cache.json.JsonModel;
-import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader.ContentUpdateCallback;
-import com.github.marcosalis.kraken.cache.loaders.DiskContentLoader;
-import com.github.marcosalis.kraken.cache.loaders.ModelDiskContentLoaderFactory;
+import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;

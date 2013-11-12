@@ -1,5 +1,4 @@
 /*
- * Copyright 2013 Luluvise Ltd
  * Copyright 2013 Marco Salis - fast3r@gmail.com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,8 +15,9 @@
  */
 
 /**
- * This package contains classes that manage content coming from caches.
+ * This package contains classes to handle global management of groups of caches.
  * 
+ * @since 1.0
  * @author Marco Salis
  */
-package com.github.marcosalis.kraken.content;
+package com.github.marcosalis.kraken.cache.managers;

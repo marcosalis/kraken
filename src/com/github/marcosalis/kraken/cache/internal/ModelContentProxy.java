@@ -14,21 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.content;
+package com.github.marcosalis.kraken.cache.internal;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 
+import com.github.marcosalis.kraken.cache.AccessPolicy;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader.ContentUpdateCallback;
 import com.github.marcosalis.kraken.cache.json.JsonModel;
-import com.github.marcosalis.kraken.cache.loaders.AccessPolicy;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader;
-import com.github.marcosalis.kraken.cache.loaders.ContentLoader.ContentUpdateCallback;
+import com.github.marcosalis.kraken.cache.proxies.ContentProxyBase;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
 import com.google.common.annotations.Beta;
 
 /**
- * Generic, abstract extension of {@link AbstractContentProxy} that defines a
- * common interface for content proxies that handle {@link JsonModel}s and
+ * Generic, abstract extension of {@link ContentProxyBase} that defines a common
+ * interface for content proxies that handle {@link JsonModel}s and
  * {@link CacheableRequest}.
  * 
  * It provides methods to load and put models from and to the proxy through a
@@ -39,7 +40,7 @@ import com.google.common.annotations.Beta;
  * @author Marco Salis
  */
 @Beta
-public abstract class ModelContentProxy<MODEL extends JsonModel> extends AbstractContentProxy {
+public abstract class ModelContentProxy<MODEL extends JsonModel> extends ContentProxyBase {
 
 	/**
 	 * Retrieves a model from the content proxy. See {@link ContentLoader}
@@ -65,13 +66,13 @@ public abstract class ModelContentProxy<MODEL extends JsonModel> extends Abstrac
 	 * @param action
 	 *            The {@link AccessPolicy} to use
 	 * @param request
-	 *            The {@link AbstractModelRequest}
+	 *            The {@link CacheableRequest}
 	 * @return The model, or null of unsuccessful
 	 * @throws Exception
 	 *             if an exception occurred while getting the model
 	 */
 	@CheckForNull
-	public abstract MODEL getModel(AccessPolicy action, CacheableRequest<MODEL> request)
+	public abstract MODEL getModel(AccessPolicy action, @Nonnull CacheableRequest<MODEL> request)
 			throws Exception;
 
 	/**

@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.loaders;
+package com.github.marcosalis.kraken.cache.internal.loaders;
 
 import javax.annotation.Nonnull;
 
+import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.json.JsonModel;
+import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
-import com.github.marcosalis.kraken.content.ContentProxy;
 import com.google.common.annotations.Beta;
 
 /**
