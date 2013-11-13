@@ -18,6 +18,19 @@ It can be used from Android version **2.2** upwards, and it is based on Google's
 * **android-support-v4** v. 19 (http://developer.android.com/tools/support-library/  - *Apache 2.0*)
 
 ### Setup
+To use *Kraken*, clone this repository:
+<pre><code>git clone https://github.com/marcosalis/kraken.git</code></pre>
+and add the *Eclipse* project as an Android library to your application project.
+
+*Kraken* has two running configurations:
+* **debug**, which logs useful debug messages and statistics to the *LogCat*
+* **release**, which disables all logging and must be used when releasing the application
+
+In order to be able to compile the project, or switch between configurations, run one of this two *Ant* targets:
+<pre><code>ant kraken-debug-config</code></pre>
+or
+<pre><code>ant kraken-release-config</code></pre>
+(*fear not, Gradle builds support is coming soon*).
 
 ### Bitmap loading and caching
 TODO
