@@ -1,7 +1,17 @@
 ## Release... the Kraken!
 
-<p>Kraken is an easy to use, powerful and fast Android bitmaps and data caching framework, based and refactored from my original open source <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
-</p>
+*Kraken* is an easy to use, powerful and fast Android bitmaps and data caching framework, based and refactored from my original open source <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
+
+It can be used from Android version **2.2** upwards, and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
+
+## Quick reference
+
+### Current version
+
+### Dependencies
+
+
+### Setup
 
 ### Bitmap loading and caching
 TODO
@@ -10,11 +20,14 @@ TODO
 TODO
 
 ### Coming soon
-* Gradle integration
+* Android Studio / Gradle integration
 * Bitmaps: save into caches a resampled/resized version of a bitmap
 * Bitmaps: allow custom pre/post processing of the downloaded bitmap
 * Allow selection and use of other disk/memory cache policies (LFU?)
 * Effective automatic disk cache purge policy implementation
+
+
+## Other
 
 ### Alternatives to Kraken
 <p>There are many other valid (and well known) open source alternatives to Kraken, which may be more suitable for you. Here is a few ones:
@@ -26,10 +39,10 @@ TODO
 </p>
 
 ### License
-You are free to use, modify, redistribute Kraken in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r@gmail.com.
+You are free to use, modify, redistribute Kraken in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
 
 > <pre>
-> Copyright 2013 Marco Salis - fast3r@gmail.com
+> Copyright 2013 Marco Salis - fast3r(at)gmail.com
 >
 > Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
