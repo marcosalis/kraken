@@ -7,9 +7,15 @@ It can be used from Android version **2.2** upwards, and it is based on Google's
 ## Quick reference
 
 ### Current version
+*Kraken* current version is **1.0 beta 1**
 
 ### Dependencies
+*Kraken* is based and depends on the following open source (see licenses below) third-party libraries:
 
+* **guava-libraries-sdk5** v. 13 (https://code.google.com/p/guava-libraries/ - *Apache 2.0*)
+* **google-http-java-client** v. 1.15.0rc (https://code.google.com/p/google-http-java-client/ - *Apache 2.0*)
+* **jackson-json-processor** v. 2.2.2 (http://jackson.codehaus.org/  - *multiple licenses available*)
+* **android-support-v4** v. 19 (http://developer.android.com/tools/support-library/  - *Apache 2.0*)
 
 ### Setup
 
