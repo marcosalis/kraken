@@ -2,7 +2,19 @@
 
 *Kraken* is an easy to use, powerful and fast Android bitmaps and data caching framework, based and refactored from my original open source <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
 
-It can be used from Android version **2.2** upwards, and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
+It can be used from Android versions **2.2** upwards, and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
+
+With *Kraken*, creating a global, multithreaded, two-level bitmap cache with default settings can be as easy as:
+``` java
+BitmapCache cache = new BitmapCacheBuilder(context).diskCacheDirectoryName("bitmaps").build();
+```
+
+and setting a bitmap into an ImageView asynchronously is just:
+``` java
+CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
+BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView);
+cache.setBitmapAsync(cacheKey, callback);
+```
 
 ## Quick reference
 
