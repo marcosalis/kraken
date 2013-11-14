@@ -9,11 +9,10 @@ With *Kraken*, creating a global, multithreaded, two-level bitmap cache with def
 BitmapCache cache = new BitmapCacheBuilder(context).diskCacheDirectoryName("bitmaps").build();
 ```
 
-and setting a bitmap into an *ImageView* asynchronously is just:
+and setting a bitmap into an *ImageView* asynchronously when retrieved is just:
 ``` java
 CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
-BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView);
-cache.setBitmapAsync(cacheKey, callback);
+cache.setBitmapAsync(cacheKey, imageView);
 ```
 
 ## Quick reference
@@ -58,6 +57,9 @@ The encoded version of the downloaded bitmaps are saved in the device's SD card 
 Image downloading is multithreaded to ensure maximum performances. *Kraken* automatically sets the best combination of thread pool sizes depending on the number of available CPU cores. A custom policy can be set by calling the static method <code>BitmapCacheBase.setThreadingPolicy()</code> with a <code>BitmapThreadingPolicy</code> instance.
 The set policy and thread pools are shared among all bitmap caches, so that it's possible to create many (with different size, location and purpose) without spawning too many threads.
 
+#### Access policy
+With <code>AccessPolicy</code>, you can decide how to access the data inside the cache. Along with the <code>NORMAL</code> access mode (memory/disk/network), you can choose to refresh the item in cache from the network, only pre-fetch it into caches for future use, or retrieve it only if it's already in cache.
+
 #### Usage
 ##### Create and reference a bitmap cache
 The best way to initialize the caches is the <code>onCreate()</code> method of the <code>Application</code> class. *Kraken* provides a custom subclass called <code>DroidApplication</code> that provides some utility and debugging methods, check its documentation on how to use it.
@@ -73,6 +75,20 @@ Using the code below, you can build a bitmap cache (with debugging name *"Profil
  	.build();
 ```
 
+##### Set a bitmap into an ImageView
+The <code>BitmapCache</code> interface offers methods to prefetch, load and set bitmaps into an *ImageView*.
+Here is the code that allows full customization (you can also use <code>AnimatedBitmapAsyncSetter</code> to control how to fade-in the bitmap when set into the view):
+``` java
+CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
+OnBitmapSetListener listener = new OnBitmapSetListener() {
+			@Override
+			public void onSetIntoImageView(CacheUrlKey url, final Bitmap bitmap, BitmapSource source) {
+			  // called when the bitmap is set
+			}
+		};
+BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView, listener);
+cache.setBitmapAsync(cacheKey, callback);
+```
 
 ### POJO and DTO loading, (de)serialization and caching
 TODO
