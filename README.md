@@ -1,6 +1,6 @@
 ## Release... the Kraken!
 
-*Kraken* is an easy to use, powerful and fast Android bitmaps and data caching framework, based and refactored from my original open source <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
+*Kraken* is an easy to use, powerful and fast Android bitmaps/data loading and caching framework, based and refactored from my original open source project <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
 
 It can be used from Android versions **2.2** upwards, and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
 
@@ -9,11 +9,10 @@ With *Kraken*, creating a global, multithreaded, two-level bitmap cache with def
 BitmapCache cache = new BitmapCacheBuilder(context).diskCacheDirectoryName("bitmaps").build();
 ```
 
-and setting a bitmap into an ImageView asynchronously is just:
+and setting a bitmap into an *ImageView* asynchronously when retrieved is just:
 ``` java
 CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
-BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView);
-cache.setBitmapAsync(cacheKey, callback);
+cache.setBitmapAsync(cacheKey, imageView);
 ```
 
 ## Quick reference
@@ -45,7 +44,51 @@ or
 (*fear not, Gradle builds support is coming soon*).
 
 ### Bitmap loading and caching
-TODO
+Efficiently load images from the network and cache them, as well as being able to set them asynchronously into image views, is one of the most common problems in Android: it's really easy to overuse the UI thread or cause memory leaks in the attempt of improving the performances, especially when dealing with adapters and *ListView*s.
+*Kraken* reliefs the programmer from the burden of managing all this. It holds a configurable memory and disk cache where bitmaps are stored after the download, and provides methods to set the bitmaps inside image views after they're loaded, seamlessly handling the case of recycled or destroyed views. Images are never downloaded twice in the case simultaneous requests (i.e. when scrolling a list back and forth).
+
+#### Memory cache
+*Kraken* uses Android's *LruCache* to provide a limited size memory cache to hold the recently used bitmaps, evicting the old ones with a LRU policy. The memory cache size can be set in terms of maximum bytes or percentage of the available application memory in the current device. Multiple bitmap caches can be built and their memory occupation sums up: it's not recommended to set above 20-25% of the total application memory for caching or the risk of *OutOfMemoryError*s would increase.
+
+#### Disk cache
+The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>BitmapCache.clearDiskCache(DiskCacheClearMode.EVICT_OLD)</code>.
+
+#### Threading policies
+Image downloading is multithreaded to ensure maximum performances. *Kraken* automatically sets the best combination of thread pool sizes depending on the number of available CPU cores. A custom policy can be set by calling the static method <code>BitmapCacheBase.setThreadingPolicy()</code> with a <code>BitmapThreadingPolicy</code> instance.
+The set policy and thread pools are shared among all bitmap caches, so that it's possible to create many (with different size, location and purpose) without spawning too many threads.
+
+#### Access policy
+With <code>AccessPolicy</code>, you can decide how to access the data inside the cache. Along with the <code>NORMAL</code> access mode (memory/disk/network), you can choose to refresh the item in cache from the network, only pre-fetch it into caches for future use, or retrieve it only if it's already in cache.
+
+#### Usage
+##### Create and reference a bitmap cache
+The best way to initialize the caches is the <code>onCreate()</code> method of the <code>Application</code> class. *Kraken* provides a custom subclass called <code>DroidApplication</code> that provides some utility and debugging methods, check its documentation on how to use it.
+The <code>Application</code> instance is never GC'd when the application process is alive. Moreover, its natural "singleton" behavior makes it the perfect place to store the global instance(s) of cache(s). When not in foreground, the application process, along with the whole application stack (and consequently memory caches), will be killed by Android whenever it requires memory.
+See the <code>CachesManager</code> interface and its base implementation <code>BaseCachesManager</code> for a convenient way to group and access multiple caches.
+Using the code below, you can build a bitmap cache (with debugging name *"Profile bitmaps cache"*) that occupies the 15% of the total max app memory heap and stores the images in the external storage application cache subfolder *profile_bitmaps* with an expiration time of 1 day. See the <code>BitmapCacheBuilder</code> documentation for the full list of configurable parameters.
+``` java
+ BitmapCache cache = new BitmapCacheBuilder(context)
+ 	.maxMemoryCachePercentage(15)
+ 	.memoryCacheLogName("Profile bitmaps cache")
+ 	.diskCacheDirectoryName("profile_bitmaps")
+ 	.diskCachePurgeableAfter(DroidUtils.DAY)
+ 	.build();
+```
+
+##### Set a bitmap into an ImageView
+The <code>BitmapCache</code> interface offers methods to prefetch, load and set bitmaps into an *ImageView*.
+Here is the code that allows full customization (you can also use <code>AnimatedBitmapAsyncSetter</code> to control how to fade-in the bitmap when set into the view):
+``` java
+CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
+OnBitmapSetListener listener = new OnBitmapSetListener() {
+			@Override
+			public void onSetIntoImageView(CacheUrlKey url, final Bitmap bitmap, BitmapSource source) {
+			  // called when the bitmap is set
+			}
+		};
+BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView, listener);
+cache.setBitmapAsync(cacheKey, callback);
+```
 
 ### POJO and DTO loading, (de)serialization and caching
 TODO
@@ -58,10 +101,18 @@ TODO
 * Effective automatic disk cache purge policy implementation
 
 
-## Other
+## Other stuff
+
+### Annotations and FindBugs™
+I strongly believe in Java annotations as an effortless way to improve code quality and readability. That's why you'll find that the vast majority of *Kraken* source code is annotated with thread-safety (<code>@Immutable</code>, 
+<code>@ThreadSafe</code>, <code>@NotThreadSafe</code>, <code>@NotForUiThread</code>) and parameter/fields consistency (<code>@Nonnull</code>, <code>@Nullable</code>) information.<br />
+I also make frequent use of the static analyzer **FindBugs** (http://findbugs.sourceforge.net/) and I consider it a very powerful tool that every Java programmer shouldn't live without. Check it out if you still haven't.
+
+### Issues reporting and tests
+A (hopefully enough) comprehensive suite of unit/functional tests for the library are provided as Android test project in the *kraken_tests* subfolder. Bug reports and feature requests are more then welcome, and the best way of submitting them is using the *Issues* feature in GitHub. Pull requests are more than welcome, too!
 
 ### Alternatives to Kraken
-<p>There are many other valid (and well known) open source alternatives to Kraken, which may be more suitable for you. Here is a few ones:
+<p>There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
 <ul>
 <li><b>Volley</b> (https://developers.google.com/events/io/sessions/325304728)</li>
 <li><b>Picasso</b> (http://square.github.io/picasso/)</li>
@@ -70,7 +121,7 @@ TODO
 </p>
 
 ### License
-You are free to use, modify, redistribute Kraken in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
+You are free to use, modify, redistribute *Kraken* in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
 
 > <pre>
 > Copyright 2013 Marco Salis - fast3r(at)gmail.com
