@@ -1,6 +1,6 @@
 ## Release... the Kraken!
 
-*Kraken* is an easy to use, powerful and fast Android bitmaps and data caching framework, based and refactored from my original open source <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
+*Kraken* is an easy to use, powerful and fast Android bitmaps/data loading and caching framework, based and refactored from my original open source project <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
 
 It can be used from Android versions **2.2** upwards, and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
 
@@ -9,7 +9,7 @@ With *Kraken*, creating a global, multithreaded, two-level bitmap cache with def
 BitmapCache cache = new BitmapCacheBuilder(context).diskCacheDirectoryName("bitmaps").build();
 ```
 
-and setting a bitmap into an ImageView asynchronously is just:
+and setting a bitmap into an *ImageView* asynchronously is just:
 ``` java
 CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
 BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView);
@@ -45,7 +45,19 @@ or
 (*fear not, Gradle builds support is coming soon*).
 
 ### Bitmap loading and caching
-TODO
+Efficiently load images from the network and cache them, as well as being able to set them asynchronously into image views, is one of the most common problems in Android: it's really easy to overuse the UI thread or cause memory leaks in the attempt of improving the performances, especially when dealing with adapters and *ListView*s.
+*Kraken* reliefs the programmer from the burden of managing all this. It holds a configurable memory and disk cache where bitmaps are stored after the download, and provides methods to set the bitmaps inside image views after they're loaded, seamlessly handling the case of recycled or destroyed views. Images are never downloaded twice in the case simultaneous requests (i.e. when scrolling a list back and forth).
+
+#### Memory cache
+*Kraken* uses Android's *LruCache* to provide a limited size memory cache to hold the recently used bitmaps, evicting the old ones with a LRU policy. The memory cache size can be set in terms of maximum bytes or percentage of the available application memory in the current device. Multiple bitmap caches can be built and their memory occupation sums up: it's not recommended to set above 20-25% of the total application memory for caching or the risk of *OutOfMemoryError*s would increase.
+
+#### Disk cache
+The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>BitmapCache.clearDiskCache(DiskCacheClearMode.EVICT_OLD)</code>.
+
+#### Threading policies
+Image downloading is multithreaded to ensure maximum performances. *Kraken* automatically sets the best combination of thread pool sizes depending on the number of available CPU cores. A custom policy can be set by calling the static method <code>BitmapCacheBase.setThreadingPolicy()</code> with a <code>BitmapThreadingPolicy</code> instance.
+The set policy and thread pools are shared among all bitmap caches, so that it's possible to create many (with different size, location and purpose) without spawning too many threads.
+
 
 ### POJO and DTO loading, (de)serialization and caching
 TODO
