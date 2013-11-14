@@ -63,8 +63,8 @@ With <code>AccessPolicy</code>, you can decide how to access the data inside the
 #### Usage
 ##### Create and reference a bitmap cache
 The best way to initialize the caches is the <code>onCreate()</code> method of the <code>Application</code> class. *Kraken* provides a custom subclass called <code>DroidApplication</code> that provides some utility and debugging methods, check its documentation on how to use it.
-The <code>Application</code> instance is never GC'd when the application process is alive. Moreover, its natural "singleton" behavior makes it the perfect place to store the global instance(s) of cache(s). When not in foreground, the application process, along with the whole application stack (and consequently memory caches), will be killed by Android whenever it requires memory.
-See the <code>CachesManager</code> interface and its base implementation <code>BaseCachesManager</code> for a convenient way to group and access multiple caches.
+The <code>Application</code> instance is never GC'd when the application process is alive. Moreover, its natural *singleton* behavior makes it the perfect place to store the global instance(s) of cache(s). When not in foreground, the application process, along with the whole app stack (and consequently memory caches), will be killed by Android whenever it requires memory.
+See the <code>CachesManager</code> interface and its base implementation <code>BaseCachesManager</code> for a convenient way to group and access multiple caches.<br />
 Using the code below, you can build a bitmap cache (with debugging name *"Profile bitmaps cache"*) that occupies the 15% of the total max app memory heap and stores the images in the external storage application cache subfolder *profile_bitmaps* with an expiration time of 1 day. See the <code>BitmapCacheBuilder</code> documentation for the full list of configurable parameters.
 ``` java
  BitmapCache cache = new BitmapCacheBuilder(context)
@@ -91,10 +91,22 @@ cache.setBitmapAsync(cacheKey, callback);
 ```
 
 ### POJO and DTO loading, (de)serialization and caching
-TODO
+**Note** *The public classes and interfaces for this feature are currently in ALPHA version, and backwards compatibility in future releases of Kraken is not guaranteed. Please be patient as a stabler interface is being developed.*
+
+Many Android applications require data for presentation to be downloaded from a remote server with REST. The purpose of *Kraken* is to allow easy caching this data models (no matter what the input format is) "as they are" in their serialized format, and deserialize them back as **POJO** (Plain Old Java Object - http://en.wikipedia.org/wiki/Plain_Old_Java_Object) or **DTO** (*Data Transfer Object* - http://en.wikipedia.org/wiki/Data_Transfer_Object) for use in client/UI code.
+
+The structure of a <code>ModelContentProxy</code> is similar to a <code>BitmapCache</code>: it's implemented as a two-layers cache and allows the caller use a concrete implementation of <code>CacheableRequest</code> to fully customize the *HTTP(S)* request wrapper that will be executed and provides the cache key for the requested data.
+
+See the following classes documentation for further information on how to subclass and create a <code>ContentProxy</code> for *JSON* models using the JSON processor **Jackson** (the only one supported at the moment):
+* <code>ContentProxyBase</code>
+* <code>ModelContentProxy</code>
+* <code>AbstractDiskModelContentProxy</code>
+* <code>ContentLruCache</code>
+* <code>ModelDiskCache</code>
 
 ### Coming soon
 * Android Studio / Gradle integration
+* More examples of use in the GitHub Wiki documentation
 * Bitmaps: save into caches a resampled/resized version of a bitmap
 * Bitmaps: allow custom pre/post processing of the downloaded bitmap
 * Allow selection and use of other disk/memory cache policies (LFU?)
@@ -121,7 +133,7 @@ A (hopefully enough) comprehensive suite of unit/functional tests for the librar
 </p>
 
 ### License
-You are free to use, modify, redistribute *Kraken* in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
+You are free to use, modify, redistribute *Kraken* in any way permitted by the **Apache 2.0** license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
 
 > <pre>
 > Copyright 2013 Marco Salis - fast3r(at)gmail.com
