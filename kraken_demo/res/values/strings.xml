@@ -1,5 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Kraken Library Demo</string>
+    <string name="app_name">Kraken Demo</string>
+    <string name="title_activity_main_screen">Kraken Demo</string>
+    <string name="action_clear_all_caches">Clear all caches</string>
+    <string name="action_clear_memory_caches">Clear memory caches</string>
+    <string name="action_clear_disk_caches">Clear disk caches</string>
 
 </resources>

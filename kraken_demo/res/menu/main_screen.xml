@@ -1,0 +1,19 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/action_clear_caches"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_clear_all_caches"/>
+    <item
+        android:id="@+id/action_clear_memory_caches"
+        android:orderInCategory="200"
+        android:showAsAction="never"
+        android:title="@string/action_clear_memory_caches"/>
+    <item
+        android:id="@+id/action_clear_disk_caches"
+        android:orderInCategory="300"
+        android:showAsAction="never"
+        android:title="@string/action_clear_disk_caches"/>
+
+</menu>

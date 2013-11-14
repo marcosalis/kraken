@@ -46,11 +46,11 @@ import com.google.common.annotations.Beta;
  * In order to use this class you must create a subclass of it and declare it in
  * the manifest like this:
  * 
- * <code>
- *     <application
+ * <code><pre>
+ *     &#60;application
  *         android:name="com.mypackage.MyApplication"
- *     ...
- * </code>
+ *     ... 
+ * </pre></code>
  * 
  * @since 1.0
  * @author Marco Salis
