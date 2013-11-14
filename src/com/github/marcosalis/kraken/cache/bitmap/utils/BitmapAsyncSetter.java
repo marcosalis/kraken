@@ -33,7 +33,7 @@ import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
@@ -66,7 +66,7 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 @ThreadSafe
-public class BitmapAsyncSetter implements OnBitmapRetrievalListener {
+public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 
 	/**
 	 * Callback interface to be used when the caller needs to know if and when

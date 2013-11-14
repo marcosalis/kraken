@@ -37,7 +37,7 @@ import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
@@ -162,7 +162,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final TestAssertsWrapper asserts = new TestAssertsWrapper();
 
-		final OnBitmapRetrievalListener listener = new OnBitmapRetrievalListener() {
+		final OnSuccessfulBitmapRetrievalListener listener = new OnSuccessfulBitmapRetrievalListener() {
 			@Override
 			public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull final Bitmap bitmap,
 					@Nonnull final BitmapSource source) {
@@ -217,7 +217,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		};
 		try {
 			final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view, listener);
-			cache.setBitmapAsync(key, setter);
+			cache.setBitmapAsync(key, AccessPolicy.NORMAL, setter, null);
 		} catch (Exception e) {
 			fail("Exception thrown when setting bitmap");
 		}

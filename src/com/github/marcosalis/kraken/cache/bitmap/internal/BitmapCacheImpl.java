@@ -65,22 +65,21 @@ class BitmapCacheImpl extends BitmapCacheBase {
 
 	@Nonnull
 	@Override
-	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnBitmapRetrievalListener listener) {
+	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+			@Nonnull OnSuccessfulBitmapRetrievalListener listener) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
 		if (isRefresh) {
-			return BitmapLoader.executeDownload(mLoaderConfig, key, listener);
+			BitmapLoader.executeDownload(mLoaderConfig, key, listener);
 		} else {
 			final Future<Bitmap> future = getBitmapFromMemory(key, listener);
 			if (future != null) {
 				// cache hit at memory level, we can avoid further overhead of
 				// executing tasks as an optimization
-				return future;
 			} else {
 				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, listener);
-				return BitmapCacheBase.submitInExecutor(loader);
+				BitmapCacheBase.submitInExecutor(loader);
 			}
 		}
 	}
@@ -95,15 +94,16 @@ class BitmapCacheImpl extends BitmapCacheBase {
 
 	@Nonnull
 	@Override
-	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull BitmapAsyncSetter setter) {
-		return getBitmap(key, AccessPolicy.NORMAL, setter, null);
+	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view) {
+		final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view);
+		getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
 	@Nonnull
 	@Override
-	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
-		return getBitmap(key, policy, setter, placeholder);
+		getBitmap(key, policy, setter, placeholder);
 	}
 
 	/**

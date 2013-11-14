@@ -15,13 +15,12 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import java.util.concurrent.Future;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
@@ -57,7 +56,7 @@ public interface BitmapCache extends ContentProxy {
 		 * Called when a Bitmap has been retrieved from the cache.
 		 * 
 		 * @param key
-		 *            The bitmap's {@link CacheUrlKey}
+		 *            The {@link CacheUrlKey} of the bitmap
 		 * @param bitmap
 		 *            The retrieved Bitmap
 		 * @param source
@@ -66,19 +65,90 @@ public interface BitmapCache extends ContentProxy {
 		 */
 		public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
 				@Nonnull BitmapSource source);
+
+		/**
+		 * Called when a bitmap could not be retrieved.
+		 * 
+		 * @param key
+		 *            The {@link CacheUrlKey} of the bitmap
+		 * @param e
+		 *            The exception that caused the error (if any)
+		 */
+		public void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e);
 	}
 
-	@Nonnull
-	public Future<Bitmap> getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnBitmapRetrievalListener listener);
+	/**
+	 * Simple {@link OnBitmapRetrievalListener} implementation to retrieve a
+	 * successful retrieval of a bitmap.
+	 */
+	@Beta
+	public static abstract class OnSuccessfulBitmapRetrievalListener implements
+			OnBitmapRetrievalListener {
+		@Override
+		public final void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e) {
+			// does nothing
+		}
+	}
 
+	/**
+	 * Retrieves a bitmap asynchronously with the specified {@link AccessPolicy}
+	 * 
+	 * Use {@link #preloadBitmap(CacheUrlKey)} for
+	 * {@link AccessPolicy#PRE_FETCH}.
+	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} of the bitmap
+	 * @param policy
+	 *            The {@link AccessPolicy} to use
+	 * @param listener
+	 *            {@link OnSuccessfulBitmapRetrievalListener} to get the bitmap
+	 *            if successfully retrieved
+	 * @throws IllegalArgumentException
+	 *             if policy is {@link AccessPolicy#PRE_FETCH}
+	 */
+	@Nonnull
+	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+			@Nonnull OnSuccessfulBitmapRetrievalListener listener);
+
+	/**
+	 * Preloads a bitmap into the cache for future use. Does nothing if the
+	 * bitmap is already in one of the caches.
+	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} of the bitmap
+	 */
 	public void preloadBitmap(@Nonnull CacheUrlKey key);
 
+	/**
+	 * Asynchronously sets the retrieved bitmap into the passed image view.
+	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} of the bitmap
+	 * @param view
+	 *            The {@link ImageView} to set the bitmap into
+	 */
 	@Nonnull
-	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull BitmapAsyncSetter setter);
+	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view);
 
+	/**
+	 * Asynchronously sets the retrieved bitmap into an image view with the
+	 * passed custom parameters.
+	 * 
+	 * Use {@link #setBitmapAsync(CacheUrlKey, ImageView)} if custom parameters
+	 * are not needed.
+	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} of the bitmap
+	 * @param policy
+	 *            The {@link AccessPolicy} to use
+	 * @param setter
+	 *            A {@link BitmapAsyncSetter} holding the image view
+	 * @param placeholder
+	 *            A (optional) placeholder {@link Drawable} to set inside the
+	 *            image view when the bitmap is not available in memory
+	 */
 	@Nonnull
-	public Future<Bitmap> setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder);
 
 }
