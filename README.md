@@ -58,6 +58,21 @@ The encoded version of the downloaded bitmaps are saved in the device's SD card 
 Image downloading is multithreaded to ensure maximum performances. *Kraken* automatically sets the best combination of thread pool sizes depending on the number of available CPU cores. A custom policy can be set by calling the static method <code>BitmapCacheBase.setThreadingPolicy()</code> with a <code>BitmapThreadingPolicy</code> instance.
 The set policy and thread pools are shared among all bitmap caches, so that it's possible to create many (with different size, location and purpose) without spawning too many threads.
 
+#### Usage
+##### Create and reference a bitmap cache
+The best way to initialize the caches is the <code>onCreate()</code> method of the <code>Application</code> class. *Kraken* provides a custom subclass called <code>DroidApplication</code> that provides some utility and debugging methods, check its documentation on how to use it.
+The <code>Application</code> instance is never GC'd when the application process is alive. Moreover, its natural "singleton" behavior makes it the perfect place to store the global instance(s) of cache(s). When not in foreground, the application process, along with the whole application stack (and consequently memory caches), will be killed by Android whenever it requires memory.
+See the <code>CachesManager</code> interface and its base implementation <code>BaseCachesManager</code> for a convenient way to group and access multiple caches.
+Using the code below, you can build a bitmap cache (with debugging name *"Profile bitmaps cache"*) that occupies the 15% of the total max app memory heap and stores the images in the external storage application cache subfolder *profile_bitmaps* with an expiration time of 1 day. See the <code>BitmapCacheBuilder</code> documentation for the full list of configurable parameters.
+``` java
+ BitmapCache cache = new BitmapCacheBuilder(context)
+ 	.maxMemoryCachePercentage(15)
+ 	.memoryCacheLogName("Profile bitmaps cache")
+ 	.diskCacheDirectoryName("profile_bitmaps")
+ 	.diskCachePurgeableAfter(DroidUtils.DAY)
+ 	.build();
+```
+
 
 ### POJO and DTO loading, (de)serialization and caching
 TODO
@@ -70,10 +85,13 @@ TODO
 * Effective automatic disk cache purge policy implementation
 
 
-## Other
+## Other stuff
+
+### Issues reporting and tests
+A (hopefully enough) comprehensive suite of unit/functional tests for the library are provided as Android test project in the *kraken_tests* subfolder. Bug reports and feature requests are more then welcome, and the best way of submitting them is using the *Issues* feature in GitHub. Pull requests are more than welcome, too!
 
 ### Alternatives to Kraken
-<p>There are many other valid (and well known) open source alternatives to Kraken, which may be more suitable for you. Here is a few ones:
+<p>There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
 <ul>
 <li><b>Volley</b> (https://developers.google.com/events/io/sessions/325304728)</li>
 <li><b>Picasso</b> (http://square.github.io/picasso/)</li>
@@ -82,7 +100,7 @@ TODO
 </p>
 
 ### License
-You are free to use, modify, redistribute Kraken in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
+You are free to use, modify, redistribute *Kraken* in any way permitted by the <i>Apache 2.0</i> license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
 
 > <pre>
 > Copyright 2013 Marco Salis - fast3r(at)gmail.com
