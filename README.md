@@ -103,6 +103,11 @@ TODO
 
 ## Other stuff
 
+### Annotations and FindBugs™
+I strongly believe in Java annotations as an effortless way to improve code quality and readability. That's why you'll find that the vast majority of *Kraken* source code is annotated with thread-safety (<code>@Immutable</code>, 
+<code>@ThreadSafe</code>, <code>@NotThreadSafe</code>, <code>@NotForUiThread</code>) and parameter/fields consistency (<code>@Nonnull</code>, <code>@Nullable</code>) information.<br />
+I also make frequent use of the static analyzer **FindBugs** (http://findbugs.sourceforge.net/) and I consider it a very powerful tool that every Java programmer shouldn't live without. Check it out if you still haven't.
+
 ### Issues reporting and tests
 A (hopefully enough) comprehensive suite of unit/functional tests for the library are provided as Android test project in the *kraken_tests* subfolder. Bug reports and feature requests are more then welcome, and the best way of submitting them is using the *Issues* feature in GitHub. Pull requests are more than welcome, too!
 
