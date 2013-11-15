@@ -43,12 +43,17 @@ or
 <pre><code>ant kraken-release-config</code></pre>
 (*fear not, Gradle builds support is coming soon*).
 
+### Demo application
+The folder */kraken_demo* contains a demo application project that demostrates how to use *Kraken* for bitmap caching. It implements very long *ListView*s and *GridView*s of bitmaps downloaded from the network so that you can see how the library performs in the most performance-critical scenario.
+
 ### Bitmap loading and caching
 Efficiently load images from the network and cache them, as well as being able to set them asynchronously into image views, is one of the most common problems in Android: it's really easy to overuse the UI thread or cause memory leaks in the attempt of improving the performances, especially when dealing with adapters and *ListView*s.
 *Kraken* reliefs the programmer from the burden of managing all this. It holds a configurable memory and disk cache where bitmaps are stored after the download, and provides methods to set the bitmaps inside image views after they're loaded, seamlessly handling the case of recycled or destroyed views. Images are never downloaded twice in the case simultaneous requests (i.e. when scrolling a list back and forth).
 
 #### Memory cache
-*Kraken* uses Android's *LruCache* to provide a limited size memory cache to hold the recently used bitmaps, evicting the old ones with a LRU policy. The memory cache size can be set in terms of maximum bytes or percentage of the available application memory in the current device. Multiple bitmap caches can be built and their memory occupation sums up: it's not recommended to set above 20-25% of the total application memory for caching or the risk of *OutOfMemoryError*s would increase, unless your application only caches bitmaps (and you really know what you're doing).
+*Kraken* uses Android's **LruCache** to provide a limited size memory cache to hold the recently used bitmaps, evicting the old ones with a LRU policy. The memory cache size can be set in terms of maximum bytes or percentage of the available application memory in the current device. Multiple bitmap caches can be built and their memory occupation sums up: it's not recommended to set above 20-25% of the total application memory for caching or the risk of *OutOfMemoryError*s would increase, unless your application only caches bitmaps (and you really know what you're doing).
+
+It is important that you be nice to Android and clear the memory caches when receiving the <code>onLowMemory()</code> and <code>onTrimMemory()</code> (with critical state) callbacks. See the *demo application* for an example of how to do that.
 
 #### Disk cache
 The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>BitmapCache.clearDiskCache(DiskCacheClearMode.EVICT_OLD)</code>.
