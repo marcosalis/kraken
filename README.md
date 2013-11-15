@@ -53,6 +53,9 @@ Efficiently load images from the network and cache them, as well as being able t
 #### Disk cache
 The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>BitmapCache.clearDiskCache(DiskCacheClearMode.EVICT_OLD)</code>.
 
+#### HTTP transport
+*Kraken* uses the **google-http-java-client** library for Android as an HTTP abstraction layer. This means you can easily override the default used <code>HttpTransport</code> to provide another implementation or write your own by passing the built <code>HttpRequestFactory</code> to the bitmap cache builder and provide your own customization of network-layer policies and failover such as <code>HttpRequestInitializer</code>, <code>BackOff</code>, <code>BackOffRequired</code> and <code>HttpUnsuccessfulResponseHandler</code>.
+
 #### Threading policies
 Image downloading is multithreaded to ensure maximum performances. *Kraken* automatically sets the best combination of thread pool sizes depending on the number of available CPU cores. A custom policy can be set by calling the static method <code>BitmapCacheBase.setThreadingPolicy()</code> with a <code>BitmapThreadingPolicy</code> instance.
 The set policy and thread pools are shared among all bitmap caches, so that it's possible to create many (with different size, location and purpose) without spawning too many threads.
@@ -135,7 +138,7 @@ A (hopefully enough) comprehensive suite of unit/functional tests for the librar
 </p>
 
 ### License
-You are free to use, modify, redistribute *Kraken* in any way permitted by the **Apache 2.0** license. If you like Kraken and you are using it inside your Android application, please let me know by sending an email to fast3r(at)gmail.com.
+You are free to use, modify, redistribute *Kraken* in any way permitted by the **Apache 2.0** license. If you like *Kraken* and you are using it inside your Android application, please let me know by sending an email to *fast3r(at)gmail.com*.
 
 > <pre>
 > Copyright 2013 Marco Salis - fast3r(at)gmail.com
