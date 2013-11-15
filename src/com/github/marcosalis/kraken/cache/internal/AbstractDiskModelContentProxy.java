@@ -36,12 +36,12 @@ import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
 import com.github.marcosalis.kraken.cache.internal.loaders.DiskContentLoader;
 import com.github.marcosalis.kraken.cache.internal.loaders.ModelDiskContentLoaderFactory;
 import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader.ContentUpdateCallback;
-import com.github.marcosalis.kraken.cache.json.JsonModel;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.ExpirableFutureTask;
+import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.annotations.Beta;
 
 /**

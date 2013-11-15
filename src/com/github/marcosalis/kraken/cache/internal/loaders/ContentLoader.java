@@ -19,9 +19,9 @@ package com.github.marcosalis.kraken.cache.internal.loaders;
 import javax.annotation.Nonnull;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
-import com.github.marcosalis.kraken.cache.json.JsonModel;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
+import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.annotations.Beta;
 
 /**

@@ -26,8 +26,10 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.app.Application;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -39,6 +41,7 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.apache.ApacheHttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.util.Preconditions;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -101,14 +104,15 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	}
 
 	/**
-	 * Initializes the {@link DefaultHttpRequestsManager}
+	 * Initializes the {@link DefaultHttpRequestsManager}. Call this preferably
+	 * from the {@link Application#onCreate()} method.
 	 * 
 	 * @param strategy
 	 *            The {@link ConnectionKeepAliveStrategy} if
 	 *            {@link ApacheHttpTransport} is used.
 	 */
 	@OverridingMethodsMustInvokeSuper
-	public synchronized void initialize(@Nullable ConnectionKeepAliveStrategy strategy) {
+	public synchronized void initialize(@Nonnull ConnectionKeepAliveStrategy strategy) {
 
 		if (DroidConfig.DEBUG) { // logging system properties values
 			Log.d(TAG, "http.maxConnections: " + System.getProperty("http.maxConnections"));
@@ -145,6 +149,14 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	}
 
 	/**
+	 * Same as {@link #initialize(ConnectionKeepAliveStrategy)} with a
+	 * {@link DefaultConnectionKeepAliveStrategy}.
+	 */
+	public synchronized void initialize() {
+		initialize(new DefaultConnectionKeepAliveStrategy());
+	}
+
+	/**
 	 * <b>Only for testing purposes.</b><br>
 	 * Inject a custom {@link HttpTransport} inside the manager
 	 * 
@@ -166,6 +178,7 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	@Nonnull
 	@Override
 	public HttpRequestFactory getRequestFactory() {
+		Preconditions.checkArgument(mDefaultRequestFactory != null, "initialize() not called");
 		return mDefaultRequestFactory;
 	}
 
@@ -185,6 +198,7 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	@Override
 	public HttpRequest buildRequest(@Nonnull String method, @Nonnull String urlString,
 			@Nullable HttpContent content) throws IOException {
+		Preconditions.checkArgument(mDefaultRequestFactory != null, "initialize() not called");
 		return mDefaultRequestFactory.buildRequest(method, new GenericUrl(urlString), content);
 	}
 

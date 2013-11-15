@@ -20,8 +20,8 @@ import java.io.IOException;
 import android.content.Context;
 
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
-import com.github.marcosalis.kraken.cache.json.JacksonJsonManager;
-import com.github.marcosalis.kraken.cache.json.JsonModel;
+import com.github.marcosalis.kraken.utils.json.JacksonJsonManager;
+import com.github.marcosalis.kraken.utils.json.JsonModel;
 
 /**
  * Mock implementation of {@link ModelDiskCache} for testing purposes.

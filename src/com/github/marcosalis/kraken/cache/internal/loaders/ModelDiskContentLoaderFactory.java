@@ -19,9 +19,9 @@ package com.github.marcosalis.kraken.cache.internal.loaders;
 import com.github.marcosalis.kraken.cache.ContentLruCache;
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
 import com.github.marcosalis.kraken.cache.internal.AbstractDiskModelContentProxy;
-import com.github.marcosalis.kraken.cache.json.JsonModel;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
 import com.github.marcosalis.kraken.utils.concurrent.ExpirableFutureTask;
+import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.annotations.Beta;
 
 /**
