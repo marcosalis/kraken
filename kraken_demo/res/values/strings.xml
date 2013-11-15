@@ -7,7 +7,7 @@
     <string name="action_clear_disk_caches">Clear disk caches</string>
     <string name="action_settings">Settings</string>
     <string name="title_listview_small">ListView demo (130x130 img)</string>
-    <string name="title_listview_fullscreen">ListView demo (720x720 fullscreen)</string>
+    <string name="title_listview_fullscreen">ListView demo (fullscreen)</string>
     <string name="title_gridview">GridView demo (320x320 img)</string>
 
 </resources>

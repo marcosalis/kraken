@@ -26,6 +26,7 @@ import android.content.res.AssetManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +46,7 @@ import com.github.marcosalis.kraken.demo.KrakenDemoApplication.CacheId;
 import com.github.marcosalis.kraken.demo.R;
 import com.github.marcosalis.kraken.demo.models.Photo;
 import com.github.marcosalis.kraken.demo.models.PhotosList;
+import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.android.ParallelAsyncTask;
 import com.google.common.collect.ImmutableList;
@@ -84,13 +86,17 @@ public class PhotosListFragment extends ListFragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-		// TODO: use best photos size for screen size
 		switch (mPhotosSize) {
 		case SMALL:
 			mPhotosTask = new PhotosListTask("photos_130x130.json");
 			break;
 		case FULL_SCREEN:
-			mPhotosTask = new PhotosListTask("photos_720x720.json");
+			final DisplayMetrics metrics = DroidUtils.getDefaultDisplayMetrics(getActivity());
+			if (metrics.densityDpi >= DisplayMetrics.DENSITY_HIGH) {
+				mPhotosTask = new PhotosListTask("photos_720x720.json");
+			} else {
+				mPhotosTask = new PhotosListTask("photos_480x480.json");
+			}
 			break;
 		}
 		mPhotosTask.parallelExec(getActivity().getAssets());
