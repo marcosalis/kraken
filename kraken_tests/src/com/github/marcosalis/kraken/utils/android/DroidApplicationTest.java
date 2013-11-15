@@ -26,6 +26,7 @@ import android.test.ApplicationTestCase;
 import android.test.UiThreadTest;
 import android.test.suitebuilder.annotation.MediumTest;
 
+import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.DroidApplication.DroidStrictMode;
 
 /**
@@ -121,22 +122,30 @@ public class DroidApplicationTest extends ApplicationTestCase<DroidApplication> 
 
 	@UiThreadTest
 	public void testGetDebugCustomThreadPolicy() {
-		assertNotNull(mApplication.getDebugCustomThreadPolicy());
+		if (DroidUtils.isMinimumSdkLevel(9)) {
+			assertNotNull(mApplication.getDebugCustomThreadPolicy());
+		}
 	}
 
 	@UiThreadTest
 	public void testGetStrictCustomThreadPolicy() {
-		assertNotNull(mApplication.getStrictCustomThreadPolicy());
+		if (DroidUtils.isMinimumSdkLevel(9)) {
+			assertNotNull(mApplication.getStrictCustomThreadPolicy());
+		}
 	}
 
 	@UiThreadTest
 	public void testGetDebugCustomVmPolicy() {
-		assertNotNull(mApplication.getDebugCustomVmPolicy());
+		if (DroidUtils.isMinimumSdkLevel(9)) {
+			assertNotNull(mApplication.getDebugCustomVmPolicy());
+		}
 	}
 
 	@UiThreadTest
 	public void testGetStrictCustomVmPolicy() {
-		assertNotNull(mApplication.getStrictCustomVmPolicy());
+		if (DroidUtils.isMinimumSdkLevel(9)) {
+			assertNotNull(mApplication.getStrictCustomVmPolicy());
+		}
 	}
 
 }

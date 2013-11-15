@@ -59,7 +59,7 @@ public class BitmapUtilsTest extends AndroidTestCase {
 		}
 		final Bitmap droid = BitmapFactory.decodeStream(is);
 		final int actualSize = BitmapUtils.getSize(droid);
-		final int expectedSize = 500 * 500 * 4;
+		final int expectedSize = 500 * droid.getRowBytes();
 		assertEquals(expectedSize, actualSize);
 	}
 

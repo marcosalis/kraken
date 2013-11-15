@@ -34,7 +34,7 @@ public class PhotosListViewActivity extends FragmentActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_list_view_small);
+		setContentView(R.layout.activity_list_view);
 
 		final PhotosSize size = (PhotosSize) getIntent().getSerializableExtra(
 				PhotosListFragment.ARGS_PHOTOS_SIZE);

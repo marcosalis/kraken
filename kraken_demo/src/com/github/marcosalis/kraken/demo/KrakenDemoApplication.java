@@ -28,6 +28,7 @@ import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.DroidApplication;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
+import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 
 /**
  * {@link Application} subclass that initializes caches and holds a
@@ -68,15 +69,18 @@ public class KrakenDemoApplication extends DroidApplication {
 		setInstance(this);
 		super.onCreate();
 
+		// initialize HTTP requests manager
+		DefaultHttpRequestsManager.get().initialize();
+
 		// initialize caches
 		final BitmapCacheBuilder builder130 = new BitmapCacheBuilder(this);
-		builder130.maxMemoryCachePercentage(10) // 10% of available memory
+		builder130.maxMemoryCachePercentage(10) //
 				.memoryCacheLogName("BITMAPS_130") //
 				.diskCachePurgeableAfter(DroidUtils.DAY) //
 				.diskCacheDirectoryName("bitmaps130");
 
 		final BitmapCacheBuilder builderLarge = new BitmapCacheBuilder(this);
-		builderLarge.maxMemoryCachePercentage(25) // 25% of available memory
+		builderLarge.maxMemoryCachePercentage(25) //
 				.memoryCacheLogName("BITMAPS_LARGE") //
 				.diskCachePurgeableAfter(DroidUtils.HOUR * 6) //
 				.diskCacheDirectoryName("bitmaps_large");

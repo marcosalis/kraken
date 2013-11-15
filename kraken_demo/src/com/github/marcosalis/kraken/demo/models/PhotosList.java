@@ -22,14 +22,7 @@ import javax.annotation.concurrent.Immutable;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.github.marcosalis.kraken.cache.json.JsonModel;
-import com.github.marcosalis.kraken.demo.models.PhotosList.PhotoArrayToListDeserializer;
-import com.github.marcosalis.kraken.demo.models.PhotosList.PhotoListToArraySerializer;
-import com.github.marcosalis.kraken.demo.utils.ArrayToListDeserializer;
-import com.github.marcosalis.kraken.demo.utils.ListToArraySerializer;
+import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -39,8 +32,6 @@ import com.google.common.collect.ImmutableList;
  * @author Marco Salis
  */
 @Immutable
-@JsonSerialize(using = PhotoListToArraySerializer.class)
-@JsonDeserialize(using = PhotoArrayToListDeserializer.class)
 public class PhotosList extends JsonModel {
 
 	private static final String DATA = "data";
@@ -57,17 +48,6 @@ public class PhotosList extends JsonModel {
 	@JsonProperty(DATA)
 	public ImmutableList<Photo> getPhotos() {
 		return photos;
-	}
-
-	public static class PhotoListToArraySerializer extends ListToArraySerializer<Photo> {
-	}
-
-	public static class PhotoArrayToListDeserializer extends ArrayToListDeserializer<Photo> {
-		@Override
-		protected TypeReference<List<Photo>> getTypeReference() {
-			return new TypeReference<List<Photo>>() {
-			};
-		}
 	}
 
 }

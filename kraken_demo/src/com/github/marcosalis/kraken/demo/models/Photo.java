@@ -20,7 +20,7 @@ import javax.annotation.concurrent.Immutable;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.marcosalis.kraken.cache.json.JsonModel;
+import com.github.marcosalis.kraken.utils.json.JsonModel;
 
 /**
  * POJO representation of a Facebook photo model.
@@ -33,7 +33,7 @@ import com.github.marcosalis.kraken.cache.json.JsonModel;
 public class Photo extends JsonModel {
 
 	private static final String PHOTO_ID = "photo_id";
-	private static final String PHOTO_URL = "photo_url";
+	private static final String PHOTO_URL = "src";
 
 	private final String photo_id;
 	private final String photo_url;

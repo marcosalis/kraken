@@ -98,6 +98,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		mCache.clearMemoryCache();
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.DISK);
 		mCache.clearDiskCache(DiskCacheClearMode.ALL);
+		Thread.yield();
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);
 	}
 
@@ -181,7 +182,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		} catch (Exception e) {
 			fail("Exception thrown when retrieving bitmap");
 		}
-		latch.await(500, TimeUnit.MILLISECONDS);
+		latch.await(1000, TimeUnit.MILLISECONDS);
 		asserts.runAsserts();
 	}
 
@@ -221,7 +222,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		} catch (Exception e) {
 			fail("Exception thrown when setting bitmap");
 		}
-		latchMemory.await(500, TimeUnit.MILLISECONDS);
+		latchMemory.await(1000, TimeUnit.MILLISECONDS);
 		asserts.runAsserts();
 	}
 
