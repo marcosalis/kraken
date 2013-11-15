@@ -11,24 +11,27 @@
     tools:context=".MainScreenActivity" >
 
     <Button
+        android:id="@+id/list_view_small"
         style="@android:style/TextAppearance.Small"
-        android:layout_width="200dip"
+        android:layout_width="220dip"
         android:layout_height="wrap_content"
-        android:text="ListView demo (small img)"
+        android:text="@string/title_listview_small"
         tools:ignore="HardcodedText" />
 
     <Button
+        android:id="@+id/list_view_fullscreen"
         style="@android:style/TextAppearance.Small"
-        android:layout_width="200dip"
+        android:layout_width="220dip"
         android:layout_height="wrap_content"
-        android:text="ListView demo (large img)"
+        android:text="@string/title_listview_fullscreen"
         tools:ignore="HardcodedText" />
 
     <Button
+        android:id="@+id/grid_view"
         style="@android:style/TextAppearance.Small"
-        android:layout_width="200dip"
+        android:layout_width="220dip"
         android:layout_height="wrap_content"
-        android:text="GridView demo"
+        android:text="@string/title_gridview"
         tools:ignore="HardcodedText" />
 
 </LinearLayout>

@@ -16,9 +16,12 @@
 package com.github.marcosalis.kraken.demo.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Toast;
 
 import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
@@ -27,6 +30,8 @@ import com.github.marcosalis.kraken.cache.managers.BaseCachesManager;
 import com.github.marcosalis.kraken.demo.KrakenDemoApplication;
 import com.github.marcosalis.kraken.demo.KrakenDemoApplication.CacheId;
 import com.github.marcosalis.kraken.demo.R;
+import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment;
+import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment.PhotosSize;
 
 /**
  * Launcher activity that shows the possible demo options.
@@ -34,12 +39,16 @@ import com.github.marcosalis.kraken.demo.R;
  * @since 1.0
  * @author Marco Salis
  */
-public class MainScreenActivity extends Activity {
+public class MainScreenActivity extends Activity implements OnClickListener {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main_screen);
+
+		findViewById(R.id.list_view_small).setOnClickListener(this);
+		findViewById(R.id.list_view_fullscreen).setOnClickListener(this);
+		findViewById(R.id.grid_view).setOnClickListener(this);
 	}
 
 	@Override
@@ -67,6 +76,27 @@ public class MainScreenActivity extends Activity {
 			break;
 		}
 		return true;
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.list_view_small:
+			startPhotosListViewActivity(PhotosSize.SMALL);
+			break;
+		case R.id.list_view_fullscreen:
+			startPhotosListViewActivity(PhotosSize.FULL_SCREEN);
+			break;
+		case R.id.grid_view:
+			Toast.makeText(this, "Coming soon!", Toast.LENGTH_SHORT).show();
+			break;
+		}
+	}
+
+	private void startPhotosListViewActivity(PhotosSize size) {
+		final Intent intent = new Intent(this, PhotosListViewActivity.class);
+		intent.putExtra(PhotosListFragment.ARGS_PHOTOS_SIZE, size);
+		startActivity(intent);
 	}
 
 }

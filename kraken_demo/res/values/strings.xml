@@ -2,9 +2,12 @@
 <resources>
 
     <string name="app_name">Kraken Demo</string>
-    <string name="title_activity_main_screen">Kraken Demo</string>
     <string name="action_clear_all_caches">Clear all caches</string>
     <string name="action_clear_memory_caches">Clear memory caches</string>
     <string name="action_clear_disk_caches">Clear disk caches</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_listview_small">ListView demo (small img)</string>
+    <string name="title_listview_fullscreen">ListView demo (fullscreen)</string>
+    <string name="title_gridview">GridView demo</string>
 
 </resources>
