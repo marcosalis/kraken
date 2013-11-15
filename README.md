@@ -48,7 +48,7 @@ Efficiently load images from the network and cache them, as well as being able t
 *Kraken* reliefs the programmer from the burden of managing all this. It holds a configurable memory and disk cache where bitmaps are stored after the download, and provides methods to set the bitmaps inside image views after they're loaded, seamlessly handling the case of recycled or destroyed views. Images are never downloaded twice in the case simultaneous requests (i.e. when scrolling a list back and forth).
 
 #### Memory cache
-*Kraken* uses Android's *LruCache* to provide a limited size memory cache to hold the recently used bitmaps, evicting the old ones with a LRU policy. The memory cache size can be set in terms of maximum bytes or percentage of the available application memory in the current device. Multiple bitmap caches can be built and their memory occupation sums up: it's not recommended to set above 20-25% of the total application memory for caching or the risk of *OutOfMemoryError*s would increase.
+*Kraken* uses Android's *LruCache* to provide a limited size memory cache to hold the recently used bitmaps, evicting the old ones with a LRU policy. The memory cache size can be set in terms of maximum bytes or percentage of the available application memory in the current device. Multiple bitmap caches can be built and their memory occupation sums up: it's not recommended to set above 20-25% of the total application memory for caching or the risk of *OutOfMemoryError*s would increase, unless your application only caches bitmaps (and you really know what you're doing).
 
 #### Disk cache
 The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>BitmapCache.clearDiskCache(DiskCacheClearMode.EVICT_OLD)</code>.
@@ -105,11 +105,13 @@ See the following classes documentation for further information on how to subcla
 * <code>ModelDiskCache</code>
 
 ### Coming soon
-* Android Studio / Gradle integration
+* Android Studio / Gradle integration and distribution JAR
 * More examples of use in the GitHub Wiki documentation
 * Bitmaps: save into caches a resampled/resized version of a bitmap
 * Bitmaps: allow custom pre/post processing of the downloaded bitmap
 * Allow selection and use of other disk/memory cache policies (LFU?)
+* Support for pluggable JSON/XML/other (de)serializers for model data
+* Tasks: allow cancellation and priority setting
 * Effective automatic disk cache purge policy implementation
 
 
