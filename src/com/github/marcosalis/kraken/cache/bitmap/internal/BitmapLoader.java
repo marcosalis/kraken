@@ -278,6 +278,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 				endDownload = System.currentTimeMillis();
 			}
 			if (imageBytes != null) { // download successful
+				// FIXME: limit concurrent bitmap decoding here
 				bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
 				if (bitmap != null) { // decoding successful
 
