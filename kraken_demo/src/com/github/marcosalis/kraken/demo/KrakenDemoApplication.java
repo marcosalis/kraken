@@ -40,7 +40,7 @@ public class KrakenDemoApplication extends DroidApplication {
 
 	public enum CacheId {
 		BITMAPS_130, // cache for 130x130 images
-		BITMAPS_320; // cache for 320x320 images
+		BITMAPS_LARGE; // cache for large images
 	}
 
 	private static KrakenDemoApplication mInstance;
@@ -75,15 +75,15 @@ public class KrakenDemoApplication extends DroidApplication {
 				.diskCachePurgeableAfter(DroidUtils.DAY) //
 				.diskCacheDirectoryName("bitmaps130");
 
-		final BitmapCacheBuilder builder320 = new BitmapCacheBuilder(this);
-		builder320.maxMemoryCachePercentage(10) // 10% of available memory
-				.memoryCacheLogName("BITMAPS_320") //
-				.diskCachePurgeableAfter(DroidUtils.DAY) //
-				.diskCacheDirectoryName("bitmaps320");
+		final BitmapCacheBuilder builderLarge = new BitmapCacheBuilder(this);
+		builderLarge.maxMemoryCachePercentage(25) // 25% of available memory
+				.memoryCacheLogName("BITMAPS_LARGE") //
+				.diskCachePurgeableAfter(DroidUtils.HOUR * 6) //
+				.diskCacheDirectoryName("bitmaps_large");
 
 		// build caches and register them in the manager
 		buildAndRegisterCache(CacheId.BITMAPS_130, builder130);
-		buildAndRegisterCache(CacheId.BITMAPS_320, builder320);
+		buildAndRegisterCache(CacheId.BITMAPS_LARGE, builderLarge);
 	}
 
 	@Nonnull

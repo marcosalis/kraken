@@ -2,6 +2,8 @@ Photos taken from Facebook group
 https://www.facebook.com/pages/Foto-sardegna/432724846798252
 (all copyrights to the authors)
 
+[480x480]
+SELECT photo_id, src FROM photo_src WHERE photo_id IN (SELECT object_id FROM photo WHERE album_object_id = '432844643452939') and size='480x480' LIMIT 0,150
 [320x320]
 SELECT photo_id, src FROM photo_src WHERE photo_id IN (SELECT object_id FROM photo WHERE album_object_id = '432844643452939') and size='320x320' LIMIT 0,150
 [130x130]
