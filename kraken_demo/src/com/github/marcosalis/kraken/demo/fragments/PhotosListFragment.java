@@ -90,7 +90,7 @@ public class PhotosListFragment extends ListFragment {
 			mPhotosTask = new PhotosListTask("photos_130x130.json");
 			break;
 		case FULL_SCREEN:
-			mPhotosTask = new PhotosListTask("photos_480x480.json");
+			mPhotosTask = new PhotosListTask("photos_720x720.json");
 			break;
 		}
 		mPhotosTask.parallelExec(getActivity().getAssets());

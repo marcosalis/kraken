@@ -19,6 +19,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
+import android.annotation.TargetApi;
 import android.app.Application;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
@@ -88,6 +89,26 @@ public class KrakenDemoApplication extends DroidApplication {
 		// build caches and register them in the manager
 		buildAndRegisterCache(CacheId.BITMAPS_130, builder130);
 		buildAndRegisterCache(CacheId.BITMAPS_LARGE, builderLarge);
+	}
+
+	@Override
+	public void onLowMemory() {
+		// memory caches cleanup when running low
+		mCachesManager.clearMemoryCaches();
+		super.onLowMemory();
+	}
+
+	@Override
+	@TargetApi(14)
+	public void onTrimMemory(int level) {
+		switch (level) {
+		// memory caches cleanup when trimming memory
+		case TRIM_MEMORY_COMPLETE:
+		case TRIM_MEMORY_RUNNING_CRITICAL:
+			mCachesManager.clearMemoryCaches();
+			break;
+		}
+		super.onTrimMemory(level);
 	}
 
 	@Nonnull
