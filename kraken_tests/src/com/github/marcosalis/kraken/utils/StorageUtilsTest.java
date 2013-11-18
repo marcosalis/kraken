@@ -18,6 +18,7 @@ package com.github.marcosalis.kraken.utils;
 import java.io.File;
 
 import android.content.Context;
+import android.os.Environment;
 import android.test.InstrumentationTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -81,6 +82,18 @@ public class StorageUtilsTest extends InstrumentationTestCase {
 		assertNotNull("Null temp File", tempFolder);
 		assertTrue("Temporary path doesn't exist", tempFolder.exists());
 		assertTrue("Can't write on temporary path", tempFolder.canWrite());
+	}
+
+	public void testGetPublicPicturesDir() {
+		final Context context = getInstrumentation().getTargetContext();
+		final File picturesDir = StorageUtils.getPublicPicturesDir(context);
+		final File expected = Environment
+				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		if (expected != null) {
+			assertNotNull(picturesDir);
+		} else { // test fallback
+			assertEquals(StorageUtils.getTempFolder(context), picturesDir);
+		}
 	}
 
 }

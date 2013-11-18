@@ -36,7 +36,7 @@ import com.google.common.annotations.VisibleForTesting;
  * See {@link http://developer.android.com/guide/topics/data/data-storage.html}
  * 
  * Access and write to external storage requires the
- * <code>READ_EXTERNAL_STORAGE</code> and <code>WRITE_EXTERNAL_STORAGE</code>
+ * <code>READ_EXTERNAL_STORAGE</code> and/or <code>WRITE_EXTERNAL_STORAGE</code>
  * Manifest permissions.
  * 
  * @since 1.0
@@ -210,6 +210,27 @@ public class StorageUtils {
 			}
 		}
 		return tempDir;
+	}
+
+	/**
+	 * Gets the device's default public directory for storing pictures. If the
+	 * default device dir is unavailable, it falls back to the application
+	 * temporary directory.
+	 * 
+	 * The method requires the <code>READ_EXTERNAL_STORAGE</code> permission.
+	 * 
+	 * @param context
+	 *            A {@link Context} to retrieve the folder
+	 * @return The File object or null if something went wrong
+	 */
+	@CheckForNull
+	public static File getPublicPicturesDir(@Nonnull Context context) {
+		File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+		if (!dir.exists() && !dir.mkdirs()) {
+			// fallback to the temporary directory
+			dir = getTempFolder(context);
+		}
+		return dir;
 	}
 
 }

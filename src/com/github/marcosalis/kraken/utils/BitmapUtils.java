@@ -16,7 +16,6 @@
  */
 package com.github.marcosalis.kraken.utils;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.CheckForNull;
@@ -26,7 +25,6 @@ import javax.annotation.Nonnull;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -36,7 +34,6 @@ import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 
 import com.github.marcosalis.kraken.utils.android.LogUtils;
@@ -110,25 +107,6 @@ public class BitmapUtils {
 		} else { // needed from API 19
 			return bitmap.getAllocationByteCount();
 		}
-	}
-
-	/**
-	 * Gets the device's default directory for storing pictures. If the default
-	 * device dir is unavailable, it falls back to the application temporary
-	 * directory.
-	 * 
-	 * @param context
-	 *            A {@link Context} to retrieve the folder
-	 * @return The File object or null if something went wrong
-	 */
-	@CheckForNull
-	public static File getPublicPicturesDir(@Nonnull Context context) {
-		File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		if (!dir.exists() && !dir.mkdirs()) {
-			// fallback to the temporary directory
-			dir = StorageUtils.getTempFolder(context);
-		}
-		return dir;
 	}
 
 	/**
@@ -280,7 +258,7 @@ public class BitmapUtils {
 		// TODO: handle bitmap orientation
 		final String[] mediaColumns = getImagesMediaColumns();
 		final Cursor cursor = cr.query(picUri, mediaColumns, null, null, null);
-		if (cursor != null && cursor.moveToFirst()) { // we've found the image
+		if (cursor != null && cursor.moveToFirst()) { // we found the image
 			final String picturePath = cursor.getString(cursor.getColumnIndex(mediaColumns[0]));
 			cursor.close();
 			return loadBitmapFromPath(picturePath, reqWidth, reqHeight);
@@ -290,9 +268,9 @@ public class BitmapUtils {
 	}
 
 	/**
-	 * See {@link #loadBitmapFromPath(String, int, int, boolean)}
+	 * See {@link #loadBitmapFromPath(String, int, int, boolean)}.
 	 * 
-	 * Rotate flag set to true by default
+	 * Rotate flag set to true by default.
 	 */
 	@CheckForNull
 	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, @Nonnegative int reqWidth,
@@ -301,7 +279,7 @@ public class BitmapUtils {
 	}
 
 	/**
-	 * Loads an immutable Bitmap object from the given path
+	 * Loads an immutable Bitmap object from the given path.
 	 * 
 	 * @param picturePath
 	 * @param reqWidth
@@ -348,7 +326,7 @@ public class BitmapUtils {
 		} else { // pre-HONEYCOMB or no rotation needed
 			bitmap = BitmapFactory.decodeFile(picturePath, options);
 			if (rotateValue != 0) {
-				// TODO: find a less memory-consuming way to do this?
+				// TODO: is there a less memory-consuming way to do this?
 				final Matrix matrix = new Matrix();
 				matrix.setRotate(rotateValue);
 				final Bitmap originalBitmap = bitmap;
@@ -388,7 +366,7 @@ public class BitmapUtils {
 	}
 
 	/**
-	 * Gets the rotation to apply to a picture given its EXIF orientation tag
+	 * Gets the rotation to apply to a picture given its EXIF orientation tag.
 	 */
 	public static int getRotationAngleFromOrientation(int orientation) {
 		int rotateValue = 0;
@@ -449,7 +427,7 @@ public class BitmapUtils {
 	 * Crops the passed bitmap to be used as a squared "profile" picture. The
 	 * same {@link Bitmap} is returned if already squared.
 	 * 
-	 * See {@link #cropProfileBitmap(String, int)}
+	 * See {@link #cropProfileBitmap(String, int)}.
 	 * 
 	 * @param bitmap
 	 *            The bitmap to crop (must already be resized if necessary)

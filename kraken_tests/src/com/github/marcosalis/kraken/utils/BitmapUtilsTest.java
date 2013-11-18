@@ -15,13 +15,11 @@
  */
 package com.github.marcosalis.kraken.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Environment;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -61,17 +59,6 @@ public class BitmapUtilsTest extends AndroidTestCase {
 		final int actualSize = BitmapUtils.getSize(droid);
 		final int expectedSize = 500 * droid.getRowBytes();
 		assertEquals(expectedSize, actualSize);
-	}
-
-	public void testGetPublicPicturesDir() {
-		final File picturesDir = BitmapUtils.getPublicPicturesDir(getContext());
-		final File expected = Environment
-				.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-		if (expected != null) {
-			assertNotNull(picturesDir);
-		} else { // test fallback
-			assertEquals(StorageUtils.getTempFolder(getContext()), picturesDir);
-		}
 	}
 
 	/**
