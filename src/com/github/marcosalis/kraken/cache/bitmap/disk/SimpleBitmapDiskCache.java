@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.disk;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,7 +33,7 @@ import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
-import com.github.marcosalis.kraken.cache.DiskCache;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
@@ -58,9 +58,9 @@ import com.google.common.io.Files;
  */
 @Beta
 @NotThreadSafe
-public class BitmapDiskCache extends DiskCache<Bitmap> {
+public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements BitmapDiskCache {
 
-	private static final String TAG = BitmapDiskCache.class.getSimpleName();
+	private static final String TAG = SimpleBitmapDiskCache.class.getSimpleName();
 
 	private static final String PATH = "bitmap";
 
@@ -78,9 +78,9 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	private final long mBitmapExpirationSec;
 
 	/**
-	 * Builds a {@link BitmapDiskCache} in the passed sub-folder. Note that the
-	 * {@link CacheLocation#EXTERNAL} cache is always used. If no external
-	 * caches are present, it falls back to the internal one.
+	 * Builds a {@link SimpleBitmapDiskCache} in the passed sub-folder. Note
+	 * that the {@link CacheLocation#EXTERNAL} cache is always used. If no
+	 * external caches are present, it falls back to the internal one.
 	 * 
 	 * @param context
 	 *            The context to retrieve the cache location
@@ -93,7 +93,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
-	public BitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder,
+	public SimpleBitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder,
 			@Nonnegative long purgeAfterSec) throws IOException {
 		super(context, CacheLocation.EXTERNAL, PATH + File.separator + subFolder, true);
 		Preconditions.checkArgument(purgeAfterSec >= MIN_EXPIRE_IN_SEC);
@@ -103,56 +103,31 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 		}
 	}
 
-	/**
-	 * Gets a {@link Bitmap} from the disk cache
-	 * 
-	 * @param key
-	 *            The cache item key
-	 * @return The cached bitmap, null if not present or an error occurred
-	 */
+	@Override
 	@CheckForNull
 	public Bitmap get(@Nonnull String key) {
 		return getBitmap(key);
 	}
 
-	/**
-	 * Puts a byte array representing a bitmap into the disk cache.
-	 * 
-	 * <b>Note:</b> to ensure optimal performances in terms of writing I/O and
-	 * space consumption, the byte array should possibly be in a compressed
-	 * format (JPG or PNG).
-	 * 
-	 * @param key
-	 *            The cache item key
-	 * @param image
-	 *            The byte array containing the image
-	 * @return true if successful, false otherwise (I/O error while storing)
-	 * @throws IllegalArgumentException
-	 *             if key or image are null
-	 */
+	@Override
 	@NotForUIThread
 	public boolean put(@Nonnull String key, @Nonnull byte[] image) {
 		return putBitmap(key, image);
 	}
 
-	/**
-	 * Compresses a {@link Bitmap} and puts it into the disk cache.
-	 * 
-	 * <b>Note:</b> saving a file from a Bitmap requires a new compression,
-	 * avoid it directly storing the original byte array with
-	 * {@link #put(String, byte[])} whenever possible.
-	 * 
-	 * @param key
-	 *            The cache item key
-	 * @param image
-	 *            The byte array containing the image
-	 * @return true if successful, false otherwise (I/O error while storing)
-	 * @throws IllegalArgumentException
-	 *             if key or image are null
-	 */
+	@Override
 	@NotForUIThread
 	public boolean put(@Nonnull String key, @Nonnull Bitmap bitmap) {
 		return putBitmap(key, bitmap);
+	}
+
+	@Override
+	public boolean remove(@Nonnull String key) {
+		final File bitmapFile = new File(mCacheLocation, key);
+		if (bitmapFile.exists()) { // existing cache item
+			return bitmapFile.delete();
+		}
+		return true;
 	}
 
 	@Override
@@ -175,8 +150,8 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 	@NotForUIThread
 	protected final Bitmap getBitmap(@Nonnull String fileName) {
 		Preconditions.checkNotNull(fileName);
-		File bitmapFile = new File(mCacheLocation, fileName);
-		if (bitmapFile != null && bitmapFile.exists()) { // existing cache item
+		final File bitmapFile = new File(mCacheLocation, fileName);
+		if (bitmapFile.exists()) { // existing cache item
 			Bitmap bitmap = null;
 			// decode file content into a Bitmap
 			DECODE_LOCK.lock();
@@ -186,8 +161,10 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 				DECODE_LOCK.unlock();
 			}
 			if (bitmap == null) { // file is damaged, delete it
-				if (!bitmapFile.delete() && DroidConfig.DEBUG) {
-					Log.w(TAG, "Damaged cache entry: " + fileName);
+				if (!bitmapFile.delete()) {
+					if (DroidConfig.DEBUG) {
+						Log.w(TAG, "Damaged cache entry: " + fileName);
+					}
 				}
 			} else {
 				/*
@@ -221,7 +198,7 @@ public class BitmapDiskCache extends DiskCache<Bitmap> {
 			File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it
 			if (bitmapFile.exists() && !bitmapFile.delete()) {
-				return false;
+				return false; // cannot delete old file
 			}
 			Files.write(image, bitmapFile);
 		} catch (IOException e) {

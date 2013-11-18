@@ -66,15 +66,7 @@ import com.google.common.base.Preconditions;
  */
 @Beta
 @NotThreadSafe
-public class DiskCache<V> implements SecondLevelCache<String, V> {
-
-	/**
-	 * Defines the possible policies to clear a disk cache.
-	 */
-	public enum DiskCacheClearMode {
-		ALL,
-		EVICT_OLD
-	}
+public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 
 	/**
 	 * Minimum expiration that can be set to a disk cache entry before it can
@@ -84,7 +76,8 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	public static final long MIN_EXPIRE_IN_SEC = DroidUtils.HOUR * 3;
 	protected static final long MIN_EXPIRE_IN_MS = MIN_EXPIRE_IN_SEC * 1000;
 	/**
-	 * Default expiration time for the {@link DiskCache} subclasses (in seconds)
+	 * Default expiration time for the {@link SimpleDiskCache} subclasses (in
+	 * seconds)
 	 */
 	public static final long DEFAULT_EXPIRE_IN_SEC = DroidUtils.DAY * 2;
 
@@ -113,7 +106,7 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
-	protected DiskCache(@Nonnull Context context, @Nonnull CacheLocation location,
+	protected SimpleDiskCache(@Nonnull Context context, @Nonnull CacheLocation location,
 			@Nonnull String subFolder, boolean allowLocationFallback) throws IOException {
 		final File cacheRoot = StorageUtils.getAppCacheDir(context, location, true);
 		if (cacheRoot != null) {
@@ -133,18 +126,6 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 		cleanCacheDir();
 	}
 
-	@NotForUIThread
-	public void clear(@Nonnull DiskCacheClearMode mode) {
-		switch (mode) {
-		case ALL:
-			clear();
-			break;
-		case EVICT_OLD:
-			clearOld();
-			break;
-		}
-	}
-
 	/**
 	 * Purge old elements from this disk cache, according to the expiration
 	 * policy of the implementation.
@@ -153,20 +134,33 @@ public class DiskCache<V> implements SecondLevelCache<String, V> {
 	 * expiration time to {@link #cleanCacheDir(long)} or implementing a custom
 	 * policy.
 	 */
-	protected void clearOld() {
+	public void clearOld() {
 		cleanCacheDir(DEFAULT_EXPIRE_IN_SEC);
 	}
 
 	/**
 	 * Asynchronously executes a purge of all contents on this disk cache.
 	 */
-	public void scheduleClearAll() {
+	public void scheduleClear() {
 		PURGE_EXECUTOR.execute(new Runnable() {
 			@Override
 			public void run() {
 				cleanCacheDir();
 			}
 		});
+	}
+
+	@Override
+	@NotForUIThread
+	public void clear(@Nonnull ClearMode mode) {
+		switch (mode) {
+		case ALL:
+			clear();
+			break;
+		case EVICT_OLD:
+			clearOld();
+			break;
+		}
 	}
 
 	/**

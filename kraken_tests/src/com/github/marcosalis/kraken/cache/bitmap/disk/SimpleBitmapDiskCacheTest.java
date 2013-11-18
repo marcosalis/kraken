@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.bitmap;
+package com.github.marcosalis.kraken.cache.bitmap.disk;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -24,25 +24,28 @@ import android.graphics.BitmapFactory;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
-import com.github.marcosalis.kraken.cache.DiskCache;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.utils.BitmapUtils;
 
 /**
- * Unit tests for the {@link BitmapDiskCache} class.
+ * Unit tests for the {@link SimpleBitmapDiskCache} class.
+ * 
+ * TODO: add concurrency tests
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @MediumTest
-public class BitmapDiskCacheTest extends AndroidTestCase {
+public class SimpleBitmapDiskCacheTest extends AndroidTestCase {
 
-	private BitmapDiskCache mDiskCache;
+	private SimpleBitmapDiskCache mDiskCache;
 	private Bitmap mTestBitmap;
 	private Bitmap mTestBitmapCropped;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		mDiskCache = new BitmapDiskCache(getContext(), "bitmap_test", DiskCache.MIN_EXPIRE_IN_SEC);
+		mDiskCache = new SimpleBitmapDiskCache(getContext(), "bitmap_test",
+				SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 		final InputStream is = getContext().getAssets().open("droid.jpg");
 		mTestBitmap = BitmapFactory.decodeStream(is);
 		mTestBitmapCropped = Bitmap.createBitmap(mTestBitmap, 0, 0, 20, 20);
@@ -97,6 +100,14 @@ public class BitmapDiskCacheTest extends AndroidTestCase {
 		final Bitmap bitmapCropped = mDiskCache.getBitmap("test_put_bitmap");
 		assertNotNull(bitmapCropped);
 		assertSameSize(mTestBitmapCropped, bitmapCropped);
+	}
+
+	public void testRemove() {
+		mDiskCache.put("test_put_bitmap", mTestBitmap);
+		assertTrue(mDiskCache.remove("test_put_bitmap"));
+		assertNull(mDiskCache.getBitmap("test_put_bitmap"));
+		// returns true if file doesn't exist
+		assertTrue(mDiskCache.remove("test_put_bitmap"));
 	}
 
 	private static void assertSameSize(Bitmap expected, Bitmap actual) {

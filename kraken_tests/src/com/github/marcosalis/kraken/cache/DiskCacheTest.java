@@ -29,7 +29,7 @@ import com.github.marcosalis.kraken.utils.StorageUtils;
 import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
 
 /**
- * Unit tests for the {@link DiskCache} class.
+ * Unit tests for the {@link SimpleDiskCache} class.
  * 
  * @since 1.0
  * @author Marco Salis
@@ -61,12 +61,12 @@ public class DiskCacheTest extends AndroidTestCase {
 
 	/**
 	 * Test constructor
-	 * {@link DiskCache#DiskCache(Context, CacheLocation, String, boolean)}
+	 * {@link SimpleDiskCache#DiskCache(Context, CacheLocation, String, boolean)}
 	 */
 	public void testDiskCache() {
-		DiskCache<String> mockCache = null;
+		SimpleDiskCache<String> mockCache = null;
 		try {
-			mockCache = new DiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			mockCache = new SimpleDiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
@@ -77,7 +77,7 @@ public class DiskCacheTest extends AndroidTestCase {
 	}
 
 	/**
-	 * Test for {@link DiskCache#scheduleClearAll()}
+	 * Test for {@link SimpleDiskCache#scheduleClearAll()}
 	 */
 	public void testPurgeAll() throws InterruptedException {
 		if (!mCacheDir.mkdirs())
@@ -91,9 +91,9 @@ public class DiskCacheTest extends AndroidTestCase {
 			e.printStackTrace();
 			fail();
 		}
-		DiskCache<String> mockCache = null;
+		SimpleDiskCache<String> mockCache = null;
 		try {
-			mockCache = new DiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			mockCache = new SimpleDiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
@@ -104,7 +104,7 @@ public class DiskCacheTest extends AndroidTestCase {
 	}
 
 	/**
-	 * Test for {@link DiskCache#schedulePurge(long)}
+	 * Test for {@link SimpleDiskCache#schedulePurge(long)}
 	 */
 	public void testPurge() throws InterruptedException {
 		if (!mCacheDir.mkdirs())
@@ -118,16 +118,16 @@ public class DiskCacheTest extends AndroidTestCase {
 			e.printStackTrace();
 			fail();
 		}
-		DiskCache<String> mockCache = null;
+		SimpleDiskCache<String> mockCache = null;
 		try {
-			mockCache = new DiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
+			mockCache = new SimpleDiskCache<String>(getContext(), TEST_LOCATION, TEST_FOLDER, false);
 		} catch (IOException e) {
 			e.printStackTrace();
 			fail();
 		}
-		final long timeSpan = System.currentTimeMillis() - (DiskCache.MIN_EXPIRE_IN_MS * 2);
+		final long timeSpan = System.currentTimeMillis() - (SimpleDiskCache.MIN_EXPIRE_IN_MS * 2);
 		expiredFile.setLastModified(timeSpan); // make the file "old"
-		mockCache.purge(DiskCache.MIN_EXPIRE_IN_SEC);
+		mockCache.purge(SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 
 		// Note: this test can fail in some devices due to an Android OS bug
 		// assertFalse("Expired file not deleted correctly",
@@ -136,11 +136,11 @@ public class DiskCacheTest extends AndroidTestCase {
 	}
 
 	public void testPurge_invalidExpiration() {
-		final DiskCache<String> cache = createDiskCache(getContext(), false);
+		final SimpleDiskCache<String> cache = createDiskCache(getContext(), false);
 		assertNotNull(cache);
 		boolean thrown = false;
 		try { // using too short expiration
-			cache.purge(DiskCache.MIN_EXPIRE_IN_SEC - 1);
+			cache.purge(SimpleDiskCache.MIN_EXPIRE_IN_SEC - 1);
 		} catch (IllegalArgumentException e) {
 			thrown = true;
 		}
@@ -156,7 +156,7 @@ public class DiskCacheTest extends AndroidTestCase {
 			fail();
 		}
 		Thread.sleep(101); // sleep to cause expiration
-		boolean deleted = DiskCache.deleteIfExpired(file, System.currentTimeMillis(), 100);
+		boolean deleted = SimpleDiskCache.deleteIfExpired(file, System.currentTimeMillis(), 100);
 		assertTrue(deleted);
 		assertFalse(file.exists());
 	}
@@ -169,13 +169,13 @@ public class DiskCacheTest extends AndroidTestCase {
 		} catch (IOException e) {
 			fail();
 		}
-		boolean deleted = DiskCache.deleteIfExpired(file, System.currentTimeMillis(), 5000);
+		boolean deleted = SimpleDiskCache.deleteIfExpired(file, System.currentTimeMillis(), 5000);
 		assertFalse(deleted);
 		assertTrue(file.exists());
 	}
 
 	/**
-	 * Test for {@link DiskCache#touchFile(File)}
+	 * Test for {@link SimpleDiskCache#touchFile(File)}
 	 * 
 	 * Note: this test can fail in some devices due to an Android OS bug
 	 */
@@ -193,22 +193,23 @@ public class DiskCacheTest extends AndroidTestCase {
 		Log.e(TAG, "Initial lastModified():" + touchFile.lastModified());
 		// set last modified date far enough in the past (so that we know the
 		// touch is actually written to the file)
-		final long timeSpan = System.currentTimeMillis() - (DiskCache.MIN_EXPIRE_IN_MS * 2);
+		final long timeSpan = System.currentTimeMillis() - (SimpleDiskCache.MIN_EXPIRE_IN_MS * 2);
 		if (!touchFile.setLastModified(timeSpan)) {
 			fail();
 		}
 		Log.e(TAG, "After setLastModified():" + touchFile.lastModified());
 		assertTrue("setLastModified() failed",
 				Math.abs(touchFile.lastModified() - timeSpan) <= 1000);
-		DiskCache.touchFile(touchFile);
+		SimpleDiskCache.touchFile(touchFile);
 		assertTrue("touchFile() didn't touch", touchFile.lastModified() - timeSpan > 0);
 		Log.e(TAG, "After touchFile():" + touchFile.lastModified());
 	}
 
-	private static DiskCache<String> createDiskCache(Context context, boolean allowLocationFallback) {
-		DiskCache<String> cache = null;
+	private static SimpleDiskCache<String> createDiskCache(Context context,
+			boolean allowLocationFallback) {
+		SimpleDiskCache<String> cache = null;
 		try {
-			cache = new DiskCache<String>(context, TEST_LOCATION, TEST_FOLDER,
+			cache = new SimpleDiskCache<String>(context, TEST_LOCATION, TEST_FOLDER,
 					allowLocationFallback);
 		} catch (IOException e) {
 			e.printStackTrace();

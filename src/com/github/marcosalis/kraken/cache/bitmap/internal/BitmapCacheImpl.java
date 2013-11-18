@@ -26,11 +26,11 @@ import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
+import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
@@ -175,7 +175,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	}
 
 	@Override
-	public void clearDiskCache(DiskCacheClearMode mode) {
+	public void clearDiskCache(ClearMode mode) {
 		if (mDiskCache != null) {
 			mDiskCache.clear(mode);
 		}
@@ -184,7 +184,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	@Override
 	public void scheduleClearDiskCache() {
 		if (mDiskCache != null) {
-			mDiskCache.scheduleClearAll();
+			mDiskCache.scheduleClear();
 		}
 	}
 

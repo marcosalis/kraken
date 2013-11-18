@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.cache.proxies;
 
-import com.github.marcosalis.kraken.cache.DiskCache;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
 import com.google.common.annotations.Beta;
 
@@ -48,9 +48,9 @@ public interface ContentProxy {
 	/**
 	 * Synchronously clears permanent storage (DB or flash disk) cache items of
 	 * this content proxy according to the passed
-	 * {@link DiskCache.DiskCacheClearMode}
+	 * {@link SimpleDiskCache.ClearMode}
 	 */
-	public void clearDiskCache(DiskCache.DiskCacheClearMode mode);
+	public void clearDiskCache(SimpleDiskCache.ClearMode mode);
 
 	/**
 	 * Completely wipes any permanent storage (DB or flash disk) cache for this

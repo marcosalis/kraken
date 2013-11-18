@@ -15,6 +15,8 @@
  */
 package com.github.marcosalis.kraken.cache;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.annotations.Beta;
 
 /**
@@ -26,5 +28,17 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface SecondLevelCache<K, V> extends ContentCache<K, V> {
+
+	/**
+	 * Defines the possible policies to clear a second level cache.
+	 */
+	public enum ClearMode {
+		ALL,
+		EVICT_OLD
+	}
+
+	public void scheduleClear();
+
+	public void clear(@Nonnull ClearMode mode);
 
 }

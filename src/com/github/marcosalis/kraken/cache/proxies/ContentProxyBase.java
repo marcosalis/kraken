@@ -28,7 +28,7 @@ import android.os.Process;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.google.common.annotations.Beta;
@@ -151,7 +151,7 @@ public abstract class ContentProxyBase implements ContentProxy {
 	@OverridingMethodsMustInvokeSuper
 	public void clearCache() {
 		clearMemoryCache();
-		clearDiskCache(DiskCacheClearMode.ALL);
+		clearDiskCache(ClearMode.ALL);
 	}
 
 }

@@ -20,7 +20,7 @@ import javax.annotation.Nonnull;
 
 import android.app.Application;
 
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.google.common.annotations.Beta;
 
@@ -81,8 +81,8 @@ public interface CachesManager<E> {
 
 	/**
 	 * Synchronously clears all the registered disk caches contents using the
-	 * passed {@link DiskCacheClearMode}.
+	 * passed {@link ClearMode}.
 	 */
-	public void clearDiskCaches(@Nonnull DiskCacheClearMode mode);
+	public void clearDiskCaches(@Nonnull ClearMode mode);
 
 }

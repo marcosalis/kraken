@@ -25,10 +25,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import com.github.marcosalis.kraken.cache.DiskCache;
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
 import com.github.marcosalis.kraken.cache.EmptyMemoryCache;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheFactory;
+import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
+import com.github.marcosalis.kraken.cache.bitmap.threading.BitmapThreadingPolicy;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 import com.google.api.client.http.HttpRequestFactory;
@@ -37,8 +41,8 @@ import com.google.common.base.Preconditions;
 
 /**
  * Public builder to customize and initialize a {@link BitmapCache}. See
- * {@link BitmapLruCache} and {@link BitmapDiskCache} for the default memory and
- * disk caches specifications.
+ * {@link BitmapLruCache} and {@link SimpleBitmapDiskCache} for the default
+ * memory and disk caches specifications.
  * 
  * <p>
  * <b>Example usage:</b>
@@ -183,21 +187,21 @@ public class BitmapCacheBuilder {
 	 * Sets the disk cache items expiration time in seconds. This is just a
 	 * hint: it's not guaranteed that the actual implementation of the disk
 	 * cache will automatically perform cache eviction at all. Call
-	 * {@link BitmapCache#clearDiskCache(DiskCacheClearMode)} to manually purge
-	 * old bitmaps from disk.
+	 * {@link BitmapCache#clearDiskCache(ClearMode)} to manually purge old
+	 * bitmaps from disk.
 	 * 
-	 * Defaults to {@link BitmapDiskCache#DEFAULT_PURGE_AFTER} if not set.
+	 * Defaults to {@link SimpleBitmapDiskCache#DEFAULT_PURGE_AFTER} if not set.
 	 * 
 	 * Calling this method automatically enables the disk cache.
 	 * 
 	 * @param seconds
 	 *            The cache items expiration. Must be >=
-	 *            {@link DiskCache#MIN_EXPIRE_IN_SEC}
+	 *            {@link SimpleDiskCache#MIN_EXPIRE_IN_SEC}
 	 * @return This builder
 	 */
 	@Nonnull
 	public BitmapCacheBuilder diskCachePurgeableAfter(long seconds) {
-		Preconditions.checkArgument(seconds >= DiskCache.MIN_EXPIRE_IN_SEC);
+		Preconditions.checkArgument(seconds >= SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 		diskCacheEnabled = true;
 		purgeableAfterSeconds = seconds;
 		return this;
@@ -234,7 +238,7 @@ public class BitmapCacheBuilder {
 		setConfigDefaults();
 
 		final BitmapMemoryCache<String> memoryCache = buildMemoryCache();
-		final BitmapDiskCache diskCache = buildDiskCache();
+		final SimpleBitmapDiskCache diskCache = buildDiskCache();
 		final HttpRequestFactory factory = getRequestFactory();
 		return BitmapCacheFactory.buildDefaultBitmapCache(memoryCache, diskCache, factory);
 	}
@@ -250,7 +254,7 @@ public class BitmapCacheBuilder {
 			maxMemoryCachePercentage(BitmapMemoryCache.DEFAULT_MAX_MEMORY_PERCENTAGE);
 		}
 		if (diskCacheEnabled && purgeableAfterSeconds == 0) {
-			diskCachePurgeableAfter(BitmapDiskCache.DEFAULT_PURGE_AFTER);
+			diskCachePurgeableAfter(SimpleBitmapDiskCache.DEFAULT_PURGE_AFTER);
 		}
 	}
 
@@ -264,9 +268,9 @@ public class BitmapCacheBuilder {
 	}
 
 	@CheckForNull
-	private BitmapDiskCache buildDiskCache() throws IOException {
+	private SimpleBitmapDiskCache buildDiskCache() throws IOException {
 		if (diskCacheEnabled) {
-			return new BitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
+			return new SimpleBitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
 		}
 		return null;
 	}

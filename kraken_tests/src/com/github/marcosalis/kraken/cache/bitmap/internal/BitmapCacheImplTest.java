@@ -34,12 +34,12 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
-import com.github.marcosalis.kraken.cache.DiskCache;
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapLruCache;
+import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.OnBitmapSetListener;
@@ -77,8 +77,8 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 
 		final BitmapLruCache<String> memCache = new BitmapLruCache<String>(
 				DroidUtils.getApplicationMemoryClass(mContext) / 10, "test");
-		final BitmapDiskCache diskCache = new BitmapDiskCache(mContext, "bitmapCacheImpl",
-				DiskCache.MIN_EXPIRE_IN_SEC);
+		final SimpleBitmapDiskCache diskCache = new SimpleBitmapDiskCache(mContext,
+				"bitmapCacheImpl", SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 		final HttpRequestFactory requestFactory = createRequestFactory(mTestBitmap);
 		mCache = new BitmapCacheImpl(memCache, diskCache, requestFactory);
 		mCache.clearCache();
@@ -97,9 +97,6 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);
 		mCache.clearMemoryCache();
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.DISK);
-		mCache.clearDiskCache(DiskCacheClearMode.ALL);
-		Thread.yield();
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);
 	}
 
 	public void testGetBitmapAsync_refresh() throws InterruptedException {
@@ -154,7 +151,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 	public void testClearDiskCache() throws InterruptedException {
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
 		mCache.clearMemoryCache();
-		mCache.clearDiskCache(DiskCacheClearMode.ALL);
+		mCache.clearDiskCache(ClearMode.ALL);
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
 	}
 

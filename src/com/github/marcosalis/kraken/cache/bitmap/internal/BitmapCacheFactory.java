@@ -19,8 +19,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapDiskCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapMemoryCache;
+import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 

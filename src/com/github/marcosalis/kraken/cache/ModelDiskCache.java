@@ -48,7 +48,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @Beta
 @NotThreadSafe
-public class ModelDiskCache<V> extends DiskCache<V> {
+public class ModelDiskCache<V> extends SimpleDiskCache<V> {
 
 	private static final String TAG = ModelDiskCache.class.getSimpleName();
 

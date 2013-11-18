@@ -24,7 +24,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import android.app.Application;
 
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.DroidApplication;
@@ -98,7 +98,7 @@ public class BaseCachesManager<E> implements CachesManager<E> {
 
 	@Override
 	@NotForUIThread
-	public void clearDiskCaches(DiskCacheClearMode mode) {
+	public void clearDiskCaches(ClearMode mode) {
 		for (ContentProxy content : mContents.values()) {
 			content.clearDiskCache(mode);
 		}

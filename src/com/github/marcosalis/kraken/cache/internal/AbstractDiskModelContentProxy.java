@@ -30,12 +30,12 @@ import android.util.Log;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.ContentLruCache;
-import com.github.marcosalis.kraken.cache.DiskCache;
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
+import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader.ContentUpdateCallback;
 import com.github.marcosalis.kraken.cache.internal.loaders.DiskContentLoader;
 import com.github.marcosalis.kraken.cache.internal.loaders.ModelDiskContentLoaderFactory;
-import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader.ContentUpdateCallback;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.github.marcosalis.kraken.cache.requests.CacheableRequest;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
@@ -243,7 +243,7 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	@Override
 	@NotForUIThread
 	@OverridingMethodsMustInvokeSuper
-	public void clearDiskCache(DiskCache.DiskCacheClearMode mode) {
+	public void clearDiskCache(SimpleDiskCache.ClearMode mode) {
 		if (mModelDisk != null) {
 			mModelDisk.clear(mode);
 		}

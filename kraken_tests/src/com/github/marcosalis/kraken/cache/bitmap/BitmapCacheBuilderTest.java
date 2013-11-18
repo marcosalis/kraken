@@ -25,9 +25,11 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
 
-import com.github.marcosalis.kraken.cache.DiskCache;
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
+import com.github.marcosalis.kraken.cache.SimpleDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheImplTest;
+import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.utils.DroidUtils;
@@ -149,13 +151,13 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 	 * Test method for {@link BitmapCacheBuilder#diskCachePurgeableAfter(long)}.
 	 */
 	public void testDiskCachePurgeableAfter() {
-		final long purgeAfter = BitmapDiskCache.DEFAULT_PURGE_AFTER + 100;
+		final long purgeAfter = SimpleBitmapDiskCache.DEFAULT_PURGE_AFTER + 100;
 		mBuilder.diskCachePurgeableAfter(purgeAfter);
 		assertEquals(purgeAfter, mBuilder.purgeableAfterSeconds);
 
 		boolean thrownOnFailure = false;
 		try {
-			mBuilder.diskCachePurgeableAfter(DiskCache.MIN_EXPIRE_IN_SEC - 1);
+			mBuilder.diskCachePurgeableAfter(SimpleDiskCache.MIN_EXPIRE_IN_SEC - 1);
 		} catch (IllegalArgumentException e) {
 			thrownOnFailure = true;
 		}
@@ -234,7 +236,7 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 		final SimpleCacheUrlKey key = new SimpleCacheUrlKey("http://www.mymockurl.com");
 		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
 		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.DISK);
-		mCache.clearDiskCache(DiskCacheClearMode.ALL);
+		mCache.clearDiskCache(ClearMode.ALL);
 		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
 	}
 

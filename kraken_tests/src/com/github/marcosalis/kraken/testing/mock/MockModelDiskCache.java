@@ -65,12 +65,12 @@ public class MockModelDiskCache<V extends JsonModel> extends ModelDiskCache<V> {
 	}
 
 	@Override
-	public void clear(DiskCacheClearMode mode) {
+	public void clear(ClearMode mode) {
 		throw new UnsupportedOperationException("Mock!");
 	}
 
 	@Override
-	public void scheduleClearAll() {
+	public void scheduleClear() {
 		throw new UnsupportedOperationException("Mock!");
 	}
 

@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
-import com.github.marcosalis.kraken.cache.DiskCache.DiskCacheClearMode;
+import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.managers.BaseCachesManager;
 import com.github.marcosalis.kraken.demo.KrakenDemoApplication;
@@ -71,7 +71,7 @@ public class MainScreenActivity extends Activity implements OnClickListener {
 			Toast.makeText(this, "Memory caches cleared!", Toast.LENGTH_LONG).show();
 			break;
 		case R.id.action_clear_disk_caches:
-			caches.clearDiskCaches(DiskCacheClearMode.ALL);
+			caches.clearDiskCaches(ClearMode.ALL);
 			Toast.makeText(this, "Disk caches cleared!", Toast.LENGTH_LONG).show();
 			break;
 		}
