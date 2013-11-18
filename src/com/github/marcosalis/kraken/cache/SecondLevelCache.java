@@ -20,8 +20,7 @@ import javax.annotation.Nonnull;
 import com.google.common.annotations.Beta;
 
 /**
- * Public interface for a second level cache, usually disk or network based.<br>
- * It holds no methods for now.
+ * Public interface for a second level cache, usually disk based.
  * 
  * @since 1.0
  * @author Marco Salis

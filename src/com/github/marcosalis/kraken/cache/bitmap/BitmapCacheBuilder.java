@@ -28,6 +28,7 @@ import android.graphics.Bitmap;
 import com.github.marcosalis.kraken.cache.EmptyMemoryCache;
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheFactory;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
@@ -238,7 +239,7 @@ public class BitmapCacheBuilder {
 		setConfigDefaults();
 
 		final BitmapMemoryCache<String> memoryCache = buildMemoryCache();
-		final SimpleBitmapDiskCache diskCache = buildDiskCache();
+		final BitmapDiskCache diskCache = buildDiskCache();
 		final HttpRequestFactory factory = getRequestFactory();
 		return BitmapCacheFactory.buildDefaultBitmapCache(memoryCache, diskCache, factory);
 	}
@@ -268,7 +269,7 @@ public class BitmapCacheBuilder {
 	}
 
 	@CheckForNull
-	private SimpleBitmapDiskCache buildDiskCache() throws IOException {
+	private BitmapDiskCache buildDiskCache() throws IOException {
 		if (diskCacheEnabled) {
 			return new SimpleBitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
 		}
