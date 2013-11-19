@@ -38,6 +38,8 @@ import com.google.common.annotations.Beta;
  * to impose size limits to the decoded bitmaps or decode a scaled version of
  * the bitmap.
  * 
+ * All implementations must be thread-safe.
+ * 
  * @since 1.0.1
  * @author Marco Salis
  */

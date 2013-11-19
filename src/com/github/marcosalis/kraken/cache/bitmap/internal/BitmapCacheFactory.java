@@ -19,6 +19,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.google.api.client.http.HttpRequestFactory;
@@ -44,8 +45,9 @@ public class BitmapCacheFactory {
 	 */
 	@Nonnull
 	public static BitmapCache buildDefaultBitmapCache(@Nonnull BitmapMemoryCache<String> cache,
-			@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory factory) {
-		return new BitmapCacheImpl(cache, diskCache, factory);
+			@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory factory,
+			@Nonnull BitmapDecoder decoder) {
+		return new BitmapCacheImpl(cache, diskCache, factory, decoder);
 	}
 
 }

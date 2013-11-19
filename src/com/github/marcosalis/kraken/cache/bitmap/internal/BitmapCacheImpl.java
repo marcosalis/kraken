@@ -29,6 +29,7 @@ import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
@@ -56,11 +57,12 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	private final BitmapLoader.Config mLoaderConfig;
 
 	BitmapCacheImpl(@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
-			@Nonnull HttpRequestFactory factory) {
+			@Nonnull HttpRequestFactory factory, @Nonnull BitmapDecoder decoder) {
 		mMemoryCache = cache;
 		cache.setOnEntryRemovedListener(this);
 		mDiskCache = diskCache;
-		mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory);
+		mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory,
+				decoder);
 	}
 
 	@Nonnull

@@ -32,13 +32,13 @@ import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
@@ -75,6 +75,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 		public final BitmapMemoryCache<String> memoryCache;
 		public final BitmapDiskCache diskCache;
 		public final HttpRequestFactory requestFactory;
+		public final BitmapDecoder bitmapDecoder;
 
 		/**
 		 * Creates a {@link BitmapLoader} immutable configuration.
@@ -89,14 +90,18 @@ public class BitmapLoader implements Callable<Bitmap> {
 		 *            on disk are handled
 		 * @param factory
 		 *            The {@link HttpRequestFactory} to download the bitmap
+		 * @param decoder
+		 *            The {@link BitmapDecoder} to use for decoding
 		 */
 		public Config(@Nonnull Memoizer<String, Bitmap> downloadsCache,
 				@Nonnull BitmapMemoryCache<String> memoryCache,
-				@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory requestFactory) {
+				@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory requestFactory,
+				@Nonnull BitmapDecoder decoder) {
 			this.downloadsCache = downloadsCache;
 			this.memoryCache = memoryCache;
 			this.diskCache = diskCache;
 			this.requestFactory = requestFactory;
+			this.bitmapDecoder = decoder;
 		}
 	}
 
@@ -278,8 +283,9 @@ public class BitmapLoader implements Callable<Bitmap> {
 				endDownload = System.currentTimeMillis();
 			}
 			if (imageBytes != null) { // download successful
-				// FIXME: limit concurrent bitmap decoding here
-				bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+				// TODO: pass bitmap options here
+				bitmap = mLoaderConfig.bitmapDecoder.decode(imageBytes, null);
+				
 				if (bitmap != null) { // decoding successful
 
 					if (DroidConfig.DEBUG) { // debugging

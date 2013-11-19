@@ -21,10 +21,10 @@ import java.util.concurrent.Semaphore;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.utils.DroidUtils;
@@ -43,6 +43,7 @@ import com.google.common.annotations.VisibleForTesting;
  * @author Marco Salis
  */
 @Beta
+@ThreadSafe
 public final class DefaultBitmapDecoder implements BitmapDecoder {
 
 	static {
@@ -53,7 +54,7 @@ public final class DefaultBitmapDecoder implements BitmapDecoder {
 
 	@Override
 	@CheckForNull
-	public Bitmap decode(@Nonnull byte[] data, @Nullable Options options) {
+	public Bitmap decode(@Nonnull byte[] data, @Nullable BitmapFactory.Options options) {
 		if (acquirePermit()) {
 			try {
 				return BitmapFactory.decodeByteArray(data, 0, data.length, options);
@@ -66,7 +67,7 @@ public final class DefaultBitmapDecoder implements BitmapDecoder {
 
 	@Override
 	@CheckForNull
-	public Bitmap decode(@Nonnull InputStream stream, @Nullable Options options) {
+	public Bitmap decode(@Nonnull InputStream stream, @Nullable BitmapFactory.Options options) {
 		if (acquirePermit()) {
 			try {
 				return BitmapFactory.decodeStream(stream, null, options);
@@ -79,7 +80,7 @@ public final class DefaultBitmapDecoder implements BitmapDecoder {
 
 	@Override
 	@CheckForNull
-	public Bitmap decode(@Nonnull String pathName, @Nullable Options options) {
+	public Bitmap decode(@Nonnull String pathName, @Nullable BitmapFactory.Options options) {
 		if (acquirePermit()) {
 			try {
 				return BitmapFactory.decodeFile(pathName, options);

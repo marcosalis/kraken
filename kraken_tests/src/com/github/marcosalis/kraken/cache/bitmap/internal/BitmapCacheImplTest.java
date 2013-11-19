@@ -77,10 +77,11 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 
 		final BitmapLruCache<String> memCache = new BitmapLruCache<String>(
 				DroidUtils.getApplicationMemoryClass(mContext) / 10, "test");
+		final DefaultBitmapDecoder decoder = new DefaultBitmapDecoder();
 		final SimpleBitmapDiskCache diskCache = new SimpleBitmapDiskCache(mContext,
-				"bitmapCacheImpl", SimpleDiskCache.MIN_EXPIRE_IN_SEC);
+				"bitmapCacheImpl", decoder, SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 		final HttpRequestFactory requestFactory = createRequestFactory(mTestBitmap);
-		mCache = new BitmapCacheImpl(memCache, diskCache, requestFactory);
+		mCache = new BitmapCacheImpl(memCache, diskCache, requestFactory, decoder);
 		mCache.clearCache();
 
 		mCacheKey = new SimpleCacheUrlKey("http://www.mymockurl.com/bitmapTest.jpg");

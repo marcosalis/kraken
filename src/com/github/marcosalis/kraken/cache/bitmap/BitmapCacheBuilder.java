@@ -31,6 +31,7 @@ import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheFactory;
+import com.github.marcosalis.kraken.cache.bitmap.internal.DefaultBitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.threading.BitmapThreadingPolicy;
@@ -81,6 +82,8 @@ import com.google.common.base.Preconditions;
 @Beta
 @NotThreadSafe
 public class BitmapCacheBuilder {
+
+	private static final BitmapDecoder DEFAULT_DECODER = new DefaultBitmapDecoder();
 
 	final Context context;
 
@@ -238,10 +241,11 @@ public class BitmapCacheBuilder {
 		checkMandatoryValuesConsistency();
 		setConfigDefaults();
 
+		final BitmapDecoder decoder = getBitmapDecoder();
 		final BitmapMemoryCache<String> memoryCache = buildMemoryCache();
-		final BitmapDiskCache diskCache = buildDiskCache();
+		final BitmapDiskCache diskCache = buildDiskCache(decoder);
 		final HttpRequestFactory factory = getRequestFactory();
-		return BitmapCacheFactory.buildDefaultBitmapCache(memoryCache, diskCache, factory);
+		return BitmapCacheFactory.buildDefaultBitmapCache(memoryCache, diskCache, factory, decoder);
 	}
 
 	private void checkMandatoryValuesConsistency() {
@@ -269,9 +273,10 @@ public class BitmapCacheBuilder {
 	}
 
 	@CheckForNull
-	private BitmapDiskCache buildDiskCache() throws IOException {
+	private BitmapDiskCache buildDiskCache(@Nonnull BitmapDecoder decoder) throws IOException {
 		if (diskCacheEnabled) {
-			return new SimpleBitmapDiskCache(context, diskCacheDirectory, purgeableAfterSeconds);
+			return new SimpleBitmapDiskCache(context, diskCacheDirectory, decoder,
+					purgeableAfterSeconds);
 		}
 		return null;
 	}
@@ -283,6 +288,11 @@ public class BitmapCacheBuilder {
 		} else {
 			return DefaultHttpRequestsManager.get().getRequestFactory();
 		}
+	}
+
+	@Nonnull
+	private BitmapDecoder getBitmapDecoder() {
+		return DEFAULT_DECODER;
 	}
 
 	/**

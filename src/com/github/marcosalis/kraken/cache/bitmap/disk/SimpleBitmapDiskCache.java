@@ -19,7 +19,6 @@ package com.github.marcosalis.kraken.cache.bitmap.disk;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.concurrent.locks.ReentrantLock;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnegative;
@@ -29,11 +28,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
@@ -50,9 +49,6 @@ import com.google.common.io.Files;
  * the cache size reasonable, make sure to call them frequently enough and
  * always when the device storage is running out of space.
  * 
- * In order not to degrade UI performances when decoding a {@link Bitmap} from
- * the disk, only one simultaneous decoding is permitted.
- * 
  * @since 1.0
  * @author Marco Salis
  */
@@ -68,13 +64,7 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	private static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = CompressFormat.JPEG;
 	private static final int DEFAULT_COMPRESS_QUALITY = 85;
 
-	/**
-	 * {@link ReentrantLock} used to guarantee that only one bitmap gets decoded
-	 * at any time (it's a heavy CPU-bound operation and we don't want it to
-	 * degrade the UI performances at any cost).
-	 */
-	private static final ReentrantLock DECODE_LOCK = new ReentrantLock();
-
+	private final BitmapDecoder mBitmapDecoder;
 	private final long mBitmapExpirationSec;
 
 	/**
@@ -87,6 +77,8 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 * @param subFolder
 	 *            The relative path to the cache folder where to store the cache
 	 *            (the folder is created if it doesn't exist)
+	 * @param decoder
+	 *            The {@link BitmapDecoder} to use for decoding
 	 * @param purgeAfterSec
 	 *            Expiration time, in seconds, for the items in disk cache (must
 	 *            be >= {@link #MIN_EXPIRE_IN_SEC})
@@ -94,9 +86,10 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 *             if the cache cannot be created
 	 */
 	public SimpleBitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder,
-			@Nonnegative long purgeAfterSec) throws IOException {
+			@Nonnull BitmapDecoder decoder, @Nonnegative long purgeAfterSec) throws IOException {
 		super(context, CacheLocation.EXTERNAL, PATH + File.separator + subFolder, true);
 		Preconditions.checkArgument(purgeAfterSec >= MIN_EXPIRE_IN_SEC);
+		mBitmapDecoder = decoder;
 		mBitmapExpirationSec = purgeAfterSec;
 		if (DroidConfig.DEBUG) {
 			Log.d(TAG, "Disk cache created at: " + mCacheLocation.getAbsolutePath());
@@ -152,14 +145,9 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 		Preconditions.checkNotNull(fileName);
 		final File bitmapFile = new File(mCacheLocation, fileName);
 		if (bitmapFile.exists()) { // existing cache item
-			Bitmap bitmap = null;
 			// decode file content into a Bitmap
-			DECODE_LOCK.lock();
-			try {
-				bitmap = BitmapFactory.decodeFile(bitmapFile.getAbsolutePath());
-			} finally {
-				DECODE_LOCK.unlock();
-			}
+			final Bitmap bitmap = mBitmapDecoder.decode(bitmapFile.getAbsolutePath(), null);
+
 			if (bitmap == null) { // file is damaged, delete it
 				if (!bitmapFile.delete()) {
 					if (DroidConfig.DEBUG) {
@@ -192,8 +180,6 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 */
 	@NotForUIThread
 	protected final boolean putBitmap(@Nonnull String fileName, @Nonnull byte[] image) {
-		Preconditions.checkNotNull(fileName);
-		Preconditions.checkNotNull(image);
 		try {
 			File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it
@@ -221,8 +207,6 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 * @return true if successful, false otherwise
 	 */
 	protected final boolean putBitmap(@Nonnull String fileName, @Nonnull Bitmap bitmap) {
-		Preconditions.checkNotNull(fileName);
-		Preconditions.checkNotNull(bitmap);
 		try {
 			final File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it

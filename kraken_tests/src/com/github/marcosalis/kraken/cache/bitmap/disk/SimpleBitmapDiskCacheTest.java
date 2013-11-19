@@ -25,6 +25,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
+import com.github.marcosalis.kraken.cache.bitmap.internal.DefaultBitmapDecoder;
 import com.github.marcosalis.kraken.utils.BitmapUtils;
 
 /**
@@ -45,7 +46,7 @@ public class SimpleBitmapDiskCacheTest extends AndroidTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		mDiskCache = new SimpleBitmapDiskCache(getContext(), "bitmap_test",
-				SimpleDiskCache.MIN_EXPIRE_IN_SEC);
+				new DefaultBitmapDecoder(), SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 		final InputStream is = getContext().getAssets().open("droid.jpg");
 		mTestBitmap = BitmapFactory.decodeStream(is);
 		mTestBitmapCropped = Bitmap.createBitmap(mTestBitmap, 0, 0, 20, 20);
