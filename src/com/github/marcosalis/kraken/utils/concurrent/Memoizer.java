@@ -57,13 +57,13 @@ public class Memoizer<K, V> {
 	 * memoizer will try to retrieve, concurrently, the cache item before
 	 * running a new {@link Callable}.
 	 */
-	private final ConcurrentMap<K, Future<V>> mTaskCache;
+	private final ConcurrentHashMap<K, Future<V>> mTaskCache;
 
 	/**
 	 * Create a new {@link Memoizer}
 	 * 
 	 * @param concurrencyLevel
-	 *            The expected concurrency level of the underlying cache
+	 *            The estimated concurrency level of the underlying cache
 	 */
 	public Memoizer(@Nonnegative int concurrencyLevel) {
 		mTaskCache = new ConcurrentHashMap<K, Future<V>>(INIT_CACHE_SIZE, 0.75f, concurrencyLevel);
@@ -90,7 +90,7 @@ public class Memoizer<K, V> {
 		// we try to retrieve item from our task cache
 		Future<V> future = mTaskCache.get(key);
 		if (future == null) { // no task found
-			FutureTask<V> newFutureTask = new FutureTask<V>(task);
+			final FutureTask<V> newFutureTask = new FutureTask<V>(task);
 			future = mTaskCache.putIfAbsent(key, newFutureTask);
 			if (future == null) {
 				// no tasks inserted in the meantime, execute it

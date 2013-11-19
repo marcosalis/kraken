@@ -46,8 +46,9 @@ import com.google.common.io.Files;
  * they are retrieved from the cache.
  * 
  * No size constraints are imposed, the purge methods are in charge of keeping
- * the cache size reasonable, make sure to call them frequently enough and
- * always when the device storage is running out of space.
+ * the cache size reasonable, make sure to implement a policy to call them
+ * frequently enough to keep the disk space occupation reasonable and always
+ * when the device storage is running out of space.
  * 
  * @since 1.0
  * @author Marco Salis

@@ -189,7 +189,7 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	private final Memoizer<String, Bitmap> mBitmapMemoizer;
 
 	protected BitmapCacheBase() {
-		final int concurrencyLevel = mThreadingPolicy.getBitmapDownloader().getMaximumPoolSize();
+		final int concurrencyLevel = mThreadingPolicy.getBitmapDownloader().getCorePoolSize();
 		mBitmapMemoizer = new Memoizer<String, Bitmap>(concurrencyLevel);
 	}
 
