@@ -21,14 +21,16 @@ import javax.annotation.Nonnull;
 import android.graphics.Bitmap;
 
 import com.github.marcosalis.kraken.cache.SecondLevelCache;
+import com.google.common.annotations.Beta;
 
 /**
- * Public interface for a disk cache of bitmaps. Include operations to retrieve
- * a bitmap, store it by passing a byte array or Bitmap and remove items.
+ * Public interface for a bitmap disk cache. Include methods to retrieve, store
+ * and remove bitmaps from the cache.
  * 
  * @since 1.0.1
  * @author Marco Salis
  */
+@Beta
 public interface BitmapDiskCache extends SecondLevelCache<String, Bitmap> {
 
 	/**
