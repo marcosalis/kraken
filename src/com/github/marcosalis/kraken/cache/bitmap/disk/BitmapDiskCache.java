@@ -27,6 +27,8 @@ import com.google.common.annotations.Beta;
  * Public interface for a bitmap disk cache. Include methods to retrieve, store
  * and remove bitmaps from the cache.
  * 
+ * All implementations must be thread safe.
+ * 
  * @since 1.0.1
  * @author Marco Salis
  */

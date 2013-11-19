@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
 
 import javax.annotation.Nonnegative;
 import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import android.content.Context;
 import android.os.Process;
@@ -59,13 +59,13 @@ import com.google.common.base.Preconditions;
  * - File I/O is not thread safe in Java. Attempts to perform any operation on a
  * file/folder from different threads at the same may result in undetermined
  * behavior and race conditions. Keep this in mind and always implement
- * fail-safe accesses to the disk caches.
+ * fail-safe accesses to the disk caches when subclassing.
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
-@NotThreadSafe
+@ThreadSafe
 public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 
 	/**
@@ -122,7 +122,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 
 	@Override
 	@NotForUIThread
-	public void clear() {
+	public synchronized void clear() {
 		cleanCacheDir();
 	}
 
@@ -213,7 +213,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 */
 	@NotForUIThread
 	@VisibleForTesting
-	final boolean cleanCacheDir() {
+	synchronized final boolean cleanCacheDir() {
 		boolean success = true;
 		if (mCacheLocation.exists()) {
 			final File[] files = mCacheLocation.listFiles();
@@ -244,7 +244,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 */
 	@NotForUIThread
 	@VisibleForTesting
-	final void cleanCacheDir(@Nonnegative long olderThanSec) {
+	synchronized final void cleanCacheDir(@Nonnegative long olderThanSec) {
 		final long now = System.currentTimeMillis();
 		final long expirationMs = olderThanSec * 1000;
 		final File[] files = mCacheLocation.listFiles();
@@ -271,7 +271,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 * @return true if the file has been "touched", false otherwise
 	 */
 	@NotForUIThread
-	protected static final boolean touchFile(@Nonnull File file) {
+	protected static synchronized final boolean touchFile(@Nonnull File file) {
 		final long now = System.currentTimeMillis();
 		if (file.lastModified() < (now - MIN_EXPIRE_IN_MS)) {
 			return file.setLastModified(now);
