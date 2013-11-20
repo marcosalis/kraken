@@ -73,7 +73,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
 		if (isRefresh) {
-			BitmapLoader.executeDownload(mLoaderConfig, key, listener);
+			BitmapLoader.executeDownload(mLoaderConfig, key, policy, listener);
 		} else {
 			final Future<Bitmap> future = getBitmapFromMemory(key, listener);
 			if (future != null) {
@@ -150,7 +150,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, setter);
 				return BitmapCacheBase.submitInExecutor(loader);
 			} else {
-				return BitmapLoader.executeDownload(mLoaderConfig, key, setter);
+				return BitmapLoader.executeDownload(mLoaderConfig, key, policy, setter);
 			}
 		}
 	}

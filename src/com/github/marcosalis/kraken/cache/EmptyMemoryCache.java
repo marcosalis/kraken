@@ -60,6 +60,11 @@ public class EmptyMemoryCache<K, V> implements MemoryCache<K, V> {
 	}
 
 	@Override
+	public V putIfAbsent(K key, V value) {
+		return put(key, value);
+	}
+
+	@Override
 	public V remove(K key) {
 		// does nothing
 		return null;
