@@ -64,7 +64,7 @@ Efficiently load images from the network and cache them, as well as being able t
 It is important that you be nice to Android and clear the memory caches when receiving the <code>onLowMemory()</code> and <code>onTrimMemory()</code> (with critical state) callbacks. See the *demo application* for an example of how to do that.
 
 #### Disk cache
-The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>BitmapCache.clearDiskCache(DiskCacheClearMode.EVICT_OLD)</code>.
+The encoded version of the downloaded bitmaps are saved in the device's SD card (or internal flash memory as a fallback). An expiration time can be set, to make sure all old images are deleted when calling <code>clearDiskCache(ClearMode.EVICT_OLD)</code> on the <code>BitmapCache</code>.
 
 #### HTTP transport
 *Kraken* uses the **google-http-java-client** library for Android as an HTTP abstraction layer. This means you can easily override the default used <code>HttpTransport</code> to provide another implementation or write your own by passing the built <code>HttpRequestFactory</code> to the bitmap cache builder and provide your own customization of network-layer policies and failover such as <code>HttpRequestInitializer</code>, <code>BackOff</code>, <code>BackOffRequired</code> and <code>HttpUnsuccessfulResponseHandler</code>.
@@ -121,7 +121,7 @@ See the following classes documentation for further information on how to subcla
 * <code>ModelDiskCache</code>
 
 ### Coming soon
-* Android Studio / Gradle integration and distribution JAR
+* Android Studio projects / Gradle integration
 * More examples of use in the GitHub Wiki documentation
 * Bitmaps: save into caches a resampled/resized version of a bitmap
 * Bitmaps: allow custom pre/post processing of the downloaded bitmap
@@ -129,6 +129,8 @@ See the following classes documentation for further information on how to subcla
 * Support for pluggable JSON/XML/other (de)serializers for model data
 * Tasks: allow cancellation and priority setting
 * Effective automatic disk cache purge policy implementation
+* Data model: default implementation of a second level SQLLite cache through ContentResolver
+* Data model: use of HTTP response cache and cache headers
 
 
 ## Other stuff
