@@ -1,0 +1,3 @@
+include ':kraken_tests'
+include ':'
+include ':kraken_demo'
