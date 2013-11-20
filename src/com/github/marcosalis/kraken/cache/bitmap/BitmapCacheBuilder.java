@@ -99,6 +99,7 @@ public class BitmapCacheBuilder {
 
 	// other config
 	HttpRequestFactory requestFactory;
+	BitmapDecoder bitmapDecoder;
 
 	public BitmapCacheBuilder(@Nonnull Context context) {
 		this.context = context;
@@ -228,6 +229,18 @@ public class BitmapCacheBuilder {
 	}
 
 	/**
+	 * Sets a custom {@link BitmapDecoder} for the bitmap cache.
+	 * 
+	 * @param decoder
+	 *            The decoder to use
+	 * @return This builder
+	 */
+	public BitmapCacheBuilder bitmapDecoder(@Nonnull BitmapDecoder decoder) {
+		bitmapDecoder = decoder;
+		return this;
+	}
+
+	/**
 	 * Builds the configured bitmap cache.
 	 * 
 	 * @return The built {@link BitmapCache} instance
@@ -292,7 +305,11 @@ public class BitmapCacheBuilder {
 
 	@Nonnull
 	private BitmapDecoder getBitmapDecoder() {
-		return DEFAULT_DECODER;
+		if (bitmapDecoder != null) {
+			return bitmapDecoder;
+		} else {
+			return DEFAULT_DECODER;
+		}
 	}
 
 	/**

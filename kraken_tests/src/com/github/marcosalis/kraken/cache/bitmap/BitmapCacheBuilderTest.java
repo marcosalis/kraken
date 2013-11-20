@@ -29,6 +29,7 @@ import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheImplTest;
+import com.github.marcosalis.kraken.cache.bitmap.internal.DefaultBitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
@@ -173,6 +174,12 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 				.createRequestFactory(mTestBitmap);
 		mBuilder.httpRequestFactory(requestFactory);
 		assertEquals(requestFactory, mBuilder.requestFactory);
+	}
+
+	public void testBitmapDecoder() {
+		final BitmapDecoder decoder = new DefaultBitmapDecoder();
+		mBuilder.bitmapDecoder(decoder);
+		assertTrue(decoder == mBuilder.bitmapDecoder);
 	}
 
 	/*
