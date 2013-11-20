@@ -25,7 +25,7 @@ cache.setBitmapAsync(cacheKey, imageView);
 **1.0.1 beta**
 - Added <code>BitmapDecoder</code> to allow using a custom bitmap decoding policy to caches
 - Added <code>BitmapDiskCache</code> interface (soon available: set custom disk cache from <code>BitmapCacheBuilder</code>)
-- Added build.gradle file to the projects to import them inside *Android Studio*
+- Added build.gradle file to the projects to import them inside *Android Studio* (still **not** working)
 - Improved bitmap loading default mechanism, fixed issue where some bitmaps were downloaded multiple times when quickly scrolling a long list of items back and forth
 
 ### Dependencies
