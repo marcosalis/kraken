@@ -17,8 +17,16 @@ cache.setBitmapAsync(cacheKey, imageView);
 
 ## Quick reference
 
-### Current version
-*Kraken* current version is **1.0 beta 1**
+### Current version and release notes
+*Kraken* current version is **1.0.1 beta**
+
+#### What's new
+
+**1.0.1 beta**
+- Added <code>BitmapDecoder</code> to allow using a custom bitmap decoding policy to caches
+- Added <code>BitmapDiskCache</code> interface (soon available: set custom disk cache from <code>BitmapCacheBuilder</code>)
+- Added build.gradle file to the projects to import them inside *Android Studio*
+- Improved bitmap loading default mechanism, fixed issue where some bitmaps were downloaded multiple times when quickly scrolling a long list of items back and forth
 
 ### Dependencies
 *Kraken* is based and depends on the following open source (see licenses below) third-party libraries:
@@ -41,7 +49,7 @@ In order to be able to compile the project, or switch between configurations, ru
 <pre><code>ant kraken-debug-config</code></pre>
 or
 <pre><code>ant kraken-release-config</code></pre>
-(*fear not, Gradle builds support is coming soon*).
+(*fear not, Gradle configuration switching support is coming soon*).
 
 ### Demo application
 The folder */kraken_demo* contains a demo application project that demostrates how to use *Kraken* for bitmap caching. It implements very long *ListView*s and *GridView*s of bitmaps downloaded from the network so that you can see how the library performs in the most performance-critical scenario.
