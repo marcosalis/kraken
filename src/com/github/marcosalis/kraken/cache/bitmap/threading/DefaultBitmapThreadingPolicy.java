@@ -79,10 +79,9 @@ public final class DefaultBitmapThreadingPolicy implements BitmapThreadingPolicy
 		// priority here is less than default to face decoding overhead
 		final PriorityThreadFactory executorFactory = new PriorityThreadFactory(
 				"Bitmap caches disk executor thread", priority);
-		final ThreadPoolExecutor diskExecutor = new ThreadPoolExecutor(executorSize, executorSize,
-				0L, TimeUnit.MILLISECONDS, executorQueue, executorFactory);
 
-		return diskExecutor;
+		return new ThreadPoolExecutor(executorSize, executorSize, 0L, TimeUnit.MILLISECONDS,
+				executorQueue, executorFactory);
 	}
 
 	@Nonnull
@@ -92,11 +91,9 @@ public final class DefaultBitmapThreadingPolicy implements BitmapThreadingPolicy
 				.createBlockingQueue();
 		final PriorityThreadFactory downloaderFactory = new PriorityThreadFactory(
 				"Bitmap caches downloader executor thread", priority);
-		final ReorderingThreadPoolExecutor<String> downloaderExecutor = new ReorderingThreadPoolExecutor<String>(
-				executorSize, executorSize, 0L, TimeUnit.MILLISECONDS, downloaderQueue,
-				downloaderFactory);
 
-		return downloaderExecutor;
+		return new ReorderingThreadPoolExecutor<String>(executorSize, executorSize, 0L,
+				TimeUnit.MILLISECONDS, downloaderQueue, downloaderFactory);
 	}
 
 }

@@ -106,7 +106,6 @@ public interface BitmapCache extends ContentProxy {
 	 * @throws IllegalArgumentException
 	 *             if policy is {@link AccessPolicy#PRE_FETCH}
 	 */
-	@Nonnull
 	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nonnull OnSuccessfulBitmapRetrievalListener listener);
 
@@ -127,7 +126,6 @@ public interface BitmapCache extends ContentProxy {
 	 * @param view
 	 *            The {@link ImageView} to set the bitmap into
 	 */
-	@Nonnull
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view);
 
 	/**
@@ -147,7 +145,6 @@ public interface BitmapCache extends ContentProxy {
 	 *            A (optional) placeholder {@link Drawable} to set inside the
 	 *            image view when the bitmap is not available in memory
 	 */
-	@Nonnull
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder);
 

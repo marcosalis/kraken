@@ -110,10 +110,7 @@ public class DroidUtils {
 			@Override
 			public boolean accept(File pathname) {
 				// Check if filename is "cpu", followed by a single digit number
-				if (Pattern.matches("cpu[0-9]", pathname.getName())) {
-					return true;
-				}
-				return false;
+				return Pattern.matches("cpu[0-9]", pathname.getName());
 			}
 		}
 		try {

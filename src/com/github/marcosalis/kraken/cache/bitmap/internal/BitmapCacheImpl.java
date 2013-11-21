@@ -65,7 +65,6 @@ class BitmapCacheImpl extends BitmapCacheBase {
 				decoder);
 	}
 
-	@Nonnull
 	@Override
 	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nonnull OnSuccessfulBitmapRetrievalListener listener) {
@@ -94,14 +93,12 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		BitmapCacheBase.submitInExecutor(loader);
 	}
 
-	@Nonnull
 	@Override
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view) {
 		final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view);
 		getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
-	@Nonnull
 	@Override
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
 			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
@@ -118,7 +115,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	 * 
 	 * @param key
 	 *            The {@link CacheUrlKey} of the image to retrieve
-	 * @param action
+	 * @param policy
 	 *            The {@link AccessPolicy} to use, can be one of
 	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
 	 *            or {@link AccessPolicy#REFRESH}
@@ -158,7 +155,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	@CheckForNull
 	private Future<Bitmap> getBitmapFromMemory(@Nonnull CacheUrlKey key,
 			@Nonnull OnBitmapRetrievalListener listener) {
-		Bitmap bitmap = null;
+		final Bitmap bitmap;
 		if ((bitmap = mMemoryCache.get(key.hash())) != null) {
 			if (listener instanceof BitmapAsyncSetter) {
 				((BitmapAsyncSetter) listener).setBitmapSync(bitmap);
