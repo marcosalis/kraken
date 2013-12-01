@@ -125,11 +125,11 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 	}
 
 	/**
-	 * Test method for {@link BitmapCacheBuilder#memoryCacheLogName(String)}.
+	 * Test method for {@link BitmapCacheBuilder#logName(String)}.
 	 */
 	public void testMemoryCacheLogName() {
-		mBuilder.memoryCacheLogName("test_name");
-		assertEquals("test_name", mBuilder.memoryCacheLogName);
+		mBuilder.logName("test_name");
+		assertEquals("test_name", mBuilder.logName);
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 		} catch (IllegalArgumentException e) {
 			thrownOnFailure = true;
 		}
-		assertTrue(thrownOnFailure);
+		assertFalse(thrownOnFailure);
 	}
 
 	/**

@@ -33,7 +33,6 @@ import android.util.Log;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
-import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.StorageUtils.CacheLocation;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
@@ -61,12 +60,11 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 
 	private static final String PATH = "bitmap";
 
-	public static final long DEFAULT_PURGE_AFTER = DroidUtils.DAY * 2;
 	private static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = CompressFormat.JPEG;
 	private static final int DEFAULT_COMPRESS_QUALITY = 85;
 
 	private final BitmapDecoder mBitmapDecoder;
-	private final long mBitmapExpirationSec;
+	private final long mItemExpirationSec;
 
 	/**
 	 * Builds a {@link SimpleBitmapDiskCache} in the passed sub-folder. Note
@@ -81,8 +79,8 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 * @param decoder
 	 *            The {@link BitmapDecoder} to use for decoding
 	 * @param purgeAfterSec
-	 *            Expiration time, in seconds, for the items in disk cache (must
-	 *            be >= {@link #MIN_EXPIRE_IN_SEC})
+	 *            Expiration time, in seconds, for the items in disk cache (will
+	 *            be set to {@link #MIN_EXPIRE_IN_SEC} if shorter)
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
@@ -91,7 +89,7 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 		super(context, CacheLocation.EXTERNAL, PATH + File.separator + subFolder, true);
 		Preconditions.checkArgument(purgeAfterSec >= MIN_EXPIRE_IN_SEC);
 		mBitmapDecoder = decoder;
-		mBitmapExpirationSec = purgeAfterSec;
+		mItemExpirationSec = purgeAfterSec >= MIN_EXPIRE_IN_SEC ? purgeAfterSec : MIN_EXPIRE_IN_SEC;
 		if (DroidConfig.DEBUG) {
 			Log.d(TAG, "Disk cache created at: " + mCacheLocation.getAbsolutePath());
 		}
@@ -129,7 +127,7 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	@Override
 	@NotForUIThread
 	public synchronized final void clearOld() {
-		purge(mBitmapExpirationSec);
+		purge(mItemExpirationSec);
 	}
 
 	/**
