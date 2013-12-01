@@ -18,9 +18,12 @@ cache.setBitmapAsync(cacheKey, imageView);
 ## Quick reference
 
 ### Current version and release notes
-*Kraken* current version is **1.0.1 beta**
+*Kraken* current version is **1.0.2 beta**
 
 #### What's new
+
+**1.0.2 beta**
+- <code>JsonModel</code> does not override <code>toString()</code> behavior anymore. Use <code>toJsonString()</code> to get the JSON string representation of the model (**breaking change**)
 
 **1.0.1 beta**
 - Added <code>BitmapDecoder</code> to allow using a custom bitmap decoding policy to caches
