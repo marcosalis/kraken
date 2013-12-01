@@ -96,17 +96,8 @@ public abstract class JsonModel {
 	 * object, avoid using this method inside production code for logging
 	 * purposes only.
 	 */
-	@Override
-	@CheckForNull
-	public String toString() {
-		return JacksonJsonManager.toString(this);
-	}
-
-	/**
-	 * Returns the result of the {@link Object#toString()} method
-	 */
-	public String toBasicString() {
-		return super.toString();
+	public String toJsonString() {
+		return JacksonJsonManager.toJsonString(this);
 	}
 
 	/**
