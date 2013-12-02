@@ -121,6 +121,16 @@ public interface BitmapCache extends ContentProxy {
 	/**
 	 * Asynchronously sets the retrieved bitmap into the passed image view.
 	 * 
+	 * @param url
+	 *            The string URL of the bitmap
+	 * @param view
+	 *            The {@link ImageView} to set the bitmap into
+	 */
+	public void setBitmapAsync(@Nonnull String url, @Nonnull ImageView view);
+
+	/**
+	 * Asynchronously sets the retrieved bitmap into the passed image view.
+	 * 
 	 * @param key
 	 *            The {@link CacheUrlKey} of the bitmap
 	 * @param view

@@ -93,6 +93,16 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		super.tearDown();
 	}
 
+	public void testGetBitmapAsyncString() throws InterruptedException {
+		// retrieve from network with string URL
+		mCache.setBitmapAsync(mCacheKey.getUrl(), mImgView);
+		Thread.sleep(500);
+		// bitmap should already come from memory
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);
+		mCache.clearMemoryCache();
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.DISK);
+	}
+
 	public void testGetBitmapAsync_normal() throws InterruptedException {
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
 		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);

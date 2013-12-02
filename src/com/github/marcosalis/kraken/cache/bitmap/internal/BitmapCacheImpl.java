@@ -35,6 +35,7 @@ import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
+import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
@@ -91,6 +92,12 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH,
 				null);
 		BitmapCacheBase.submitInExecutor(loader);
+	}
+
+	@Override
+	public void setBitmapAsync(@Nonnull String url, @Nonnull ImageView view) {
+		final SimpleCacheUrlKey key = new SimpleCacheUrlKey(url);
+		setBitmapAsync(key, view);
 	}
 
 	@Override
