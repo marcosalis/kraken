@@ -52,8 +52,8 @@ import com.google.common.base.Preconditions;
  * <p>
  * <code><pre>
  * BitmapCache cache = new BitmapCacheBuilder(context)
+ * 	.cacheLogName("Profile bitmaps cache")
  * 	.maxMemoryCachePercentage(15)
- * 	.memoryCacheLogName("Profile bitmaps cache")
  * 	.diskCacheDirectoryName("profile_bitmaps")
  * 	.diskCachePurgeableAfter(DroidUtils.DAY)
  * 	.build();
@@ -97,7 +97,7 @@ public class BitmapCacheBuilder {
 	long purgeableAfterSeconds;
 
 	// other config
-	String logName = "BitmapCache";
+	String cacheLogName = "BitmapCache";
 	HttpRequestFactory requestFactory;
 	BitmapDecoder bitmapDecoder;
 
@@ -234,8 +234,8 @@ public class BitmapCacheBuilder {
 	 * @return This builder
 	 */
 	@Nonnull
-	public BitmapCacheBuilder logName(@Nonnull String cacheName) {
-		logName = cacheName;
+	public BitmapCacheBuilder cacheLogName(@Nonnull String cacheName) {
+		cacheLogName = cacheName;
 		return this;
 	}
 
@@ -282,9 +282,9 @@ public class BitmapCacheBuilder {
 	@Nonnull
 	private BitmapMemoryCache<String> buildMemoryCache() {
 		if (memoryCacheEnabled) {
-			return new BitmapLruCache<String>(memoryCacheMaxBytes, logName);
+			return new BitmapLruCache<String>(memoryCacheMaxBytes, cacheLogName);
 		} else {
-			return new EmptyBitmapMemoryCache(logName);
+			return new EmptyBitmapMemoryCache(cacheLogName);
 		}
 	}
 

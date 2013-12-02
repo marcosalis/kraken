@@ -87,8 +87,8 @@ See the <code>CachesManager</code> interface and its base implementation <code>B
 Using the code below, you can build a bitmap cache (with debugging name *"Profile bitmaps cache"*) that occupies the 15% of the total max app memory heap and stores the images in the external storage application cache subfolder *profile_bitmaps* with an expiration time of 1 day. See the <code>BitmapCacheBuilder</code> documentation for the full list of configurable parameters.
 ``` java
  BitmapCache cache = new BitmapCacheBuilder(context)
+ 	.cacheLogName("Profile bitmaps cache")
  	.maxMemoryCachePercentage(15)
- 	.memoryCacheLogName("Profile bitmaps cache")
  	.diskCacheDirectoryName("profile_bitmaps")
  	.diskCachePurgeableAfter(DroidUtils.DAY)
  	.build();

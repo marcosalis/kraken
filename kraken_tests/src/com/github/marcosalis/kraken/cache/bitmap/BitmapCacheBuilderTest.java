@@ -125,11 +125,11 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 	}
 
 	/**
-	 * Test method for {@link BitmapCacheBuilder#logName(String)}.
+	 * Test method for {@link BitmapCacheBuilder#cacheLogName(String)}.
 	 */
 	public void testMemoryCacheLogName() {
-		mBuilder.logName("test_name");
-		assertEquals("test_name", mBuilder.logName);
+		mBuilder.cacheLogName("test_name");
+		assertEquals("test_name", mBuilder.cacheLogName);
 	}
 
 	/**

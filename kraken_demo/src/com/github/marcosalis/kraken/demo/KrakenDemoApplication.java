@@ -76,13 +76,13 @@ public class KrakenDemoApplication extends DroidApplication {
 		// initialize caches
 		final BitmapCacheBuilder builder130 = new BitmapCacheBuilder(this);
 		builder130.maxMemoryCachePercentage(10) //
-				.logName("BITMAPS_130") //
+				.cacheLogName("BITMAPS_130") //
 				.diskCachePurgeableAfter(DroidUtils.DAY) //
 				.diskCacheDirectoryName("bitmaps130");
 
 		final BitmapCacheBuilder builderLarge = new BitmapCacheBuilder(this);
 		builderLarge.maxMemoryCachePercentage(25) //
-				.logName("BITMAPS_LARGE") //
+				.cacheLogName("BITMAPS_LARGE") //
 				.diskCachePurgeableAfter(DroidUtils.HOUR * 6) //
 				.diskCacheDirectoryName("bitmaps_large");
 
