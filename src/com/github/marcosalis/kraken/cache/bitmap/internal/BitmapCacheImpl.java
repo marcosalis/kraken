@@ -68,7 +68,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 
 	@Override
 	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnSuccessfulBitmapRetrievalListener listener) {
+			@Nonnull OnBitmapRetrievalListener listener) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
@@ -108,7 +108,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 
 	@Override
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
+			@Nonnull BitmapSetter setter, @Nullable Drawable placeholder) {
 		getBitmap(key, policy, setter, placeholder);
 	}
 
@@ -127,7 +127,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
 	 *            or {@link AccessPolicy#REFRESH}
 	 * @param setter
-	 *            The {@link BitmapAsyncSetter} to set the bitmap in an
+	 *            The {@link OnBitmapRetrievalListener} to set the bitmap in an
 	 *            {@link ImageView}
 	 * @param placeholder
 	 *            An (optional) {@link Drawable} temporary placeholder, only set
@@ -136,7 +136,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	 */
 	@Nonnull
 	protected final Future<Bitmap> getBitmap(@Nonnull CacheUrlKey key,
-			@Nonnull AccessPolicy policy, @Nonnull BitmapAsyncSetter setter,
+			@Nonnull AccessPolicy policy, @Nonnull BitmapSetter setter,
 			@Nullable Drawable placeholder) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
@@ -148,7 +148,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		} else {
 			// set temporary placeholder
 			if (placeholder != null) {
-				setter.setPlaceholderSync(placeholder);
+				setter.setPlaceholder(placeholder);
 			}
 			if (!isRefresh) {
 				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, setter);

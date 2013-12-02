@@ -34,7 +34,7 @@ import android.widget.ImageView;
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.BitmapSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
@@ -60,14 +60,12 @@ import com.google.common.annotations.Beta;
  * retains a {@link Context} to this object constructors.
  * </p>
  * 
- * TODO: handle placeholder setting when the bitmap loading fails
- * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
 @ThreadSafe
-public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
+public class BitmapAsyncSetter implements BitmapSetter {
 
 	/**
 	 * Callback interface to be used when the caller needs to know if and when
@@ -142,15 +140,8 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 		}
 	}
 
-	/**
-	 * Sets a temporary {@link Drawable} placeholder to the image view.
-	 * 
-	 * Note: only call this from the UI thread.
-	 * 
-	 * @param drawable
-	 *            The drawable placeholder (can be null)
-	 */
-	public void setPlaceholderSync(@Nullable Drawable drawable) {
+	@Override
+	public void setPlaceholder(@Nullable Drawable drawable) {
 		final ImageView view = mImageView.get();
 		if (view != null) {
 			view.setImageDrawable(drawable);
@@ -184,6 +175,11 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	public final void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
 			@Nonnull CacheSource source) {
 		setBitmapAsync(bitmap, source);
+	}
+
+	@Override
+	public void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e) {
+		// TODO: handle placeholder setting when the bitmap loading fails
 	}
 
 	/**

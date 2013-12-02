@@ -24,7 +24,6 @@ import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.google.common.annotations.Beta;
@@ -78,6 +77,28 @@ public interface BitmapCache extends ContentProxy {
 	}
 
 	/**
+	 * Extension of {@link OnBitmapRetrievalListener} with methods related to
+	 * setting a {@link Bitmap} inside an {@link ImageView}.
+	 * 
+	 * @since 1.0.2
+	 */
+	@Beta
+	public interface BitmapSetter extends OnBitmapRetrievalListener {
+
+		/**
+		 * Sets a temporary {@link Drawable} placeholder to the image view or
+		 * resets the image drawable in the image view by passing null.
+		 * 
+		 * Note: implementations must set the drawable synchronously, and the
+		 * method should be called from the UI thread.
+		 * 
+		 * @param drawable
+		 *            The drawable placeholder (can be null)
+		 */
+		public void setPlaceholder(@Nullable Drawable drawable);
+	}
+
+	/**
 	 * Simple {@link OnBitmapRetrievalListener} implementation to retrieve a
 	 * successful retrieval of a bitmap.
 	 */
@@ -101,13 +122,13 @@ public interface BitmapCache extends ContentProxy {
 	 * @param policy
 	 *            The {@link AccessPolicy} to use
 	 * @param listener
-	 *            {@link OnSuccessfulBitmapRetrievalListener} to get the bitmap
-	 *            if successfully retrieved
+	 *            {@link OnBitmapRetrievalListener} to get the bitmap if
+	 *            successfully retrieved
 	 * @throws IllegalArgumentException
 	 *             if policy is {@link AccessPolicy#PRE_FETCH}
 	 */
 	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnSuccessfulBitmapRetrievalListener listener);
+			@Nonnull OnBitmapRetrievalListener listener);
 
 	/**
 	 * Preloads a bitmap into the cache for future use. Does nothing if the
@@ -150,12 +171,12 @@ public interface BitmapCache extends ContentProxy {
 	 * @param policy
 	 *            The {@link AccessPolicy} to use
 	 * @param setter
-	 *            A {@link BitmapAsyncSetter} holding the image view
+	 *            A {@link BitmapSetter} for the image view
 	 * @param placeholder
 	 *            A (optional) placeholder {@link Drawable} to set inside the
 	 *            image view when the bitmap is not available in memory
 	 */
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder);
+			@Nonnull BitmapSetter setter, @Nullable Drawable placeholder);
 
 }
