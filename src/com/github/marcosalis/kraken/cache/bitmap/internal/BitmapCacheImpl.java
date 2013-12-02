@@ -33,7 +33,7 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
+import com.github.marcosalis.kraken.cache.internal.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
