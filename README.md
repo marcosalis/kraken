@@ -148,13 +148,11 @@ I also make frequent use of the static analyzer **FindBugs** (http://findbugs.so
 A (hopefully enough) comprehensive suite of unit/functional tests for the library are provided as Android test project in the *kraken_tests* subfolder. Bug reports and feature requests are more then welcome, and the best way of submitting them is using the *Issues* feature in GitHub. Pull requests are more than welcome, too!
 
 ### Alternatives to Kraken
-<p>There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
-<ul>
-<li><b>Volley</b> (https://developers.google.com/events/io/sessions/325304728)</li>
-<li><b>Picasso</b> (http://square.github.io/picasso/)</li>
-<li><b>Universal Image Loader</b> (https://github.com/nostra13/Android-Universal-Image-Loader)</li>
-</ul>
-</p>
+There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
+* **Volley** (https://developers.google.com/events/io/sessions/325304728)
+* **Picasso** (http://square.github.io/picasso/)
+* **Universal Image Loader** (https://github.com/nostra13/Android-Universal-Image-Loader)
+* **ImageLoader** (https://github.com/novoda/ImageLoader)
 
 ### License
 You are free to use, modify, redistribute *Kraken* in any way permitted by the **Apache 2.0** license. If you like *Kraken* and you are using it inside your Android application, please let me know by sending an email to *fast3r(at)gmail.com*.
