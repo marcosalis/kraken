@@ -28,6 +28,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
+import com.github.marcosalis.kraken.cache.bitmap.AnimationMode;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.google.common.annotations.Beta;
 
@@ -41,30 +43,6 @@ import com.google.common.annotations.Beta;
 @Beta
 @ThreadSafe
 public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
-
-	/**
-	 * Enumerates all possible animation policies for setting a bitmap into an
-	 * {@link ImageView}, depending on the bitmap loading source.
-	 */
-	public enum AnimationMode {
-		/**
-		 * Use no animation (same as using a normal {@link BitmapAsyncSetter})
-		 */
-		NEVER,
-		/**
-		 * Animate only if the bitmap is not already in the memory caches
-		 */
-		NOT_IN_MEMORY,
-		/**
-		 * Animate only if the bitmap was loaded from network
-		 */
-		FROM_NETWORK,
-		/**
-		 * Always animate (use with care: the performance impact can be
-		 * noticeable when scrolling long lists of bitmaps)
-		 */
-		ALWAYS;
-	}
 
 	private static final String TAG = BitmapAnimatedAsyncSetter.class.getSimpleName();
 

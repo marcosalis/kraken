@@ -35,6 +35,7 @@ import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.BitmapSetter;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
@@ -46,20 +47,17 @@ import com.google.common.annotations.Beta;
  * still existing and attached to an Activity, either synchronously from the UI
  * thread or asynchronously after querying a disk cache or the network from
  * another thread.
- * </p>
  * 
  * <p>
  * In order to ensure that the ImageView still refers to the requested bitmap (=
  * it hasn't been recycled, for example), the setter constructors set the tag of
  * the view ({@link ImageView#setTag(Object)}) to the {@link CacheUrlKey} hash.
  * Do not reset the tag or the bitmap won't be set.
- * </p>
  * 
  * <p>
  * The references to the passed {@link ImageView} and listener are
  * {@link SoftReference}, so that it's possible to safely pass an object that
  * retains a {@link Context} to this object constructors.
- * </p>
  * 
  * @since 1.0
  * @author Marco Salis
@@ -67,27 +65,6 @@ import com.google.common.annotations.Beta;
 @Beta
 @ThreadSafe
 public class BitmapAsyncSetter implements BitmapSetter {
-
-	/**
-	 * Callback interface to be used when the caller needs to know if and when
-	 * the bitmap has actually been set into the image view.
-	 */
-	@Beta
-	public interface OnBitmapSetListener {
-		/**
-		 * Called from the UI thread when the retrieved bitmap image has been
-		 * set into the {@link ImageView}
-		 * 
-		 * @param key
-		 *            The {@link CacheUrlKey} of the bitmap
-		 * @param bitmap
-		 *            The set {@link Bitmap}
-		 * @param source
-		 *            The {@link CacheSource} of the bitmap
-		 */
-		public void onBitmapSet(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-				@Nonnull CacheSource source);
-	}
 
 	/**
 	 * Low-level debug mode for bitmap debugging (disabled by default).

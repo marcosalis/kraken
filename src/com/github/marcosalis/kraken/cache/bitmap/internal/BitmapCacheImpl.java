@@ -31,6 +31,7 @@ import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapSetterLocalFactory;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
 import com.github.marcosalis.kraken.cache.internal.BitmapAsyncSetter;
@@ -64,6 +65,12 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		mDiskCache = diskCache;
 		mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory,
 				decoder);
+	}
+
+	@Nonnull
+	@Override
+	public BitmapSetterLocalFactory buildSetterLocalFactory() {
+		return new BitmapSetterLocalFactory(this);
 	}
 
 	@Override

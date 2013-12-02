@@ -112,6 +112,45 @@ public interface BitmapCache extends ContentProxy {
 	}
 
 	/**
+	 * Callback interface to be used when the caller needs to know if and when
+	 * the bitmap has actually been set into the image view.
+	 * 
+	 * @since 1.0
+	 * @author Marco Salis
+	 */
+	@Beta
+	public interface OnBitmapSetListener {
+
+		/**
+		 * Called from the UI thread when the retrieved bitmap image has been
+		 * set into the {@link ImageView}
+		 * 
+		 * @param key
+		 *            The {@link CacheUrlKey} of the bitmap
+		 * @param bitmap
+		 *            The set {@link Bitmap}
+		 * @param source
+		 *            The {@link CacheSource} of the bitmap
+		 */
+		public void onBitmapSet(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
+				@Nonnull CacheSource source);
+	}
+
+	/**
+	 * <p>
+	 * Builds a new instance of {@link BitmapSetterLocalFactory} for this cache.
+	 * Retain this reference for an activity, component or list view, to
+	 * optimize bitmap retrieval and setting into views.
+	 * 
+	 * <p>
+	 * See {@link BitmapSetterLocalFactory} documentation for more information.
+	 * 
+	 * @return The built instance
+	 */
+	@Nonnull
+	public BitmapSetterLocalFactory buildSetterLocalFactory();
+
+	/**
 	 * Retrieves a bitmap asynchronously with the specified {@link AccessPolicy}
 	 * 
 	 * Use {@link #preloadBitmap(CacheUrlKey)} for
