@@ -24,6 +24,7 @@ cache.setBitmapAsync(cacheKey, imageView);
 
 **1.0.2 beta**
 - <code>JsonModel</code> does not override <code>toString()</code> behavior anymore. Use <code>toJsonString()</code> to get the JSON string representation of the model (**breaking change**)
+- <code>BitmapSource</code> renamed to <code>CacheSource</code> and moved to <code>ContentCache</code> interface (**breaking change**)
 
 **1.0.1 beta**
 - Added <code>BitmapDecoder</code> to allow using a custom bitmap decoding policy to caches
@@ -101,7 +102,7 @@ Here is the code that allows full customization (you can also use <code>Animated
 CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
 OnBitmapSetListener listener = new OnBitmapSetListener() {
 			@Override
-			public void onSetIntoImageView(CacheUrlKey url, final Bitmap bitmap, BitmapSource source) {
+			public void onSetIntoImageView(CacheUrlKey url, final Bitmap bitmap, CacheSource source) {
 			  // called when the bitmap is set
 			}
 		};

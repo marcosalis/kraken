@@ -35,13 +35,13 @@ import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.github.marcosalis.kraken.cache.AccessPolicy;
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
@@ -163,7 +163,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 				if ((bitmap = memoryCache.get(key)) != null) {
 					// memory cache hit
 					if (mBitmapCallback != null) {
-						mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.MEMORY);
+						mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.MEMORY);
 					}
 					return bitmap;
 				}
@@ -176,7 +176,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 						memoryCache.putIfAbsent(key, bitmap);
 						// and call back to the listener
 						if (mBitmapCallback != null) {
-							mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.DISK);
+							mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.DISK);
 						}
 						return bitmap;
 					}
@@ -266,7 +266,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 							memoryCache.putIfAbsent(key, bitmap);
 							// and call back to the listener
 							if (mBitmapCallback != null) {
-								mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.DISK);
+								mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.DISK);
 							}
 							return bitmap;
 						}
@@ -276,7 +276,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mKey);
 				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(key, downloader);
 				if (bitmap != null && mBitmapCallback != null) {
-					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, BitmapSource.NETWORK);
+					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.NETWORK);
 				}
 				return bitmap;
 			} catch (InterruptedException e) {

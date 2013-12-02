@@ -23,8 +23,8 @@ import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.google.common.annotations.Beta;
@@ -60,11 +60,11 @@ public interface BitmapCache extends ContentProxy {
 		 * @param bitmap
 		 *            The retrieved Bitmap
 		 * @param source
-		 *            The {@link BitmapSource} from where the bitmap has been
+		 *            The {@link CacheSource} from where the bitmap has been
 		 *            retrieved
 		 */
 		public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-				@Nonnull BitmapSource source);
+				@Nonnull CacheSource source);
 
 		/**
 		 * Called when a bitmap could not be retrieved.

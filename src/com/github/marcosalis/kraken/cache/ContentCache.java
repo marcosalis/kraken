@@ -42,8 +42,6 @@ public interface ContentCache<K, V> {
 	 * when an item in the cache is removed/evicted. This is useful especially
 	 * for space-consuming cache items, in order to avoid other classes holding
 	 * a reference to the old cache entry and preventing it from being GCed.
-	 * 
-	 * @since 1.0
 	 */
 	@Beta
 	public interface OnEntryRemovedListener<K, V> {
@@ -61,6 +59,19 @@ public interface ContentCache<K, V> {
 		 *            the removed element
 		 */
 		public void onEntryRemoved(boolean evicted, @Nonnull K key, @Nonnull V value);
+	}
+
+	/**
+	 * Possible cache "sources" for an item retrieved from a
+	 * {@link ContentCache}.
+	 * 
+	 * @since 1.0.2
+	 */
+	@Beta
+	public enum CacheSource {
+		MEMORY,
+		DISK,
+		NETWORK;
 	}
 
 	/**

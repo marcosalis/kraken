@@ -32,6 +32,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
@@ -72,6 +73,7 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	 * Callback interface to be used when the caller needs to know if and when
 	 * the bitmap has actually been set into the image view.
 	 */
+	@Beta
 	public interface OnBitmapSetListener {
 		/**
 		 * Called from the UI thread when the retrieved bitmap image has been
@@ -82,19 +84,10 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 		 * @param bitmap
 		 *            The set {@link Bitmap}
 		 * @param source
-		 *            The {@link BitmapSource} of the bitmap
+		 *            The {@link CacheSource} of the bitmap
 		 */
 		public void onSetIntoImageView(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-				@Nonnull BitmapSource source);
-	}
-
-	/**
-	 * Possible origin of a cache item TODO: move from here
-	 */
-	public enum BitmapSource {
-		MEMORY,
-		DISK,
-		NETWORK;
+				@Nonnull CacheSource source);
 	}
 
 	/**
@@ -174,11 +167,11 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	public void setBitmapSync(@Nonnull Bitmap bitmap) {
 		final ImageView view = mImageView.get();
 		if (view != null) {
-			setImageBitmap(view, bitmap, BitmapSource.MEMORY);
+			setImageBitmap(view, bitmap, CacheSource.MEMORY);
 			if (mListener != null) { // notify caller
 				final OnBitmapSetListener listener = mListener.get();
 				if (listener != null) {
-					listener.onSetIntoImageView(mCacheKey, bitmap, BitmapSource.MEMORY);
+					listener.onSetIntoImageView(mCacheKey, bitmap, CacheSource.MEMORY);
 				}
 			}
 			mImageView.clear();
@@ -189,7 +182,7 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 
 	@Override
 	public final void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-			@Nonnull BitmapSource source) {
+			@Nonnull CacheSource source) {
 		setBitmapAsync(bitmap, source);
 	}
 
@@ -201,12 +194,12 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	 * @param bitmap
 	 *            The {@link Bitmap} image to set
 	 * @param source
-	 *            The {@link BitmapSource} of the bitmap
+	 *            The {@link CacheSource} of the bitmap
 	 */
 	@NotForUIThread
 	@OverridingMethodsMustInvokeSuper
 	protected synchronized void setBitmapAsync(@Nonnull Bitmap bitmap,
-			@Nonnull final BitmapSource source) {
+			@Nonnull final CacheSource source) {
 		// do not pass this reference to the runnable
 		final ImageView view = mImageView.get();
 		if (view != null) {
@@ -260,10 +253,10 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	 * @param bitmap
 	 *            The {@link Bitmap} to set
 	 * @param source
-	 *            The origin {@link BitmapSource} of the bitmap
+	 *            The origin {@link CacheSource} of the bitmap
 	 */
 	protected void setImageBitmap(@Nonnull ImageView imageView, @Nonnull Bitmap bitmap,
-			@Nonnull BitmapSource source) {
+			@Nonnull CacheSource source) {
 		imageView.setImageBitmap(bitmap);
 	}
 

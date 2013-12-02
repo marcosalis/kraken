@@ -25,13 +25,13 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
 
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.internal.BitmapCacheImplTest;
 import com.github.marcosalis.kraken.cache.bitmap.internal.DefaultBitmapDecoder;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.google.api.client.http.HttpRequestFactory;
@@ -207,9 +207,9 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 
 		final SimpleCacheUrlKey key = new SimpleCacheUrlKey("http://www.mymockurl.com");
 		// test HTTP request
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
 		// since there are no caches, the bitmap will be downloaded again
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
 	}
 
 	public void testBuild_noDiskCache() throws IOException, InterruptedException {
@@ -224,11 +224,11 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 		mCache.clearCache();
 
 		final SimpleCacheUrlKey key = new SimpleCacheUrlKey("http://www.mymockurl.com");
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.MEMORY);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.MEMORY);
 		mCache.clearMemoryCache();
 		// no disk cache: image is downloaded again
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
 	}
 
 	public void testBuild_noMemoryCache() throws IOException, InterruptedException {
@@ -241,10 +241,10 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 		mCache.clearCache();
 
 		final SimpleCacheUrlKey key = new SimpleCacheUrlKey("http://www.mymockurl.com");
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.DISK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.DISK);
 		mCache.clearDiskCache(ClearMode.ALL);
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
 	}
 
 	public void testBuild_cacheSteps_all() throws IOException, InterruptedException {
@@ -256,12 +256,12 @@ public class BitmapCacheBuilderTest extends AndroidTestCase {
 
 		final SimpleCacheUrlKey key = new SimpleCacheUrlKey("http://www.mymockurl.com");
 		// test HTTP request
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.NETWORK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.NETWORK);
 		// memory cache access
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.MEMORY);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.MEMORY);
 		mCache.clearMemoryCache();
 		// disk cache access
-		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, BitmapSource.DISK);
+		BitmapCacheImplTest.assertBitmapSet(mImgView, mCache, key, CacheSource.DISK);
 	}
 
 	// utility methods

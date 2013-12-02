@@ -27,6 +27,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.google.common.annotations.Beta;
 
@@ -114,10 +115,10 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 * @param bitmap
 	 *            The {@link Bitmap} to set
 	 * @param source
-	 *            The {@link BitmapSource} from where the bitmap was loaded
+	 *            The {@link CacheSource} from where the bitmap was loaded
 	 */
 	protected void setImageBitmap(@Nonnull final ImageView imageView, @Nonnull Bitmap bitmap,
-			@Nonnull BitmapSource source) {
+			@Nonnull CacheSource source) {
 		// only animate when the bitmap source is compatible with the set mode
 		if (shouldAnimate(source, mAnimationMode)) {
 			final Animation animation = imageView.getAnimation();
@@ -169,17 +170,17 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 
 	/**
 	 * Returns whether the bitmap setting should be animate depending on the
-	 * current {@link BitmapSource} and {@link AnimationMode}.
+	 * current {@link CacheSource} and {@link AnimationMode}.
 	 */
-	protected static final boolean shouldAnimate(@Nonnull BitmapSource source,
+	protected static final boolean shouldAnimate(@Nonnull CacheSource source,
 			@Nonnull AnimationMode mode) {
 		switch (mode) {
 		case ALWAYS:
 			return true;
 		case NOT_IN_MEMORY:
-			return source == BitmapSource.NETWORK || source == BitmapSource.DISK;
+			return source == CacheSource.NETWORK || source == CacheSource.DISK;
 		case FROM_NETWORK:
-			return source == BitmapSource.NETWORK;
+			return source == CacheSource.NETWORK;
 		case NEVER:
 			return false;
 		default:
