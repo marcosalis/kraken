@@ -41,10 +41,11 @@ import com.google.common.annotations.Beta;
 
 /**
  * <p>
- * Callback class to use with a {@link BitmapCache} to set the bitmap to an
- * {@link ImageView} if this is still existing and attached to an Activity,
- * either synchronously from the UI thread or asynchronously after querying a
- * disk cache or the network from another thread.
+ * Callback class that extends {@link BitmapSetter}, to use with a
+ * {@link BitmapCache} to set the bitmap to an {@link ImageView} if this is
+ * still existing and attached to an Activity, either synchronously from the UI
+ * thread or asynchronously after querying a disk cache or the network from
+ * another thread.
  * </p>
  * 
  * <p>
@@ -84,7 +85,7 @@ public class BitmapAsyncSetter implements BitmapSetter {
 		 * @param source
 		 *            The {@link CacheSource} of the bitmap
 		 */
-		public void onSetIntoImageView(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
+		public void onBitmapSet(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
 				@Nonnull CacheSource source);
 	}
 
@@ -162,7 +163,7 @@ public class BitmapAsyncSetter implements BitmapSetter {
 			if (mListener != null) { // notify caller
 				final OnBitmapSetListener listener = mListener.get();
 				if (listener != null) {
-					listener.onSetIntoImageView(mCacheKey, bitmap, CacheSource.MEMORY);
+					listener.onBitmapSet(mCacheKey, bitmap, CacheSource.MEMORY);
 				}
 			}
 			mImageView.clear();
@@ -179,7 +180,7 @@ public class BitmapAsyncSetter implements BitmapSetter {
 
 	@Override
 	public void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e) {
-		// TODO: handle placeholder setting when the bitmap loading fails
+		// TODO: handle placeholder setting when the bitmap loading fails?
 	}
 
 	/**
@@ -216,7 +217,7 @@ public class BitmapAsyncSetter implements BitmapSetter {
 								if (mListener != null) { // notify caller
 									final OnBitmapSetListener listener = mListener.get();
 									if (listener != null) {
-										listener.onSetIntoImageView(mCacheKey, bitmap, source);
+										listener.onBitmapSet(mCacheKey, bitmap, source);
 										mListener.clear();
 									}
 								}

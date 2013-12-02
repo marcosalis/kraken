@@ -155,16 +155,16 @@ public class BitmapLoader implements Callable<Bitmap> {
 		final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
 		final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
 		final String key = mKey.hash();
-		Bitmap bitmap;
+
+		Bitmap bitmap = null;
+		CacheSource source = null;
 
 		try {
 			if (mPolicy != AccessPolicy.REFRESH) {
 				// 1- check memory cache again
 				if ((bitmap = memoryCache.get(key)) != null) {
 					// memory cache hit
-					if (mBitmapCallback != null) {
-						mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.MEMORY);
-					}
+					source = CacheSource.MEMORY;
 					return bitmap;
 				}
 
@@ -172,12 +172,9 @@ public class BitmapLoader implements Callable<Bitmap> {
 				if (diskCache != null) {
 					if ((bitmap = diskCache.get(key)) != null) {
 						// disk cache hit, put it into memory cache
+						source = CacheSource.DISK;
 						// use put(key, bitmap) for debugging
 						memoryCache.putIfAbsent(key, bitmap);
-						// and call back to the listener
-						if (mBitmapCallback != null) {
-							mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.DISK);
-						}
 						return bitmap;
 					}
 				}
@@ -197,10 +194,18 @@ public class BitmapLoader implements Callable<Bitmap> {
 			 * network don't get returned in the Future representing this task
 			 * completion.
 			 */
+			return null;
 		} finally {
-			mBitmapCallback = null; // avoid leaks
+			if (mBitmapCallback != null) {
+				// notify success or failure to callback
+				if (bitmap != null) {
+					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, source);
+				} else if (mPolicy == AccessPolicy.CACHE_ONLY) {
+					mBitmapCallback.onBitmapRetrievalFailed(mKey, null);
+				}
+				mBitmapCallback = null; // avoid leaks
+			}
 		}
-		return null;
 	}
 
 	@Nonnull
@@ -246,6 +251,10 @@ public class BitmapLoader implements Callable<Bitmap> {
 			final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
 			final String key = mKey.hash();
 
+			Bitmap bitmap = null;
+			CacheSource source = null;
+			Exception exception = null;
+
 			try {
 				if (loaderDownloadedItems.contains(key) && mPolicy != AccessPolicy.REFRESH) {
 					/*
@@ -257,7 +266,6 @@ public class BitmapLoader implements Callable<Bitmap> {
 					 * many times before the memoizer has been called.
 					 */
 					if (diskCache != null) {
-						final Bitmap bitmap;
 						if ((bitmap = diskCache.get(key)) != null) {
 							if (DroidConfig.DEBUG) {
 								Log.w(TAG, "MemoizerCallable: restored bitmap from disk! - " + key);
@@ -265,27 +273,33 @@ public class BitmapLoader implements Callable<Bitmap> {
 							// disk cache hit, put it into memory cache
 							memoryCache.putIfAbsent(key, bitmap);
 							// and call back to the listener
-							if (mBitmapCallback != null) {
-								mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.DISK);
-							}
+							source = CacheSource.DISK;
 							return bitmap;
 						}
 					}
 				}
 
 				final DownloaderCallable downloader = new DownloaderCallable(mLoaderConfig, mKey);
-				final Bitmap bitmap = mLoaderConfig.downloadsCache.execute(key, downloader);
-				if (bitmap != null && mBitmapCallback != null) {
-					mBitmapCallback.onBitmapRetrieved(mKey, bitmap, CacheSource.NETWORK);
-				}
+				bitmap = mLoaderConfig.downloadsCache.execute(key, downloader);
+				source = CacheSource.NETWORK;
 				return bitmap;
 			} catch (InterruptedException e) {
+				exception = e;
 				throw e;
 			} catch (Exception e) {
+				exception = e;
 				LogUtils.logException(e);
 				return null; // something unexpected happened, can do nothing
 			} finally {
-				mBitmapCallback = null; // avoid leaks
+				if (mBitmapCallback != null) {
+					// notify success or failure to callback
+					if (bitmap != null) {
+						mBitmapCallback.onBitmapRetrieved(mKey, bitmap, source);
+					} else {
+						mBitmapCallback.onBitmapRetrievalFailed(mKey, exception);
+					}
+					mBitmapCallback = null; // avoid leaks
+				}
 			}
 		}
 	}

@@ -212,7 +212,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 
 		final OnBitmapSetListener listener = new OnBitmapSetListener() {
 			@Override
-			public void onSetIntoImageView(@Nonnull CacheUrlKey url, @Nonnull final Bitmap bitmap,
+			public void onBitmapSet(@Nonnull CacheUrlKey url, @Nonnull final Bitmap bitmap,
 					@Nonnull final CacheSource source) {
 				asserts.setAsserts(new Runnable() {
 					@Override
