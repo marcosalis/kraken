@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.bitmap.utils;
+package com.github.marcosalis.kraken.cache.bitmap.internal;
 
 import java.lang.ref.SoftReference;
 
@@ -32,70 +32,39 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.DroidConfig;
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.BitmapSetter;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 
 /**
  * <p>
- * Callback class to use with a {@link BitmapCache} to set the bitmap to an
- * {@link ImageView} if this is still existing and attached to an Activity,
- * either synchronously from the UI thread or asynchronously after querying a
- * disk cache or the network from another thread.
- * </p>
+ * Callback class that extends {@link BitmapSetter}, to use with a
+ * {@link BitmapCache} to set the bitmap to an {@link ImageView} if this is
+ * still existing and attached to an Activity, either synchronously from the UI
+ * thread or asynchronously after querying a disk cache or the network from
+ * another thread.
  * 
  * <p>
  * In order to ensure that the ImageView still refers to the requested bitmap (=
  * it hasn't been recycled, for example), the setter constructors set the tag of
  * the view ({@link ImageView#setTag(Object)}) to the {@link CacheUrlKey} hash.
  * Do not reset the tag or the bitmap won't be set.
- * </p>
  * 
  * <p>
  * The references to the passed {@link ImageView} and listener are
  * {@link SoftReference}, so that it's possible to safely pass an object that
  * retains a {@link Context} to this object constructors.
- * </p>
- * 
- * TODO: handle placeholder setting when the bitmap loading fails
  * 
  * @since 1.0
  * @author Marco Salis
  */
 @Beta
 @ThreadSafe
-public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
-
-	/**
-	 * Callback interface to be used when the caller needs to know if and when
-	 * the bitmap has actually been set into the image view.
-	 */
-	public interface OnBitmapSetListener {
-		/**
-		 * Called from the UI thread when the retrieved bitmap image has been
-		 * set into the {@link ImageView}
-		 * 
-		 * @param key
-		 *            The {@link CacheUrlKey} of the bitmap
-		 * @param bitmap
-		 *            The set {@link Bitmap}
-		 * @param source
-		 *            The {@link BitmapSource} of the bitmap
-		 */
-		public void onSetIntoImageView(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-				@Nonnull BitmapSource source);
-	}
-
-	/**
-	 * Possible origin of a cache item TODO: move from here
-	 */
-	public enum BitmapSource {
-		MEMORY,
-		DISK,
-		NETWORK;
-	}
+public class BitmapAsyncSetter implements BitmapSetter {
 
 	/**
 	 * Low-level debug mode for bitmap debugging (disabled by default).
@@ -149,15 +118,8 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 		}
 	}
 
-	/**
-	 * Sets a temporary {@link Drawable} placeholder to the image view.
-	 * 
-	 * Note: only call this from the UI thread.
-	 * 
-	 * @param drawable
-	 *            The drawable placeholder (can be null)
-	 */
-	public void setPlaceholderSync(@Nullable Drawable drawable) {
+	@Override
+	public void setPlaceholder(@Nullable Drawable drawable) {
 		final ImageView view = mImageView.get();
 		if (view != null) {
 			view.setImageDrawable(drawable);
@@ -174,11 +136,11 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	public void setBitmapSync(@Nonnull Bitmap bitmap) {
 		final ImageView view = mImageView.get();
 		if (view != null) {
-			setImageBitmap(view, bitmap, BitmapSource.MEMORY);
+			setImageBitmap(view, bitmap, CacheSource.MEMORY);
 			if (mListener != null) { // notify caller
 				final OnBitmapSetListener listener = mListener.get();
 				if (listener != null) {
-					listener.onSetIntoImageView(mCacheKey, bitmap, BitmapSource.MEMORY);
+					listener.onBitmapSet(mCacheKey, bitmap, CacheSource.MEMORY);
 				}
 			}
 			mImageView.clear();
@@ -189,8 +151,13 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 
 	@Override
 	public final void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-			@Nonnull BitmapSource source) {
+			@Nonnull CacheSource source) {
 		setBitmapAsync(bitmap, source);
+	}
+
+	@Override
+	public void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e) {
+		// TODO: handle placeholder setting when the bitmap loading fails?
 	}
 
 	/**
@@ -201,12 +168,12 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	 * @param bitmap
 	 *            The {@link Bitmap} image to set
 	 * @param source
-	 *            The {@link BitmapSource} of the bitmap
+	 *            The {@link CacheSource} of the bitmap
 	 */
 	@NotForUIThread
 	@OverridingMethodsMustInvokeSuper
 	protected synchronized void setBitmapAsync(@Nonnull Bitmap bitmap,
-			@Nonnull final BitmapSource source) {
+			@Nonnull final CacheSource source) {
 		// do not pass this reference to the runnable
 		final ImageView view = mImageView.get();
 		if (view != null) {
@@ -227,7 +194,7 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 								if (mListener != null) { // notify caller
 									final OnBitmapSetListener listener = mListener.get();
 									if (listener != null) {
-										listener.onSetIntoImageView(mCacheKey, bitmap, source);
+										listener.onBitmapSet(mCacheKey, bitmap, source);
 										mListener.clear();
 									}
 								}
@@ -260,10 +227,10 @@ public class BitmapAsyncSetter extends OnSuccessfulBitmapRetrievalListener {
 	 * @param bitmap
 	 *            The {@link Bitmap} to set
 	 * @param source
-	 *            The origin {@link BitmapSource} of the bitmap
+	 *            The origin {@link CacheSource} of the bitmap
 	 */
 	protected void setImageBitmap(@Nonnull ImageView imageView, @Nonnull Bitmap bitmap,
-			@Nonnull BitmapSource source) {
+			@Nonnull CacheSource source) {
 		imageView.setImageBitmap(bitmap);
 	}
 

@@ -41,18 +41,21 @@ import com.google.common.base.Preconditions;
  * Base class for a 2nd level, file-system based cache, either on internal or
  * external storage. Common disk caching policies are implemented here.
  * 
+ * <p>
  * <strong>Recommended disk caching policy:</strong><br>
  * <strong>Images and other large data:</strong> stored in external cache
  * (fallback to internal cache if no external storage device is available).<br>
  * <strong>Other data (sensible data in particular):</strong> stored in internal
  * cache.
  * 
+ * <p>
  * <strong>Purge policy:</strong><br>
  * Purge elements with access date older than a set value (recommended 2 days or
  * less to avoid filling the device memory up). Files read for a cache hit are
  * modified in their last modified date to implement a basic LRU file cache and
- * avoid deleting recently used items.<br>
+ * avoid deleting recently used items.
  * 
+ * <p>
  * <b>Notes:</b><br>
  * - {@link File#setLastModified(long)} doesn't work properly on all Android
  * devices, so the purge policy should not delete items with a strict policy.<br>
@@ -73,7 +76,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 * get deleted (used to speed up setting of last modification date by
 	 * avoiding calling I/O write OS methods when unnecessary).
 	 */
-	public static final long MIN_EXPIRE_IN_SEC = DroidUtils.HOUR * 3;
+	public static final long MIN_EXPIRE_IN_SEC = DroidUtils.HOUR * 2;
 	protected static final long MIN_EXPIRE_IN_MS = MIN_EXPIRE_IN_SEC * 1000;
 	/**
 	 * Default expiration time for the {@link SimpleDiskCache} subclasses (in
@@ -82,8 +85,8 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	public static final long DEFAULT_EXPIRE_IN_SEC = DroidUtils.DAY * 2;
 
 	protected static final ExecutorService PURGE_EXECUTOR = Executors
-			.newSingleThreadExecutor(new PriorityThreadFactory("DiskCache purge executor thread",
-					Process.THREAD_PRIORITY_BACKGROUND));
+			.newSingleThreadExecutor(new PriorityThreadFactory(
+					"SimpleDiskCache purge executor thread", Process.THREAD_PRIORITY_BACKGROUND));
 
 	@Nonnull
 	protected final File mCacheLocation;

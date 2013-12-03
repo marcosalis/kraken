@@ -28,6 +28,8 @@ import android.os.Environment;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Helper class containing static methods to retrieve information about the
  * default cache folders and perform operations on the device storage units,
@@ -44,6 +46,7 @@ import com.google.common.annotations.VisibleForTesting;
  */
 @Beta
 @Immutable
+@SuppressFBWarnings("JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class StorageUtils {
 
 	/**

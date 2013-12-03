@@ -52,8 +52,8 @@ import com.google.common.base.Preconditions;
  * <p>
  * <code><pre>
  * BitmapCache cache = new BitmapCacheBuilder(context)
+ * 	.cacheLogName("Profile bitmaps cache")
  * 	.maxMemoryCachePercentage(15)
- * 	.memoryCacheLogName("Profile bitmaps cache")
  * 	.diskCacheDirectoryName("profile_bitmaps")
  * 	.diskCachePurgeableAfter(DroidUtils.DAY)
  * 	.build();
@@ -90,7 +90,6 @@ public class BitmapCacheBuilder {
 	// first level cache config
 	boolean memoryCacheEnabled = true;
 	int memoryCacheMaxBytes;
-	String memoryCacheLogName = "BitmapCache";
 
 	// disk cache config
 	boolean diskCacheEnabled = true;
@@ -98,6 +97,7 @@ public class BitmapCacheBuilder {
 	long purgeableAfterSeconds;
 
 	// other config
+	String cacheLogName = "BitmapCache";
 	HttpRequestFactory requestFactory;
 	BitmapDecoder bitmapDecoder;
 
@@ -151,19 +151,6 @@ public class BitmapCacheBuilder {
 		return this;
 	}
 
-	/**
-	 * Sets an optional cache logging name. Only useful for debugging and cache
-	 * statistics.
-	 * 
-	 * @param cacheName
-	 * @return This builder
-	 */
-	@Nonnull
-	public BitmapCacheBuilder memoryCacheLogName(@Nonnull String cacheName) {
-		memoryCacheLogName = cacheName;
-		return this;
-	}
-
 	@Nonnull
 	public BitmapCacheBuilder disableDiskCache() {
 		diskCacheEnabled = false;
@@ -200,13 +187,12 @@ public class BitmapCacheBuilder {
 	 * Calling this method automatically enables the disk cache.
 	 * 
 	 * @param seconds
-	 *            The cache items expiration. Must be >=
-	 *            {@link SimpleDiskCache#MIN_EXPIRE_IN_SEC}
+	 *            The cache items expiration. Automatically set to
+	 *            {@link SimpleDiskCache#MIN_EXPIRE_IN_SEC} if less than that
 	 * @return This builder
 	 */
 	@Nonnull
 	public BitmapCacheBuilder diskCachePurgeableAfter(long seconds) {
-		Preconditions.checkArgument(seconds >= SimpleDiskCache.MIN_EXPIRE_IN_SEC);
 		diskCacheEnabled = true;
 		purgeableAfterSeconds = seconds;
 		return this;
@@ -241,6 +227,19 @@ public class BitmapCacheBuilder {
 	}
 
 	/**
+	 * Sets an optional cache logging name. Only useful for debugging and cache
+	 * statistics.
+	 * 
+	 * @param cacheName
+	 * @return This builder
+	 */
+	@Nonnull
+	public BitmapCacheBuilder cacheLogName(@Nonnull String cacheName) {
+		cacheLogName = cacheName;
+		return this;
+	}
+
+	/**
 	 * Builds the configured bitmap cache.
 	 * 
 	 * @return The built {@link BitmapCache} instance
@@ -271,17 +270,21 @@ public class BitmapCacheBuilder {
 		if (memoryCacheEnabled && memoryCacheMaxBytes == 0) {
 			maxMemoryCachePercentage(BitmapMemoryCache.DEFAULT_MAX_MEMORY_PERCENTAGE);
 		}
-		if (diskCacheEnabled && purgeableAfterSeconds == 0) {
-			diskCachePurgeableAfter(SimpleBitmapDiskCache.DEFAULT_PURGE_AFTER);
+		if (diskCacheEnabled) {
+			if (purgeableAfterSeconds == 0) {
+				diskCachePurgeableAfter(SimpleBitmapDiskCache.DEFAULT_PURGE_AFTER);
+			} else if (purgeableAfterSeconds < SimpleBitmapDiskCache.MIN_EXPIRE_IN_SEC) {
+				diskCachePurgeableAfter(SimpleBitmapDiskCache.MIN_EXPIRE_IN_SEC);
+			}
 		}
 	}
 
 	@Nonnull
 	private BitmapMemoryCache<String> buildMemoryCache() {
 		if (memoryCacheEnabled) {
-			return new BitmapLruCache<String>(memoryCacheMaxBytes, memoryCacheLogName);
+			return new BitmapLruCache<String>(memoryCacheMaxBytes, cacheLogName);
 		} else {
-			return new EmptyBitmapMemoryCache(memoryCacheLogName);
+			return new EmptyBitmapMemoryCache(cacheLogName);
 		}
 	}
 

@@ -89,6 +89,20 @@ public abstract class JsonModel {
 	}
 
 	/**
+	 * <p>
+	 * <b>Note:</b> This method is not overridden anymore. The default
+	 * {@link Object#toString()} implementation is returned. Use
+	 * {@link #toJsonString()} instead.
+	 * </p>
+	 * 
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+
+	/**
 	 * Returns a Json representation of this instance.<br>
 	 * See {@link ObjectMapper#writeValueAsString(Object)} for details.<br>
 	 * 
@@ -96,17 +110,9 @@ public abstract class JsonModel {
 	 * object, avoid using this method inside production code for logging
 	 * purposes only.
 	 */
-	@Override
 	@CheckForNull
-	public String toString() {
-		return JacksonJsonManager.toString(this);
-	}
-
-	/**
-	 * Returns the result of the {@link Object#toString()} method
-	 */
-	public String toBasicString() {
-		return super.toString();
+	public String toJsonString() {
+		return JacksonJsonManager.toJsonString(this);
 	}
 
 	/**

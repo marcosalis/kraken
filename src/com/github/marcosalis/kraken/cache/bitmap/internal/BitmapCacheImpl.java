@@ -26,15 +26,16 @@ import android.graphics.drawable.Drawable;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBase;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapSetterBuilder;
 import com.github.marcosalis.kraken.cache.bitmap.disk.BitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapMemoryCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
+import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.utils.concurrent.SettableFutureTask;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
@@ -67,8 +68,13 @@ class BitmapCacheImpl extends BitmapCacheBase {
 
 	@Nonnull
 	@Override
+	public BitmapSetterBuilder newBitmapSetterBuilder(boolean allowReuse) {
+		return new BitmapSetterBuilder(this, allowReuse);
+	}
+
+	@Override
 	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnSuccessfulBitmapRetrievalListener listener) {
+			@Nonnull OnBitmapRetrievalListener listener) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
@@ -94,17 +100,21 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		BitmapCacheBase.submitInExecutor(loader);
 	}
 
-	@Nonnull
+	@Override
+	public void setBitmapAsync(@Nonnull String url, @Nonnull ImageView view) {
+		final SimpleCacheUrlKey key = new SimpleCacheUrlKey(url);
+		setBitmapAsync(key, view);
+	}
+
 	@Override
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view) {
 		final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view);
 		getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
-	@Nonnull
 	@Override
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull BitmapAsyncSetter setter, @Nullable Drawable placeholder) {
+			@Nonnull BitmapSetter setter, @Nullable Drawable placeholder) {
 		getBitmap(key, policy, setter, placeholder);
 	}
 
@@ -118,12 +128,12 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	 * 
 	 * @param key
 	 *            The {@link CacheUrlKey} of the image to retrieve
-	 * @param action
+	 * @param policy
 	 *            The {@link AccessPolicy} to use, can be one of
 	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
 	 *            or {@link AccessPolicy#REFRESH}
 	 * @param setter
-	 *            The {@link BitmapAsyncSetter} to set the bitmap in an
+	 *            The {@link OnBitmapRetrievalListener} to set the bitmap in an
 	 *            {@link ImageView}
 	 * @param placeholder
 	 *            An (optional) {@link Drawable} temporary placeholder, only set
@@ -132,7 +142,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	 */
 	@Nonnull
 	protected final Future<Bitmap> getBitmap(@Nonnull CacheUrlKey key,
-			@Nonnull AccessPolicy policy, @Nonnull BitmapAsyncSetter setter,
+			@Nonnull AccessPolicy policy, @Nonnull BitmapSetter setter,
 			@Nullable Drawable placeholder) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
@@ -144,7 +154,7 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		} else {
 			// set temporary placeholder
 			if (placeholder != null) {
-				setter.setPlaceholderSync(placeholder);
+				setter.setPlaceholder(placeholder);
 			}
 			if (!isRefresh) {
 				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, setter);
@@ -158,12 +168,12 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	@CheckForNull
 	private Future<Bitmap> getBitmapFromMemory(@Nonnull CacheUrlKey key,
 			@Nonnull OnBitmapRetrievalListener listener) {
-		Bitmap bitmap = null;
+		final Bitmap bitmap;
 		if ((bitmap = mMemoryCache.get(key.hash())) != null) {
 			if (listener instanceof BitmapAsyncSetter) {
 				((BitmapAsyncSetter) listener).setBitmapSync(bitmap);
 			} else {
-				listener.onBitmapRetrieved(key, bitmap, BitmapSource.MEMORY);
+				listener.onBitmapRetrieved(key, bitmap, CacheSource.MEMORY);
 			}
 			return SettableFutureTask.fromResult(bitmap);
 		}

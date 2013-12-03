@@ -36,11 +36,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.marcosalis.kraken.cache.AccessPolicy;
+import com.github.marcosalis.kraken.cache.bitmap.AnimationMode;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAnimatedAsyncSetter;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
-import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapSetterBuilder;
 import com.github.marcosalis.kraken.demo.KrakenDemoApplication;
 import com.github.marcosalis.kraken.demo.KrakenDemoApplication.CacheId;
 import com.github.marcosalis.kraken.demo.R;
@@ -157,7 +155,7 @@ public class PhotosListFragment extends ListFragment {
 	private static class PhotosAdapter extends ArrayAdapter<Photo> {
 
 		protected LayoutInflater mInflater;
-		protected BitmapCache mBitmapCache;
+		protected BitmapSetterBuilder mBitmapSetterBuilder;
 		protected Drawable mPlaceholder;
 
 		public PhotosAdapter(Context context, int resource, List<Photo> objects) {
@@ -173,10 +171,10 @@ public class PhotosListFragment extends ListFragment {
 		protected void setBitmapAnimated(@Nonnull ViewHolder holder, @Nonnull Photo photo) {
 			final String photoUrl = photo.getPhotoUrl();
 			if (photoUrl != null) {
-				final SimpleCacheUrlKey key = new SimpleCacheUrlKey(photoUrl);
-				final BitmapAsyncSetter setter = new BitmapAnimatedAsyncSetter(key,
-						holder.imageView);
-				mBitmapCache.setBitmapAsync(key, AccessPolicy.NORMAL, setter, mPlaceholder);
+				mBitmapSetterBuilder.setAsync(photoUrl) //
+						.placeholder(mPlaceholder) //
+						.animate(AnimationMode.NOT_IN_MEMORY) //
+						.into(holder.imageView);
 			} else {
 				holder.imageView.setImageDrawable(mPlaceholder);
 			}
@@ -192,7 +190,9 @@ public class PhotosListFragment extends ListFragment {
 
 		public SmallPhotosAdapter(Context context, List<Photo> objects) {
 			super(context, -1, objects);
-			mBitmapCache = (BitmapCache) KrakenDemoApplication.get().getCache(CacheId.BITMAPS_130);
+			final BitmapCache cache = (BitmapCache) KrakenDemoApplication.get().getCache(
+					CacheId.BITMAPS_130);
+			mBitmapSetterBuilder = cache.newBitmapSetterBuilder(true);
 			mPlaceholder = context.getResources().getDrawable(R.drawable.ic_launcher);
 		}
 
@@ -226,8 +226,9 @@ public class PhotosListFragment extends ListFragment {
 
 		public FullScreenPhotosAdapter(Context context, List<Photo> objects) {
 			super(context, -1, objects);
-			mBitmapCache = (BitmapCache) KrakenDemoApplication.get()
-					.getCache(CacheId.BITMAPS_LARGE);
+			final BitmapCache cache = (BitmapCache) KrakenDemoApplication.get().getCache(
+					CacheId.BITMAPS_LARGE);
+			mBitmapSetterBuilder = cache.newBitmapSetterBuilder(true);
 			mPlaceholder = context.getResources().getDrawable(R.drawable.ic_launcher);
 		}
 

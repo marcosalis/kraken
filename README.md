@@ -11,16 +11,21 @@ BitmapCache cache = new BitmapCacheBuilder(context).diskCacheDirectoryName("bitm
 
 and setting a bitmap into an *ImageView* asynchronously when retrieved is just:
 ``` java
-CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
-cache.setBitmapAsync(cacheKey, imageView);
+cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageView);
 ```
 
 ## Quick reference
 
 ### Current version and release notes
-*Kraken* current version is **1.0.1 beta**
+*Kraken* current version is **1.0.2 beta**
 
 #### What's new
+
+**1.0.2 beta**
+- Created <code>BitmapSetterBuilder</code> to simplify customized setting of bitmaps into *ImageView*s
+- Hidden concrete implementations of <code>BitmapSetter</code> (**breaking change**)
+- <code>JsonModel</code> does not override <code>toString()</code> behavior anymore. Use <code>toJsonString()</code> to get the JSON string representation of the model (**breaking change**)
+- <code>BitmapSource</code> renamed to <code>CacheSource</code> and moved to <code>ContentCache</code> interface (**breaking change**)
 
 **1.0.1 beta**
 - Added <code>BitmapDecoder</code> to allow using a custom bitmap decoding policy to caches
@@ -84,8 +89,8 @@ See the <code>CachesManager</code> interface and its base implementation <code>B
 Using the code below, you can build a bitmap cache (with debugging name *"Profile bitmaps cache"*) that occupies the 15% of the total max app memory heap and stores the images in the external storage application cache subfolder *profile_bitmaps* with an expiration time of 1 day. See the <code>BitmapCacheBuilder</code> documentation for the full list of configurable parameters.
 ``` java
  BitmapCache cache = new BitmapCacheBuilder(context)
+ 	.cacheLogName("Profile bitmaps cache")
  	.maxMemoryCachePercentage(15)
- 	.memoryCacheLogName("Profile bitmaps cache")
  	.diskCacheDirectoryName("profile_bitmaps")
  	.diskCachePurgeableAfter(DroidUtils.DAY)
  	.build();
@@ -93,17 +98,20 @@ Using the code below, you can build a bitmap cache (with debugging name *"Profil
 
 ##### Set a bitmap into an ImageView
 The <code>BitmapCache</code> interface offers methods to prefetch, load and set bitmaps into an *ImageView*.
-Here is the code that allows full customization (you can also use <code>AnimatedBitmapAsyncSetter</code> to control how to fade-in the bitmap when set into the view):
+To fully customize how to set a bitmap inside the view, use <code>BitmapSetterBuilder</code>. If needed, the same builder can be reused within the same context (such as a long list view) to improve performances and save on object instantiation in performance critical situations (see the class documentation for more info).
+This is the sample code to set a bitmap inside an *ImageView* with an animation:
 ``` java
-CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
-OnBitmapSetListener listener = new OnBitmapSetListener() {
-			@Override
-			public void onSetIntoImageView(CacheUrlKey url, final Bitmap bitmap, BitmapSource source) {
-			  // called when the bitmap is set
-			}
-		};
-BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView, listener);
-cache.setBitmapAsync(cacheKey, callback);
+BitmapSetterBuilder builder = cache.newBitmapSetterBuilder(true); // the builder can be reused
+builder.setAsync("https://www.google.co.uk/images/srpr/logo11w.png")
+	.placeholder(placeholderDrawable)
+	.policy(AccessPolicy.NORMAL)
+	.animate(AnimationMode.NOT_IN_MEMORY)
+	.listener(new OnBitmapSetListener() {
+		public void onBitmapSet(CacheUrlKey key, Bitmap bitmap, CacheSource source) {
+			// called when the bitmap is set
+		}
+	})
+	.into(imageView);
 ```
 
 ### POJO and DTO loading, (de)serialization and caching
@@ -144,13 +152,11 @@ I also make frequent use of the static analyzer **FindBugs** (http://findbugs.so
 A (hopefully enough) comprehensive suite of unit/functional tests for the library are provided as Android test project in the *kraken_tests* subfolder. Bug reports and feature requests are more then welcome, and the best way of submitting them is using the *Issues* feature in GitHub. Pull requests are more than welcome, too!
 
 ### Alternatives to Kraken
-<p>There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
-<ul>
-<li><b>Volley</b> (https://developers.google.com/events/io/sessions/325304728)</li>
-<li><b>Picasso</b> (http://square.github.io/picasso/)</li>
-<li><b>Universal Image Loader</b> (https://github.com/nostra13/Android-Universal-Image-Loader)</li>
-</ul>
-</p>
+There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
+* **Volley** (https://developers.google.com/events/io/sessions/325304728)
+* **Picasso** (http://square.github.io/picasso/)
+* **Universal Image Loader** (https://github.com/nostra13/Android-Universal-Image-Loader)
+* **ImageLoader** (https://github.com/novoda/ImageLoader)
 
 ### License
 You are free to use, modify, redistribute *Kraken* in any way permitted by the **Apache 2.0** license. If you like *Kraken* and you are using it inside your Android application, please let me know by sending an email to *fast3r(at)gmail.com*.

@@ -21,6 +21,7 @@ import javax.annotation.Nonnull;
 import android.graphics.Bitmap;
 
 import com.github.marcosalis.kraken.cache.SecondLevelCache;
+import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.google.common.annotations.Beta;
 
 /**
@@ -34,6 +35,11 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public interface BitmapDiskCache extends SecondLevelCache<String, Bitmap> {
+
+	/**
+	 * Default expiration date for the bitmap disk cache items.
+	 */
+	public static final long DEFAULT_PURGE_AFTER = DroidUtils.DAY * 2;
 
 	/**
 	 * Gets a {@link Bitmap} from the disk cache.

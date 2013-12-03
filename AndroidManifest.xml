@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.marcosalis.kraken"
-    android:versionName="1.0.1 beta" >
+    android:versionName="1.0.2 beta" >
 
     <uses-sdk android:minSdkVersion="8" />
 

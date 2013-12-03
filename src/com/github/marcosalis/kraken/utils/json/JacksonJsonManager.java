@@ -122,7 +122,7 @@ public enum JacksonJsonManager {
 	 *         failed for an IOException)
 	 */
 	@CheckForNull
-	public static String toString(Object data) {
+	public static String toJsonString(Object data) {
 		try {
 			return INSTANCE.mMapper.writeValueAsString(data);
 		} catch (IOException e) {

@@ -45,11 +45,13 @@ public class EmptyMemoryCache<K, V> implements MemoryCache<K, V> {
 	}
 
 	@Override
+	@CheckForNull
 	public V get(K key) {
 		return null; // always null
 	}
 
 	@Override
+	@CheckForNull
 	public V put(K key, V value) {
 		final OnEntryRemovedListener<K, V> listener = mEntryRemovedListener;
 		if (listener != null) {
@@ -60,11 +62,13 @@ public class EmptyMemoryCache<K, V> implements MemoryCache<K, V> {
 	}
 
 	@Override
+	@CheckForNull
 	public V putIfAbsent(K key, V value) {
 		return put(key, value);
 	}
 
 	@Override
+	@CheckForNull
 	public V remove(K key) {
 		// does nothing
 		return null;

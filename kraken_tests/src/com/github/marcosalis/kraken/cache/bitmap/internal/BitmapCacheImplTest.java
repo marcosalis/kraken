@@ -34,15 +34,14 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.SimpleDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.BitmapSource;
-import com.github.marcosalis.kraken.cache.bitmap.utils.BitmapAsyncSetter.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.testing.framework.TestAssertsWrapper;
@@ -93,39 +92,49 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		super.tearDown();
 	}
 
-	public void testGetBitmapAsync_normal() throws InterruptedException {
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.MEMORY);
+	public void testGetBitmapAsyncString() throws InterruptedException {
+		// retrieve from network with string URL
+		mCache.setBitmapAsync(mCacheKey.getUrl(), mImgView);
+		Thread.sleep(500);
+		// bitmap should already come from memory
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.MEMORY);
 		mCache.clearMemoryCache();
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.DISK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.DISK);
+	}
+
+	public void testGetBitmapAsync_normal() throws InterruptedException {
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.MEMORY);
+		mCache.clearMemoryCache();
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.DISK);
 	}
 
 	public void testGetBitmapAsync_refresh() throws InterruptedException {
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.REFRESH, BitmapSource.NETWORK);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.REFRESH, BitmapSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.REFRESH, CacheSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.REFRESH, CacheSource.NETWORK);
 	}
 
 	public void testGetBitmapAsync_cacheOnly() throws InterruptedException {
-		assertBitmapNotRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, BitmapSource.MEMORY);
-		assertBitmapNotRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, BitmapSource.DISK);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, BitmapSource.MEMORY);
+		assertBitmapNotRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, CacheSource.MEMORY);
+		assertBitmapNotRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, CacheSource.DISK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, CacheSource.MEMORY);
 		mCache.clearMemoryCache();
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, BitmapSource.DISK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, CacheSource.DISK);
 	}
 
 	public void testPreloadBitmap() throws InterruptedException {
 		mCache.preloadBitmap(mCacheKey);
 		Thread.sleep(500);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, BitmapSource.MEMORY);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.CACHE_ONLY, CacheSource.MEMORY);
 	}
 
 	public void testSetBitmapAsync_noPlaceholder() throws InterruptedException {
-		assertBitmapSet(mImgView, mCache, mCacheKey, BitmapSource.NETWORK);
-		assertBitmapSet(mImgView, mCache, mCacheKey, BitmapSource.MEMORY);
+		assertBitmapSet(mImgView, mCache, mCacheKey, CacheSource.NETWORK);
+		assertBitmapSet(mImgView, mCache, mCacheKey, CacheSource.MEMORY);
 		mCache.clearMemoryCache();
-		assertBitmapSet(mImgView, mCache, mCacheKey, BitmapSource.DISK);
+		assertBitmapSet(mImgView, mCache, mCacheKey, CacheSource.DISK);
 	}
 
 	public void testSetBitmapAsync_placeholder() {
@@ -144,27 +153,27 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 	}
 
 	public void testClearMemoryCache() throws InterruptedException {
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.NETWORK);
 		mCache.clearMemoryCache();
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.DISK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.DISK);
 	}
 
 	public void testClearDiskCache() throws InterruptedException {
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.NETWORK);
 		mCache.clearMemoryCache();
 		mCache.clearDiskCache(ClearMode.ALL);
-		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, BitmapSource.NETWORK);
+		assertBitmapRetrieved(mCache, mCacheKey, AccessPolicy.NORMAL, CacheSource.NETWORK);
 	}
 
 	public static void assertBitmapRetrieved(BitmapCache cache, CacheUrlKey key,
-			AccessPolicy policy, final BitmapSource expectedSource) throws InterruptedException {
+			AccessPolicy policy, final CacheSource expectedSource) throws InterruptedException {
 		final CountDownLatch latch = new CountDownLatch(1);
 		final TestAssertsWrapper asserts = new TestAssertsWrapper();
 
 		final OnSuccessfulBitmapRetrievalListener listener = new OnSuccessfulBitmapRetrievalListener() {
 			@Override
 			public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull final Bitmap bitmap,
-					@Nonnull final BitmapSource source) {
+					@Nonnull final CacheSource source) {
 				asserts.setAsserts(new Runnable() {
 					@Override
 					public void run() {
@@ -185,7 +194,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 	}
 
 	public static void assertBitmapNotRetrieved(BitmapCache cache, CacheUrlKey key,
-			AccessPolicy policy, final BitmapSource expectedSource) throws InterruptedException {
+			AccessPolicy policy, final CacheSource expectedSource) throws InterruptedException {
 		boolean thrown = false;
 		try {
 			assertBitmapRetrieved(cache, key, policy, expectedSource);
@@ -196,14 +205,14 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 	}
 
 	public static void assertBitmapSet(ImageView view, BitmapCache cache, CacheUrlKey key,
-			final BitmapSource expectedSource) throws InterruptedException {
+			final CacheSource expectedSource) throws InterruptedException {
 		final CountDownLatch latchMemory = new CountDownLatch(1);
 		final TestAssertsWrapper asserts = new TestAssertsWrapper();
 
 		final OnBitmapSetListener listener = new OnBitmapSetListener() {
 			@Override
-			public void onSetIntoImageView(@Nonnull CacheUrlKey url, @Nonnull final Bitmap bitmap,
-					@Nonnull final BitmapSource source) {
+			public void onBitmapSet(@Nonnull CacheUrlKey url, @Nonnull final Bitmap bitmap,
+					@Nonnull final CacheSource source) {
 				asserts.setAsserts(new Runnable() {
 					@Override
 					public void run() {

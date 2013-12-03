@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.github.marcosalis.kraken.cache.bitmap.utils;
+package com.github.marcosalis.kraken.cache.bitmap.internal;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -27,6 +27,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.github.marcosalis.kraken.cache.ContentCache.CacheSource;
+import com.github.marcosalis.kraken.cache.bitmap.AnimationMode;
+import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.google.common.annotations.Beta;
 
@@ -40,30 +43,6 @@ import com.google.common.annotations.Beta;
 @Beta
 @ThreadSafe
 public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
-
-	/**
-	 * Enumerates all possible animation policies for setting a bitmap into an
-	 * {@link ImageView}, depending on the bitmap loading source.
-	 */
-	public enum AnimationMode {
-		/**
-		 * Use no animation (same as using a normal {@link BitmapAsyncSetter})
-		 */
-		NEVER,
-		/**
-		 * Animate only if the bitmap is not already in the memory caches
-		 */
-		NOT_IN_MEMORY,
-		/**
-		 * Animate only if the bitmap was loaded from network
-		 */
-		FROM_NETWORK,
-		/**
-		 * Always animate (use with care: the performance impact can be
-		 * noticeable when scrolling long lists of bitmaps)
-		 */
-		ALWAYS;
-	}
 
 	private static final String TAG = BitmapAnimatedAsyncSetter.class.getSimpleName();
 
@@ -114,10 +93,10 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 * @param bitmap
 	 *            The {@link Bitmap} to set
 	 * @param source
-	 *            The {@link BitmapSource} from where the bitmap was loaded
+	 *            The {@link CacheSource} from where the bitmap was loaded
 	 */
 	protected void setImageBitmap(@Nonnull final ImageView imageView, @Nonnull Bitmap bitmap,
-			@Nonnull BitmapSource source) {
+			@Nonnull CacheSource source) {
 		// only animate when the bitmap source is compatible with the set mode
 		if (shouldAnimate(source, mAnimationMode)) {
 			final Animation animation = imageView.getAnimation();
@@ -169,17 +148,17 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 
 	/**
 	 * Returns whether the bitmap setting should be animate depending on the
-	 * current {@link BitmapSource} and {@link AnimationMode}.
+	 * current {@link CacheSource} and {@link AnimationMode}.
 	 */
-	protected static final boolean shouldAnimate(@Nonnull BitmapSource source,
+	protected static final boolean shouldAnimate(@Nonnull CacheSource source,
 			@Nonnull AnimationMode mode) {
 		switch (mode) {
 		case ALWAYS:
 			return true;
 		case NOT_IN_MEMORY:
-			return source == BitmapSource.NETWORK || source == BitmapSource.DISK;
+			return source == CacheSource.NETWORK || source == CacheSource.DISK;
 		case FROM_NETWORK:
-			return source == BitmapSource.NETWORK;
+			return source == CacheSource.NETWORK;
 		case NEVER:
 			return false;
 		default:
