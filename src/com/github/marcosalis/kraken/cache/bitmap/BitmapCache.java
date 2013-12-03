@@ -138,17 +138,21 @@ public interface BitmapCache extends ContentProxy {
 
 	/**
 	 * <p>
-	 * Builds a new instance of {@link BitmapSetterLocalFactory} for this cache.
+	 * Builds a new instance of {@link BitmapSetterBuilder} for this cache.
 	 * Retain this reference for an activity, component or list view, to
 	 * optimize bitmap retrieval and setting into views.
 	 * 
 	 * <p>
-	 * See {@link BitmapSetterLocalFactory} documentation for more information.
+	 * See {@link BitmapSetterBuilder} documentation for more information.
 	 * 
+	 * @param allowReuse
+	 *            true to create a {@link BitmapSetterBuilder} that can be
+	 *            reused locally and holds caches to improve performances, false
+	 *            to create a one-off builder
 	 * @return The built instance
 	 */
 	@Nonnull
-	public BitmapSetterLocalFactory buildSetterLocalFactory();
+	public BitmapSetterBuilder newBitmapSetterBuilder(boolean allowReuse);
 
 	/**
 	 * Retrieves a bitmap asynchronously with the specified {@link AccessPolicy}
@@ -199,6 +203,12 @@ public interface BitmapCache extends ContentProxy {
 	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view);
 
 	/**
+	 * <strong>Note:</strong> this method is not officially part of the public
+	 * interface, and its direct use is not recommended as it is subject to
+	 * backwards incompatible variations. Call
+	 * {@link #newBitmapSetterBuilder(boolean)} to get a builder to configure a
+	 * personalized bitmap setter.
+	 * 
 	 * Asynchronously sets the retrieved bitmap into an image view with the
 	 * passed custom parameters.
 	 * 

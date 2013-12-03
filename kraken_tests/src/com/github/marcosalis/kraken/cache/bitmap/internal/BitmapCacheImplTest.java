@@ -42,7 +42,6 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnSuccessfulBitmapRetrievalListener;
 import com.github.marcosalis.kraken.cache.bitmap.disk.SimpleBitmapDiskCache;
 import com.github.marcosalis.kraken.cache.bitmap.memory.BitmapLruCache;
-import com.github.marcosalis.kraken.cache.internal.BitmapAsyncSetter;
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.cache.keys.SimpleCacheUrlKey;
 import com.github.marcosalis.kraken.testing.framework.TestAssertsWrapper;
