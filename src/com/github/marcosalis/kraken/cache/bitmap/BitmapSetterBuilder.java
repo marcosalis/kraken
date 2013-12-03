@@ -149,6 +149,24 @@ public final class BitmapSetterBuilder {
 	}
 
 	/**
+	 * Sets the {@link CacheUrlKey} for the bitmap.
+	 * 
+	 * <strong>Note: </strong> calling this method instead of
+	 * {@link #setAsync(String)} would prevent any internal key cache from
+	 * saving on objects instantiation. Only use to provide a
+	 * {@link CacheUrlKey} customized behavior.
+	 * 
+	 * @param key
+	 *            The {@link CacheUrlKey} for the bitmap
+	 * @return This builder for call chaining
+	 */
+	@Nonnull
+	public BitmapSetterBuilder setAsync(@Nonnull CacheUrlKey key) {
+		mKey = key;
+		return this;
+	}
+
+	/**
 	 * Sets a temporary placeholder to be set into the view when the requested
 	 * bitmap is not in the memory cache.
 	 * 
@@ -215,6 +233,8 @@ public final class BitmapSetterBuilder {
 	 * 
 	 * @param view
 	 *            The {@link ImageView} to set the bitmap into
+	 * @throws NullPointerException
+	 *             if any of the mandatory parameters were not set
 	 */
 	public void into(@Nonnull ImageView view) {
 		checkParameters();
