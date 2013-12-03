@@ -11,8 +11,7 @@ BitmapCache cache = new BitmapCacheBuilder(context).diskCacheDirectoryName("bitm
 
 and setting a bitmap into an *ImageView* asynchronously when retrieved is just:
 ``` java
-CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
-cache.setBitmapAsync(cacheKey, imageView);
+cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageView);
 ```
 
 ## Quick reference
@@ -23,6 +22,8 @@ cache.setBitmapAsync(cacheKey, imageView);
 #### What's new
 
 **1.0.2 beta**
+- Created <code>BitmapSetterBuilder</code> to simplify customized setting of bitmaps into *ImageView*s
+- Hidden concrete implementations of <code>BitmapSetter</code> (**breaking change**)
 - <code>JsonModel</code> does not override <code>toString()</code> behavior anymore. Use <code>toJsonString()</code> to get the JSON string representation of the model (**breaking change**)
 - <code>BitmapSource</code> renamed to <code>CacheSource</code> and moved to <code>ContentCache</code> interface (**breaking change**)
 
@@ -97,17 +98,20 @@ Using the code below, you can build a bitmap cache (with debugging name *"Profil
 
 ##### Set a bitmap into an ImageView
 The <code>BitmapCache</code> interface offers methods to prefetch, load and set bitmaps into an *ImageView*.
-Here is the code that allows full customization (you can also use <code>AnimatedBitmapAsyncSetter</code> to control how to fade-in the bitmap when set into the view):
+To fully customize how to set a bitmap inside the view, use <code>BitmapSetterBuilder</code>. If needed, the same builder can be reused within the same context (such as a long list view) to improve performances and save on object instantiation in performance critical situations (see the class documentation for more info).
+This is the sample code to set a bitmap inside an *ImageView* with an animation:
 ``` java
-CacheUrlKey cacheKey = new SimpleCacheUrlKey("https://www.google.co.uk/images/srpr/logo11w.png");
-OnBitmapSetListener listener = new OnBitmapSetListener() {
-			@Override
-			public void onSetIntoImageView(CacheUrlKey url, final Bitmap bitmap, CacheSource source) {
-			  // called when the bitmap is set
-			}
-		};
-BitmapAsyncSetter callback = new BitmapAsyncSetter(cacheKey, imageView, listener);
-cache.setBitmapAsync(cacheKey, callback);
+BitmapSetterBuilder builder = cache.newBitmapSetterBuilder(true); // the builder can be reused
+builder.setAsync("https://www.google.co.uk/images/srpr/logo11w.png")
+	.placeholder(placeholderDrawable)
+	.policy(AccessPolicy.NORMAL)
+	.animate(AnimationMode.NOT_IN_MEMORY)
+	.listener(new OnBitmapSetListener() {
+		public void onBitmapSet(CacheUrlKey key, Bitmap bitmap, CacheSource source) {
+			// called when the bitmap is set
+		}
+	})
+	.into(imageView);
 ```
 
 ### POJO and DTO loading, (de)serialization and caching
