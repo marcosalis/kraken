@@ -1,1 +1,1 @@
-include ':'
+include ':kraken_demo', ':kraken_lib'
