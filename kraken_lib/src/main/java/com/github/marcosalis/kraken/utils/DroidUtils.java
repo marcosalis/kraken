@@ -26,9 +26,8 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.Immutable;
 
 import android.annotation.TargetApi;
@@ -43,6 +42,8 @@ import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.telephony.PhoneNumberUtils;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
@@ -163,7 +164,7 @@ public class DroidUtils {
 	 *            The {@link Context} to retrieve the {@link ActivityManager}
 	 * @return The application memory class in bytes
 	 */
-	public static int getApplicationMemoryClass(@Nonnull Context context) {
+	public static int getApplicationMemoryClass(@NonNull Context context) {
 		final ActivityManager manager = (ActivityManager) context
 				.getSystemService(Context.ACTIVITY_SERVICE);
 		return manager.getMemoryClass() * 1024 * 1024; // to bytes
@@ -176,8 +177,8 @@ public class DroidUtils {
 	 *            The {@link Context} to retrieve the {@link WindowManager}
 	 * @return The retrieved {@link DisplayMetrics}
 	 */
-	@Nonnull
-	public static DisplayMetrics getDefaultDisplayMetrics(@Nonnull Context context) {
+	@NonNull
+	public static DisplayMetrics getDefaultDisplayMetrics(@NonNull Context context) {
 		WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 		final DisplayMetrics metrics = new DisplayMetrics();
 		manager.getDefaultDisplay().getMetrics(metrics);
@@ -198,7 +199,7 @@ public class DroidUtils {
 	 *         {@link Configuration#SCREENLAYOUT_SIZE_XLARGE} (<b>use the int 4
 	 *         for this configuration, constant available only from API 11</b>)
 	 */
-	public static int getScreenSize(@Nonnull Context context) {
+	public static int getScreenSize(@NonNull Context context) {
 		final Configuration conf = context.getResources().getConfiguration();
 		return conf.screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK;
 	}
@@ -227,9 +228,9 @@ public class DroidUtils {
 	 *            value
 	 * @return An alphanumeric (+ hyphens) {@link UUID} string
 	 */
-	@Nonnull
-	public static String getDeviceUniqueIdentificator(@Nonnull Context context,
-			@Nonnull String appId) {
+	@NonNull
+	public static String getDeviceUniqueIdentificator(@NonNull Context context,
+			@NonNull String appId) {
 		String telephonyId = null;
 		String androidId = null;
 
@@ -276,7 +277,7 @@ public class DroidUtils {
 	 * @param context
 	 * @return true if the telephony is available, false otherwise
 	 */
-	public static boolean hasTelephony(@Nonnull Context context) {
+	public static boolean hasTelephony(@NonNull Context context) {
 		final PackageManager manager = context.getPackageManager();
 		return manager.hasSystemFeature(PackageManager.FEATURE_TELEPHONY);
 	}
@@ -302,7 +303,7 @@ public class DroidUtils {
 	 *         {@link PhoneNumberUtils#isWellFormedSmsAddress(String)}. In the
 	 *         latter case, the SMS composer is shown anyway with no recipients.
 	 */
-	public static boolean sendSms(@Nonnull Context context, @CheckForNull String number,
+	public static boolean sendSms(@NonNull Context context, @Nullable String number,
 			@Nullable String text) {
 		boolean success = true;
 		if (hasTelephony(context)) {
@@ -342,7 +343,7 @@ public class DroidUtils {
 	 * @return true if the SMS composer has been opened, false otherwise (for
 	 *         example, because the device has no telephony)
 	 */
-	public static boolean sendSmsToMany(@Nonnull Context context, @Nonnull String[] numbers,
+	public static boolean sendSmsToMany(@NonNull Context context, @NonNull String[] numbers,
 			@Nullable String text) {
 		if (numbers.length == 1) { // one recipient only, call sendSms()
 			return sendSms(context, numbers[0], text);
@@ -371,7 +372,7 @@ public class DroidUtils {
 		return false;
 	}
 
-	@Nonnull
+	@NonNull
 	private static String getMultipleSmsJoinOn() {
 		final String manufacturer = android.os.Build.MANUFACTURER;
 		if (manufacturer.toLowerCase(Locale.US).contains("samsung")) {
@@ -394,7 +395,7 @@ public class DroidUtils {
 	 *            The email body
 	 * @return The {@link Uri} for the intent to send the email
 	 */
-	@Nonnull
+	@NonNull
 	public static Uri buildEmailUri(String email, String subject, CharSequence body) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("mailto:").append(email);
@@ -419,7 +420,7 @@ public class DroidUtils {
 	 * @param message
 	 *            The email message
 	 */
-	public static void sendEmail(@Nonnull Context context, @Nullable String chooserMessage,
+	public static void sendEmail(@NonNull Context context, @Nullable String chooserMessage,
 			@Nullable String recipient, @Nullable String subject, @Nullable String message) {
 		sendEmail(context, chooserMessage, new String[] { recipient }, subject, message);
 	}
@@ -443,8 +444,8 @@ public class DroidUtils {
 	 * @param message
 	 *            The email message
 	 */
-	public static void sendEmail(@Nonnull Context context, @Nullable String chooserMessage,
-			@Nonnull String[] recipients, @Nullable String subject, @Nullable String message) {
+	public static void sendEmail(@NonNull Context context, @Nullable String chooserMessage,
+			@NonNull String[] recipients, @Nullable String subject, @Nullable String message) {
 		final Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
 		emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, recipients);
 		emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
@@ -464,8 +465,8 @@ public class DroidUtils {
 	 * @param packageName
 	 *            A full, valid Google Play application package name
 	 */
-	@Nonnull
-	public static Intent getApplicationMarketPage(@Nonnull String packageName) {
+	@NonNull
+	public static Intent getApplicationMarketPage(@NonNull String packageName) {
 		return getViewUrlIntent("market://details?id=" + packageName);
 	}
 
@@ -477,8 +478,8 @@ public class DroidUtils {
 	 *            The URI string (must be non null)
 	 * @return The created intent
 	 */
-	@Nonnull
-	public static Intent getViewUrlIntent(@Nonnull String uri) {
+	@NonNull
+	public static Intent getViewUrlIntent(@NonNull String uri) {
 		return new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
 	}
 
@@ -491,7 +492,7 @@ public class DroidUtils {
 	 *            The action to check (see {@link Intent} docs
 	 * @return true if an Intent is available, false otherwise
 	 */
-	public static boolean isIntentAvailable(@Nonnull Context context, @Nonnull String action) {
+	public static boolean isIntentAvailable(@NonNull Context context, @NonNull String action) {
 		final PackageManager packageManager = context.getPackageManager();
 		final Intent intent = new Intent(action);
 		final List<ResolveInfo> list = packageManager.queryIntentActivities(intent,
@@ -511,8 +512,8 @@ public class DroidUtils {
 	 *         error occurred
 	 * @throws IOException
 	 */
-	@CheckForNull
-	public static InputStream getAsset(@Nonnull Context context, @Nonnull String path)
+	@Nullable
+	public static InputStream getAsset(@NonNull Context context, @NonNull String path)
 			throws IOException {
 		return context.getAssets().open(path);
 	}

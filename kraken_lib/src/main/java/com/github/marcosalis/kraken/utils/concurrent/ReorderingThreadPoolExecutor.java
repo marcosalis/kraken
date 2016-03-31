@@ -29,12 +29,13 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.annotation.TargetApi;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -105,10 +106,10 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 		mMapLock = new ReentrantReadWriteLock();
 	}
 
-	@Nonnull
+	@NonNull
 	@TargetApi(9)
 	@NotForUIThread
-	public <T> Future<T> submitWithKey(@Nonnull K key, @Nonnull Callable<T> callable) {
+	public <T> Future<T> submitWithKey(@NonNull K key, @NonNull Callable<T> callable) {
 		if (DroidUtils.isMinimumSdkLevel(9)) {
 			// mimics newTaskFor() behavior to provide a custom RunnableFuture
 			final KeyHoldingFutureTask<K, T> runnable = new KeyHoldingFutureTask<K, T>(key,
@@ -128,7 +129,7 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 
 	@TargetApi(9)
 	@NotForUIThread
-	public void moveToFront(@Nonnull K key) {
+	public void moveToFront(@NonNull K key) {
 		if (DroidUtils.isMinimumSdkLevel(9)) {
 			final Runnable runnable;
 			mMapLock.readLock().lock(); // read lock
@@ -159,8 +160,8 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 		}
 	}
 
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
 	public void clearKeysMap() {
 		if (DroidConfig.DEBUG) {
 			Log.d(TAG, "Clearing runnables key map, contains " + mRunnablesMap.size() + " keys");
@@ -176,7 +177,7 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	protected void afterExecute(Runnable r, Throwable t) {
 		super.afterExecute(r, t);
 		if (r instanceof KeyHoldingFutureTask) {
@@ -191,7 +192,7 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 
 	@Override
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void purge() {
 		mMapLock.writeLock().lock(); // write lock
 		try {
@@ -209,7 +210,7 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	protected void terminated() {
 		clearKeysMap(); // clear keys map when terminated
 		super.terminated();
@@ -219,7 +220,7 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 	 * Factory method that creates a {@link LinkedBlockingDeque}, if the API
 	 * level is >= 9, or falls back to a {@link LinkedBlockingQueue}.
 	 */
-	@Nonnull
+	@NonNull
 	public static BlockingQueue<Runnable> createBlockingQueue() {
 		if (DroidUtils.isMinimumSdkLevel(9)) {
 			return getBlockingDeque();
@@ -241,7 +242,7 @@ public class ReorderingThreadPoolExecutor<K> extends ThreadPoolExecutor {
 
 		public final K key;
 
-		public KeyHoldingFutureTask(@Nonnull K key, @Nonnull Callable<V> callable) {
+		public KeyHoldingFutureTask(@NonNull K key, @NonNull Callable<V> callable) {
 			super(callable);
 			this.key = key;
 		}

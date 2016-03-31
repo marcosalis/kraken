@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.cache.internal.loaders;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
@@ -53,7 +53,7 @@ public interface ContentLoader<R extends CacheableRequest<D>, D> {
 	 * @throws Exception
 	 *             if an exception was thrown during the retrieval.
 	 */
-	public D load(AccessPolicy action, @Nonnull final R request, ContentUpdateCallback<D> callback)
+	public D load(AccessPolicy action, @NonNull final R request, ContentUpdateCallback<D> callback)
 			throws Exception;
 
 	/**
@@ -84,7 +84,7 @@ public interface ContentLoader<R extends CacheableRequest<D>, D> {
 		 *            The {@link AbstractModelRequest} to validate
 		 * @return true if the passed request has been modified, false otherwise
 		 */
-		public boolean validateRequest(@Nonnull CacheableRequest<?> request);
+		public boolean validateRequest(@NonNull CacheableRequest<?> request);
 
 		/**
 		 * Executes the passed request with the handler.
@@ -95,7 +95,7 @@ public interface ContentLoader<R extends CacheableRequest<D>, D> {
 		 * @throws Exception
 		 *             if the request threw an exception
 		 */
-		public JsonModel execRequest(@Nonnull CacheableRequest<?> request) throws Exception;
+		public JsonModel execRequest(@NonNull CacheableRequest<?> request) throws Exception;
 	}
 
 	/**
@@ -121,7 +121,7 @@ public interface ContentLoader<R extends CacheableRequest<D>, D> {
 		 * @param newContent
 		 *            The new {@link JsonModel} content
 		 */
-		public void onContentUpdated(@Nonnull DATA newContent);
+		public void onContentUpdated(@NonNull DATA newContent);
 	}
 
 }

@@ -16,17 +16,17 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import org.apache.http.HttpStatus;
-
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler.BackOffRequired;
 import com.google.api.client.http.HttpResponse;
 import com.google.common.annotations.Beta;
+
+import org.apache.http.HttpStatus;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Default, general simple {@link BackOffRequired} implementation with the
@@ -42,7 +42,7 @@ public class DefaultBackOffRequired implements BackOffRequired {
 	private static final String TAG = DefaultBackOffRequired.class.getSimpleName();
 
 	@Override
-	public boolean isRequired(@Nonnull HttpResponse response) {
+	public boolean isRequired(@NonNull HttpResponse response) {
 		final int statusCode = response.getStatusCode();
 		switch (statusCode) {
 		case 0:
@@ -62,7 +62,7 @@ public class DefaultBackOffRequired implements BackOffRequired {
 		}
 	}
 
-	private void logBackoffRequired(@Nonnull String message, @Nonnull HttpResponse response) {
+	private void logBackoffRequired(@NonNull String message, @NonNull HttpResponse response) {
 		if (DroidConfig.DEBUG) {
 			Log.w(TAG, message + ": " + response.getRequest().getUrl());
 		}

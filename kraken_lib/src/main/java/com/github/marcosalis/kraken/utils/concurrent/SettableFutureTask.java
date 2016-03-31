@@ -16,14 +16,15 @@
  */
 package com.github.marcosalis.kraken.utils.concurrent;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.google.common.annotations.Beta;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.annotations.Beta;
 
 /**
  * Extension of a {@link FutureTask} that allows callers to directly set the
@@ -39,14 +40,14 @@ public class SettableFutureTask<E> extends FutureTask<E> {
 	/**
 	 * @see FutureTask#FutureTask(Runnable)
 	 */
-	public SettableFutureTask(@Nonnull Callable<E> callable) {
+	public SettableFutureTask(@NonNull Callable<E> callable) {
 		super(callable);
 	}
 
 	/**
 	 * @see FutureTask#FutureTask(Runnable, Object)
 	 */
-	public SettableFutureTask(@Nonnull Runnable runnable, @Nullable E result) {
+	public SettableFutureTask(@NonNull Runnable runnable, @Nullable E result) {
 		super(runnable, result);
 	}
 
@@ -67,7 +68,7 @@ public class SettableFutureTask<E> extends FutureTask<E> {
 	 *            The result to wrap
 	 * @return The built {@link FutureTask}
 	 */
-	@Nonnull
+	@NonNull
 	public static <E> FutureTask<E> fromResult(@Nullable final E wrapped) {
 		final SettableFutureTask<E> futureTask = new SettableFutureTask<E>(new Callable<E>() {
 			@Override

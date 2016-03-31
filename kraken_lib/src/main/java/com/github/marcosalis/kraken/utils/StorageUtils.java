@@ -18,24 +18,22 @@ package com.github.marcosalis.kraken.utils;
 
 import java.io.File;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import android.content.Context;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Helper class containing static methods to retrieve information about the
  * default cache folders and perform operations on the device storage units,
  * either internal or external.
  * 
- * See {@link http://developer.android.com/guide/topics/data/data-storage.html}
+ * See http://developer.android.com/guide/topics/data/data-storage.html
  * 
  * Access and write to external storage requires the
  * <code>READ_EXTERNAL_STORAGE</code> and/or <code>WRITE_EXTERNAL_STORAGE</code>
@@ -46,7 +44,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @Beta
 @Immutable
-@SuppressFBWarnings("JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS")
 public class StorageUtils {
 
 	/**
@@ -99,8 +96,8 @@ public class StorageUtils {
 	 *         if an unrecoverable error prevented the method from getting any
 	 *         suitable cache location
 	 */
-	@CheckForNull
-	public static File getAppCacheDir(@Nonnull Context context) {
+	@Nullable
+	public static File getAppCacheDir(@NonNull Context context) {
 		// failover cache location to use when external storage is not mounted
 		File cacheDir = context.getCacheDir();
 
@@ -133,8 +130,8 @@ public class StorageUtils {
 	 * @return a File containing the location, null if the specified caches are
 	 *         not available
 	 */
-	@CheckForNull
-	public static File getAppCacheDir(@Nonnull Context context, @Nonnull CacheLocation location,
+	@Nullable
+	public static File getAppCacheDir(@NonNull Context context, @NonNull CacheLocation location,
 			boolean allowLocationFallback) {
 		File cacheDir = null;
 		switch (location) {
@@ -158,9 +155,9 @@ public class StorageUtils {
 	 * Helper method to retrieve the application internal storage cache
 	 * directory and make sure it exists and it's writeable.
 	 */
-	@CheckForNull
+	@Nullable
 	@VisibleForTesting
-	static File getInternalAppCacheDir(@Nonnull Context context) {
+	static File getInternalAppCacheDir(@NonNull Context context) {
 		File intCacheDir = context.getCacheDir();
 		if (intCacheDir != null && !intCacheDir.exists()) {
 			if (!intCacheDir.mkdirs() || !intCacheDir.canWrite()) {
@@ -174,9 +171,9 @@ public class StorageUtils {
 	 * Helper method to retrieve the application external storage cache
 	 * directory and make sure it exists and it's writeable.
 	 */
-	@CheckForNull
+	@Nullable
 	@VisibleForTesting
-	static File getExternalAppCacheDir(@Nonnull Context context) {
+	static File getExternalAppCacheDir(@NonNull Context context) {
 		File extCacheDir = null;
 		if (isExternalStorageMounted()) { // only works if mounted
 			extCacheDir = context.getExternalCacheDir();
@@ -200,8 +197,8 @@ public class StorageUtils {
 	 *            A {@link Context} to retrieve the temp folder
 	 * @return The temp folder {@link File}
 	 */
-	@CheckForNull
-	public static File getTempFolder(@Nonnull Context context) {
+	@Nullable
+	public static File getTempFolder(@NonNull Context context) {
 		final File cacheDir = getAppCacheDir(context, CacheLocation.EXTERNAL, true);
 		File tempDir = null;
 		if (cacheDir != null) {
@@ -226,8 +223,8 @@ public class StorageUtils {
 	 *            A {@link Context} to retrieve the folder
 	 * @return The File object or null if something went wrong
 	 */
-	@CheckForNull
-	public static File getPublicPicturesDir(@Nonnull Context context) {
+	@Nullable
+	public static File getPublicPicturesDir(@NonNull Context context) {
 		File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 		if (!dir.exists() && !dir.mkdirs()) {
 			// fallback to the temporary directory

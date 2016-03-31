@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.content.Context;
@@ -88,7 +88,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 			.newSingleThreadExecutor(new PriorityThreadFactory(
 					"SimpleDiskCache purge executor thread", Process.THREAD_PRIORITY_BACKGROUND));
 
-	@Nonnull
+	@NonNull
 	protected final File mCacheLocation;
 
 	/**
@@ -109,8 +109,8 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
-	protected SimpleDiskCache(@Nonnull Context context, @Nonnull CacheLocation location,
-			@Nonnull String subFolder, boolean allowLocationFallback) throws IOException {
+	protected SimpleDiskCache(@NonNull Context context, @NonNull CacheLocation location,
+			@NonNull String subFolder, boolean allowLocationFallback) throws IOException {
 		final File cacheRoot = StorageUtils.getAppCacheDir(context, location, true);
 		if (cacheRoot != null) {
 			mCacheLocation = new File(cacheRoot.getAbsolutePath() + File.separator + subFolder);
@@ -155,7 +155,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 
 	@Override
 	@NotForUIThread
-	public void clear(@Nonnull ClearMode mode) {
+	public void clear(@NonNull ClearMode mode) {
 		switch (mode) {
 		case ALL:
 			clear();
@@ -247,7 +247,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 */
 	@NotForUIThread
 	@VisibleForTesting
-	synchronized final void cleanCacheDir(@Nonnegative long olderThanSec) {
+	synchronized final void cleanCacheDir(@IntRange(from=0) long olderThanSec) {
 		final long now = System.currentTimeMillis();
 		final long expirationMs = olderThanSec * 1000;
 		final File[] files = mCacheLocation.listFiles();
@@ -274,7 +274,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 * @return true if the file has been "touched", false otherwise
 	 */
 	@NotForUIThread
-	protected static synchronized final boolean touchFile(@Nonnull File file) {
+	protected static synchronized final boolean touchFile(@NonNull File file) {
 		final long now = System.currentTimeMillis();
 		if (file.lastModified() < (now - MIN_EXPIRE_IN_MS)) {
 			return file.setLastModified(now);
@@ -289,7 +289,7 @@ public class SimpleDiskCache<V> implements SecondLevelCache<String, V> {
 	 *         otherwise
 	 */
 	@VisibleForTesting
-	static boolean deleteIfExpired(@Nonnull File file, long now, @Nonnegative long expirationMs) {
+	static boolean deleteIfExpired(@NonNull File file, long now, @IntRange(from=0) long expirationMs) {
 		final long lastMod = file.lastModified();
 		if (lastMod < (now - expirationMs)) {
 			// delete if older than expiration

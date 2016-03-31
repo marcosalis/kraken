@@ -18,7 +18,7 @@ package com.github.marcosalis.kraken.cache.keys;
 
 import java.net.URI;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.Immutable;
 
 import android.os.Parcel;
@@ -61,9 +61,9 @@ public class URICacheUrlKey implements CacheUrlKey, Parcelable {
 	 */
 	protected static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
 
-	@Nonnull
+	@NonNull
 	private final String mKey;
-	@Nonnull
+	@NonNull
 	private final URI mUri;
 
 	/**
@@ -76,7 +76,7 @@ public class URICacheUrlKey implements CacheUrlKey, Parcelable {
 	 *             if the passed URL is not a valid {@link URI} or is not
 	 *             suitable for being converted to a cache key
 	 */
-	public URICacheUrlKey(@Nonnull String url) throws IllegalArgumentException {
+	public URICacheUrlKey(@NonNull String url) throws IllegalArgumentException {
 		mUri = URI.create(url);
 		// process URI
 		mKey = hashUri();
@@ -94,7 +94,7 @@ public class URICacheUrlKey implements CacheUrlKey, Parcelable {
 	 *             if the passed URL is not a valid {@link URI} or is not
 	 *             suitable for being converted to a cache key
 	 */
-	protected URICacheUrlKey(@Nonnull String url, @Nonnull String key)
+	protected URICacheUrlKey(@NonNull String url, @NonNull String key)
 			throws IllegalArgumentException {
 		mUri = URI.create(url);
 		mKey = key;

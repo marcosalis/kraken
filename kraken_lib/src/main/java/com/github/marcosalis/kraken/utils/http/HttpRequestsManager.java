@@ -16,10 +16,8 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpContent;
@@ -28,6 +26,8 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
 import com.google.common.annotations.Beta;
+
+import java.io.IOException;
 
 /**
  * Interface to access {@link HttpRequestFactory} features inside other library
@@ -58,7 +58,7 @@ public interface HttpRequestsManager {
 	 *            The HttpTransport to be used for this factory
 	 * @return The created {@link HttpRequestFactory}
 	 */
-	public HttpRequestFactory createRequestFactory(@Nonnull HttpTransport transport);
+	public HttpRequestFactory createRequestFactory(@NonNull HttpTransport transport);
 
 	/**
 	 * Shortcut method for the {@link HttpRequest} builder. See
@@ -76,7 +76,7 @@ public interface HttpRequestsManager {
 	 * @throws IllegalArgumentException
 	 *             If the passed url has a syntax error
 	 */
-	public HttpRequest buildRequest(@Nonnull String method, @Nonnull String urlString,
+	public HttpRequest buildRequest(@NonNull String method, @NonNull String urlString,
 			@Nullable HttpContent content) throws IOException;
 
 }

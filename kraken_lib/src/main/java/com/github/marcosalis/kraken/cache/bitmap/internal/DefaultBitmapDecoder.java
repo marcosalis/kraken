@@ -15,21 +15,20 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import java.io.InputStream;
-import java.util.concurrent.Semaphore;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
+
+import java.io.InputStream;
+import java.util.concurrent.Semaphore;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Default implementation of {@link BitmapDecoder} that decodes bitmaps using
@@ -53,8 +52,8 @@ public final class DefaultBitmapDecoder implements BitmapDecoder {
 	private static final Semaphore DECODE_SEMAPHORE;
 
 	@Override
-	@CheckForNull
-	public Bitmap decode(@Nonnull byte[] data, @Nullable BitmapFactory.Options options) {
+	@Nullable
+	public Bitmap decode(@NonNull byte[] data, @Nullable BitmapFactory.Options options) {
 		if (acquirePermit()) {
 			try {
 				return BitmapFactory.decodeByteArray(data, 0, data.length, options);
@@ -66,8 +65,8 @@ public final class DefaultBitmapDecoder implements BitmapDecoder {
 	}
 
 	@Override
-	@CheckForNull
-	public Bitmap decode(@Nonnull InputStream stream, @Nullable BitmapFactory.Options options) {
+	@Nullable
+	public Bitmap decode(@NonNull InputStream stream, @Nullable BitmapFactory.Options options) {
 		if (acquirePermit()) {
 			try {
 				return BitmapFactory.decodeStream(stream, null, options);
@@ -79,8 +78,8 @@ public final class DefaultBitmapDecoder implements BitmapDecoder {
 	}
 
 	@Override
-	@CheckForNull
-	public Bitmap decode(@Nonnull String pathName, @Nullable BitmapFactory.Options options) {
+	@Nullable
+	public Bitmap decode(@NonNull String pathName, @Nullable BitmapFactory.Options options) {
 		if (acquirePermit()) {
 			try {
 				return BitmapFactory.decodeFile(pathName, options);

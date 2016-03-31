@@ -16,8 +16,8 @@
  */
 package com.github.marcosalis.kraken.cache.internal;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
 import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
@@ -56,7 +56,7 @@ public abstract class ModelContentProxy<MODEL extends JsonModel> extends Content
 	 * @throws Exception
 	 *             if an exception occurred while getting the model
 	 */
-	@CheckForNull
+	@Nullable
 	public abstract MODEL getModel(AccessPolicy action, CacheableRequest<MODEL> request,
 			ContentUpdateCallback<MODEL> callback) throws Exception;
 
@@ -71,8 +71,8 @@ public abstract class ModelContentProxy<MODEL extends JsonModel> extends Content
 	 * @throws Exception
 	 *             if an exception occurred while getting the model
 	 */
-	@CheckForNull
-	public abstract MODEL getModel(AccessPolicy action, @Nonnull CacheableRequest<MODEL> request)
+	@Nullable
+	public abstract MODEL getModel(AccessPolicy action, @NonNull CacheableRequest<MODEL> request)
 			throws Exception;
 
 	/**
@@ -96,6 +96,6 @@ public abstract class ModelContentProxy<MODEL extends JsonModel> extends Content
 	 * @param model
 	 *            The model to put into the cache
 	 */
-	public abstract void putModel(@Nonnull final String key, final MODEL model);
+	public abstract void putModel(@NonNull final String key, final MODEL model);
 
 }

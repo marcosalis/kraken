@@ -15,7 +15,7 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import com.google.common.annotations.Beta;
 
@@ -38,6 +38,6 @@ public interface SecondLevelCache<K, V> extends ContentCache<K, V> {
 
 	public void scheduleClear();
 
-	public void clear(@Nonnull ClearMode mode);
+	public void clear(@NonNull ClearMode mode);
 
 }

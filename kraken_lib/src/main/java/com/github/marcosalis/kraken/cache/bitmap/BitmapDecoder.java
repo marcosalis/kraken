@@ -15,16 +15,14 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import java.io.InputStream;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
+
+import java.io.InputStream;
 
 /**
  * Public interface that defines objects used to decode bitmaps from
@@ -56,8 +54,8 @@ public interface BitmapDecoder {
 	 *            {@link BitmapFactory}
 	 * @return The decoded Bitmap or null if there was an error
 	 */
-	@CheckForNull
-	public Bitmap decode(@Nonnull byte[] data, @Nullable BitmapFactory.Options options);
+	@Nullable
+	public Bitmap decode(@NonNull byte[] data, @Nullable BitmapFactory.Options options);
 
 	/**
 	 * Decodes a Bitmap from the passed {@link InputStream}.
@@ -69,8 +67,8 @@ public interface BitmapDecoder {
 	 *            {@link BitmapFactory}
 	 * @return The decoded Bitmap or null if there was an error
 	 */
-	@CheckForNull
-	public Bitmap decode(@Nonnull InputStream stream, @Nullable BitmapFactory.Options options);
+	@Nullable
+	public Bitmap decode(@NonNull InputStream stream, @Nullable BitmapFactory.Options options);
 
 	/**
 	 * Decode a file path into a Bitmap.
@@ -82,7 +80,7 @@ public interface BitmapDecoder {
 	 *            {@link BitmapFactory}
 	 * @return The decoded Bitmap or null if there was an error
 	 */
-	@CheckForNull
-	public Bitmap decode(@Nonnull String pathName, @Nullable BitmapFactory.Options options);
+	@Nullable
+	public Bitmap decode(@NonNull String pathName, @Nullable BitmapFactory.Options options);
 
 }

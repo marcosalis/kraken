@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.utils;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hasher;
@@ -40,8 +40,8 @@ public final class HashUtils {
 	 * Gets a String hash generated using the default hashing algorithm with the
 	 * passed strings as input.
 	 */
-	@Nonnull
-	public static String getDefaultHash(@Nonnull String... strings) {
+	@NonNull
+	public static String getDefaultHash(@NonNull String... strings) {
 		return getHash(DEFAULT_HASH, strings);
 	}
 
@@ -49,16 +49,16 @@ public final class HashUtils {
 	 * Gets a String hash generated using the MD5 hashing algorithm with the
 	 * passed strings as input.
 	 */
-	@Nonnull
-	public static String getMD5Hash(@Nonnull String... strings) {
+	@NonNull
+	public static String getMD5Hash(@NonNull String... strings) {
 		return getHash(Hashing.md5(), strings);
 	}
 
 	/**
 	 * Gets a String hash generated using the passed hashing algorithm.
 	 */
-	@Nonnull
-	public static String getHash(@Nonnull HashFunction hash, @Nonnull String... strings) {
+	@NonNull
+	public static String getHash(@NonNull HashFunction hash, @NonNull String... strings) {
 		final Hasher hasher = hash.newHasher();
 		for (String input : strings) {
 			hasher.putString(input);

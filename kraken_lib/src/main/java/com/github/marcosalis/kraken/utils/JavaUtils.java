@@ -16,15 +16,15 @@
  */
 package com.github.marcosalis.kraken.utils;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.google.common.annotations.Beta;
+
 import java.util.List;
 import java.util.Random;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.google.common.annotations.Beta;
 
 /**
  * Helper class containing general static utility methods of any Java-related
@@ -77,8 +77,8 @@ public class JavaUtils {
 	 * @return The item at the pseudo-randomly generated index, or null if the
 	 *         array is empty
 	 */
-	@CheckForNull
-	public static final <E> E getRandom(@Nonnull E[] array) {
+	@Nullable
+	public static final <E> E getRandom(@NonNull E[] array) {
 		if (array.length == 0) { // avoids out of bounds exceptions
 			return null;
 		}
@@ -95,8 +95,8 @@ public class JavaUtils {
 	 * @return The item at the pseudo-randomly generated index, or null if the
 	 *         list is empty
 	 */
-	@CheckForNull
-	public static final <E> E getRandom(@Nonnull List<E> list) {
+	@Nullable
+	public static final <E> E getRandom(@NonNull List<E> list) {
 		if (list.size() == 0) {
 			return null;
 		}

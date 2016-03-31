@@ -15,8 +15,8 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.disk;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import android.graphics.Bitmap;
 
@@ -48,8 +48,8 @@ public interface BitmapDiskCache extends SecondLevelCache<String, Bitmap> {
 	 *            The cache item key
 	 * @return The cached bitmap, null if not present or an error occurred
 	 */
-	@CheckForNull
-	public Bitmap get(@Nonnull String key);
+	@Nullable
+	public Bitmap get(@NonNull String key);
 
 	/**
 	 * Puts a byte array representing a bitmap into the disk cache.
@@ -66,7 +66,7 @@ public interface BitmapDiskCache extends SecondLevelCache<String, Bitmap> {
 	 * @throws IllegalArgumentException
 	 *             if key or image are null
 	 */
-	public boolean put(@Nonnull String key, @Nonnull byte[] image);
+	public boolean put(@NonNull String key, @NonNull byte[] image);
 
 	/**
 	 * Compresses a {@link Bitmap} and puts it into the disk cache.
@@ -83,7 +83,7 @@ public interface BitmapDiskCache extends SecondLevelCache<String, Bitmap> {
 	 * @throws IllegalArgumentException
 	 *             if key or image are null
 	 */
-	public boolean put(@Nonnull String key, @Nonnull Bitmap bitmap);
+	public boolean put(@NonNull String key, @NonNull Bitmap bitmap);
 
 	/**
 	 * Removes an item from the disk cache by deleting the corresponding file in
@@ -93,6 +93,6 @@ public interface BitmapDiskCache extends SecondLevelCache<String, Bitmap> {
 	 *            The cache item key
 	 * @return true if the item was successfully removed, false otherwise
 	 */
-	public boolean remove(@Nonnull String key);
+	public boolean remove(@NonNull String key);
 
 }

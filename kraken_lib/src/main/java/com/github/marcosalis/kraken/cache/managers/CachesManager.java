@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.cache.managers;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import android.app.Application;
 
@@ -52,7 +52,7 @@ public interface CachesManager<E> {
 	 * @return true if the content proxy was successfully added, false if
 	 *         another cache is already registered with the same ID
 	 */
-	public boolean registerContent(@Nonnull E contentId, @Nonnull ContentProxy content);
+	public boolean registerContent(@NonNull E contentId, @NonNull ContentProxy content);
 
 	/**
 	 * Gets a previously registered content proxy from the manager.
@@ -61,7 +61,7 @@ public interface CachesManager<E> {
 	 *            The content proxy identification string
 	 * @return The required content proxy instance, or null if it doesn't exist
 	 */
-	public ContentProxy getContent(@Nonnull E contentId);
+	public ContentProxy getContent(@NonNull E contentId);
 
 	/**
 	 * Clears all the registered caches contents.
@@ -83,6 +83,6 @@ public interface CachesManager<E> {
 	 * Synchronously clears all the registered disk caches contents using the
 	 * passed {@link ClearMode}.
 	 */
-	public void clearDiskCaches(@Nonnull ClearMode mode);
+	public void clearDiskCaches(@NonNull ClearMode mode);
 
 }

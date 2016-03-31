@@ -15,8 +15,8 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapDecoder;
@@ -43,10 +43,10 @@ public class BitmapCacheFactory {
 	 * Builds an instance of the default {@link BitmapCache} implementation
 	 * given the passed components.
 	 */
-	@Nonnull
-	public static BitmapCache buildDefaultBitmapCache(@Nonnull BitmapMemoryCache<String> cache,
-			@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory factory,
-			@Nonnull BitmapDecoder decoder) {
+	@NonNull
+	public static BitmapCache buildDefaultBitmapCache(@NonNull BitmapMemoryCache<String> cache,
+			@Nullable BitmapDiskCache diskCache, @NonNull HttpRequestFactory factory,
+			@NonNull BitmapDecoder decoder) {
 		return new BitmapCacheImpl(cache, diskCache, factory, decoder);
 	}
 

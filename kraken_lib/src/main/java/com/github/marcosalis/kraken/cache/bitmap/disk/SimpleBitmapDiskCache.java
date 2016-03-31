@@ -16,18 +16,12 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.disk;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -38,6 +32,12 @@ import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 import com.google.common.io.Files;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Base implementation of a {@link Bitmap} disk cache. The bitmaps are stored in
@@ -84,8 +84,8 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 * @throws IOException
 	 *             if the cache cannot be created
 	 */
-	public SimpleBitmapDiskCache(@Nonnull Context context, @Nonnull String subFolder,
-			@Nonnull BitmapDecoder decoder, @Nonnegative long purgeAfterSec) throws IOException {
+	public SimpleBitmapDiskCache(@NonNull Context context, @NonNull String subFolder,
+			@NonNull BitmapDecoder decoder, @IntRange(from=0) long purgeAfterSec) throws IOException {
 		super(context, CacheLocation.EXTERNAL, PATH + File.separator + subFolder, true);
 		Preconditions.checkArgument(purgeAfterSec >= MIN_EXPIRE_IN_SEC);
 		mBitmapDecoder = decoder;
@@ -96,27 +96,27 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	}
 
 	@Override
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
-	public Bitmap get(@Nonnull String key) {
+	public Bitmap get(@NonNull String key) {
 		return getBitmap(key);
 	}
 
 	@Override
 	@NotForUIThread
-	public boolean put(@Nonnull String key, @Nonnull byte[] image) {
+	public boolean put(@NonNull String key, @NonNull byte[] image) {
 		return putBitmap(key, image);
 	}
 
 	@Override
 	@NotForUIThread
-	public boolean put(@Nonnull String key, @Nonnull Bitmap bitmap) {
+	public boolean put(@NonNull String key, @NonNull Bitmap bitmap) {
 		return putBitmap(key, bitmap);
 	}
 
 	@Override
 	@NotForUIThread
-	public synchronized boolean remove(@Nonnull String key) {
+	public synchronized boolean remove(@NonNull String key) {
 		final File bitmapFile = new File(mCacheLocation, key);
 		if (bitmapFile.exists()) { // existing cache item
 			return bitmapFile.delete();
@@ -140,9 +140,9 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 * @throws IllegalArgumentException
 	 *             if fileName is null
 	 */
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
-	protected synchronized final Bitmap getBitmap(@Nonnull String fileName) {
+	protected synchronized final Bitmap getBitmap(@NonNull String fileName) {
 		Preconditions.checkNotNull(fileName);
 		final File bitmapFile = new File(mCacheLocation, fileName);
 		if (bitmapFile.exists()) { // existing cache item
@@ -180,7 +180,7 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 *             if fileName or image are null
 	 */
 	@NotForUIThread
-	protected synchronized final boolean putBitmap(@Nonnull String fileName, @Nonnull byte[] image) {
+	protected synchronized final boolean putBitmap(@NonNull String fileName, @NonNull byte[] image) {
 		try {
 			File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it
@@ -207,7 +207,7 @@ public class SimpleBitmapDiskCache extends SimpleDiskCache<Bitmap> implements Bi
 	 *            The Bitmap to store
 	 * @return true if successful, false otherwise
 	 */
-	protected synchronized final boolean putBitmap(@Nonnull String fileName, @Nonnull Bitmap bitmap) {
+	protected synchronized final boolean putBitmap(@NonNull String fileName, @NonNull Bitmap bitmap) {
 		try {
 			final File bitmapFile = new File(mCacheLocation, fileName);
 			// if the cache entry already exists, replace it

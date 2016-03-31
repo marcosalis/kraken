@@ -17,8 +17,8 @@ package com.github.marcosalis.kraken.cache.requests;
 
 import java.util.concurrent.Callable;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.utils.http.HttpRequestsManager;
 import com.google.common.annotations.Beta;
@@ -47,7 +47,7 @@ public interface CacheableRequest<E> extends Callable<E> {
 	 * Returns the request's URL. Override this in subclasses if the request URL
 	 * cannot be generated at object instantiation.
 	 */
-	@CheckForNull
+	@Nullable
 	public abstract String getRequestUrl();
 
 	/**
@@ -57,7 +57,7 @@ public interface CacheableRequest<E> extends Callable<E> {
 	 * @throws Exception
 	 *             If something went wrong
 	 */
-	@CheckForNull
+	@Nullable
 	public abstract E execute() throws Exception;
 
 	/**
@@ -66,8 +66,8 @@ public interface CacheableRequest<E> extends Callable<E> {
 	 * 
 	 * @see {@link #execute()}
 	 */
-	@CheckForNull
-	public abstract E execute(@Nonnull HttpRequestsManager connManager) throws Exception;
+	@Nullable
+	public abstract E execute(@NonNull HttpRequestsManager connManager) throws Exception;
 
 	/**
 	 * Returns a 128-bit unique hash code string representation for this request
@@ -75,7 +75,7 @@ public interface CacheableRequest<E> extends Callable<E> {
 	 * 
 	 * @return The String representation of the hash key
 	 */
-	@Nonnull
+	@NonNull
 	public abstract String hash();
 
 }

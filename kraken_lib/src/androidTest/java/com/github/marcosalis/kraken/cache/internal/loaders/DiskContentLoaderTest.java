@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -330,7 +331,7 @@ public class DiskContentLoaderTest extends AndroidTestCase {
 		}
 
 		@Override
-		public MockJsonModel get(String key) {
+		public MockJsonModel get(@NonNull String key) {
 			return mockDiskCache.get(key);
 		}
 

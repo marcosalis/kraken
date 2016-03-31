@@ -16,10 +16,11 @@
  */
 package com.github.marcosalis.kraken.utils.json;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,7 +57,7 @@ public enum JacksonJsonManager {
 	/**
 	 * Shortcut method to return the class public singleton
 	 */
-	@Nonnull
+	@NonNull
 	public static JacksonJsonManager get() {
 		return INSTANCE;
 	}
@@ -86,7 +87,7 @@ public enum JacksonJsonManager {
 	 * 
 	 * @return The {@link JacksonObjectParser} parser
 	 */
-	@Nonnull
+	@NonNull
 	public static JacksonObjectParser getObjectParser() {
 		return INSTANCE.mObjParser;
 	}
@@ -96,7 +97,7 @@ public enum JacksonJsonManager {
 	 * 
 	 * @return The {@link ObjectMapper}
 	 */
-	@Nonnull
+	@NonNull
 	public static ObjectMapper getObjectMapper() {
 		return INSTANCE.mMapper;
 	}
@@ -109,7 +110,7 @@ public enum JacksonJsonManager {
 	 *            work)
 	 * @return The built {@link JacksonHttpContent}
 	 */
-	public static JacksonHttpContent buildHttpContent(@Nonnull Object source) {
+	public static JacksonHttpContent buildHttpContent(@NonNull Object source) {
 		return new JacksonHttpContent(source);
 	}
 
@@ -121,7 +122,7 @@ public enum JacksonJsonManager {
 	 * @return The string representation of that object (or null if the parse
 	 *         failed for an IOException)
 	 */
-	@CheckForNull
+	@Nullable
 	public static String toJsonString(Object data) {
 		try {
 			return INSTANCE.mMapper.writeValueAsString(data);

@@ -15,9 +15,11 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.threading;
 
+import android.support.annotation.NonNull;
+
 import java.util.concurrent.ThreadPoolExecutor;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import com.google.common.annotations.Beta;
@@ -64,19 +66,19 @@ public final class CustomBitmapThreadingPolicy implements BitmapThreadingPolicy 
 	 * @param downloader
 	 *            The custom bitmap downloader {@link ThreadPoolExecutor}
 	 */
-	public CustomBitmapThreadingPolicy(@Nonnull ThreadPoolExecutor diskExecutor,
-			@Nonnull ThreadPoolExecutor downloader) {
+	public CustomBitmapThreadingPolicy(@NonNull ThreadPoolExecutor diskExecutor,
+			@NonNull ThreadPoolExecutor downloader) {
 		mBitmapDiskExecutor = diskExecutor;
 		mDownloaderExecutor = downloader;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ThreadPoolExecutor getBitmapDiskExecutor() {
 		return mBitmapDiskExecutor;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ThreadPoolExecutor getBitmapDownloader() {
 		return mDownloaderExecutor;

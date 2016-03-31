@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.utils.network;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -74,7 +74,7 @@ class NetworkBroadcastReceiver extends BroadcastReceiver {
 		}
 	}
 
-	private void notifyConnectionActive(@Nonnull Context context, int type) {
+	private void notifyConnectionActive(@NonNull Context context, int type) {
 		final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
 		lbm.sendBroadcastSync(new NetworkIntent(ACTION_NETWORK_ACTIVE, type));
 		if (DroidConfig.DEBUG) {
@@ -82,7 +82,7 @@ class NetworkBroadcastReceiver extends BroadcastReceiver {
 		}
 	}
 
-	private void notifyConnectionGone(@Nonnull Context context) {
+	private void notifyConnectionGone(@NonNull Context context) {
 		final LocalBroadcastManager lbm = LocalBroadcastManager.getInstance(context);
 		lbm.sendBroadcastSync(NETWORK_INTENT_GONE);
 		if (DroidConfig.DEBUG) {
@@ -90,7 +90,7 @@ class NetworkBroadcastReceiver extends BroadcastReceiver {
 		}
 	}
 
-	private void logNetworkInfo(@Nonnull Intent intent) {
+	private void logNetworkInfo(@NonNull Intent intent) {
 		if (DroidConfig.DEBUG) { // debugging network info
 			final NetworkInfo otherNetworkInfo = (NetworkInfo) intent
 					.getParcelableExtra(ConnectivityManager.EXTRA_OTHER_NETWORK_INFO);

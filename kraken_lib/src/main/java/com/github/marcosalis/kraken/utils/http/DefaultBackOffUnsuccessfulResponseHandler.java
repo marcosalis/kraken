@@ -16,10 +16,7 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
+import android.support.annotation.NonNull;
 
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler.BackOffRequired;
@@ -32,6 +29,10 @@ import com.google.api.client.util.Preconditions;
 import com.google.api.client.util.Sleeper;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
+
+import java.io.IOException;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * {@link HttpUnsuccessfulResponseHandler} that mimics the behavior of the
@@ -79,19 +80,19 @@ public class DefaultBackOffUnsuccessfulResponseHandler implements HttpUnsuccessf
 	 * @param backOff
 	 *            back-off policy
 	 */
-	public DefaultBackOffUnsuccessfulResponseHandler(@Nonnull BackOffRequired backOffRequired,
-			@Nonnull BackOff backOff) {
+	public DefaultBackOffUnsuccessfulResponseHandler(@NonNull BackOffRequired backOffRequired,
+			@NonNull BackOff backOff) {
 		mBackOffRequired = Preconditions.checkNotNull(backOffRequired);
 		mBackOff = Preconditions.checkNotNull(backOff);
 	}
 
-	@Nonnull
+	@NonNull
 	@VisibleForTesting
 	final BackOff getBackOff() {
 		return mBackOff;
 	}
 
-	@Nonnull
+	@NonNull
 	@VisibleForTesting
 	final Sleeper getSleeper() {
 		return mSleeper;
@@ -105,7 +106,7 @@ public class DefaultBackOffUnsuccessfulResponseHandler implements HttpUnsuccessf
 	 * </p>
 	 */
 	@VisibleForTesting
-	final void setSleeper(@Nonnull Sleeper sleeper) {
+	final void setSleeper(@NonNull Sleeper sleeper) {
 		mSleeper = Preconditions.checkNotNull(sleeper);
 	}
 

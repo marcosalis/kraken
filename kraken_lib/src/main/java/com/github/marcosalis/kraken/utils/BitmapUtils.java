@@ -18,10 +18,6 @@ package com.github.marcosalis.kraken.utils;
 
 import java.io.IOException;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
@@ -35,6 +31,9 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
@@ -82,8 +81,8 @@ public class BitmapUtils {
 	 *            The height of the image
 	 * @return The actual size in bytes
 	 */
-	@Nonnegative
-	public static int getSize(@Nonnegative int width, @Nonnegative int height) {
+	@IntRange(from=0)
+	public static int getSize(@IntRange(from=0) int width, @IntRange(from=0) int height) {
 		return width * height * 4;
 	}
 
@@ -95,9 +94,9 @@ public class BitmapUtils {
 	 * @param bitmap
 	 * @return The actual size in bytes
 	 */
-	@Nonnegative
+	@IntRange(from=0)
 	@SuppressLint("NewApi")
-	public static int getSize(@Nonnull Bitmap bitmap) {
+	public static int getSize(@NonNull Bitmap bitmap) {
 		final int sdkInt = Build.VERSION.SDK_INT;
 		if (sdkInt < 12) {
 			// getBytesCount() on API 12 does exactly the same
@@ -119,9 +118,9 @@ public class BitmapUtils {
 	 * @param reqHeight
 	 * @return The calculated inSampleSize
 	 */
-	@Nonnegative
-	public static int calculateInSampleSize(@Nonnull BitmapFactory.Options options,
-			@Nonnegative int reqWidth, @Nonnegative int reqHeight) {
+	@IntRange(from=0)
+	public static int calculateInSampleSize(@NonNull BitmapFactory.Options options,
+			@IntRange(from=0) int reqWidth, @IntRange(from=0) int reqHeight) {
 		// Raw height and width of image
 		final int height = options.outHeight;
 		final int width = options.outWidth;
@@ -159,8 +158,8 @@ public class BitmapUtils {
 	 *            The max size, in pixel, the resulting Bitmap must have
 	 * @return The calculated inSampleSize
 	 */
-	public static int calculateMaxInSampleSize(@Nonnull BitmapFactory.Options options,
-			@Nonnegative int maxSide) {
+	public static int calculateMaxInSampleSize(@NonNull BitmapFactory.Options options,
+			@IntRange(from=0) int maxSide) {
 		// raw height and width of image
 		final int height = options.outHeight;
 		final int width = options.outWidth;
@@ -178,7 +177,7 @@ public class BitmapUtils {
 	}
 
 	@VisibleForTesting
-	static boolean isPowerOfTwo(@Nonnegative @Nonnull int number) {
+	static boolean isPowerOfTwo(@IntRange(from=0) @NonNull int number) {
 		Preconditions.checkArgument(number > 0);
 		return (number & -number) == number;
 	}
@@ -207,9 +206,9 @@ public class BitmapUtils {
 	 * @param reqHeight
 	 * @return The decoded Bitmap or null if something went wrong
 	 */
-	@CheckForNull
-	public static Bitmap decodeSampledBitmapFromResource(@Nonnull Resources res, int resId,
-			@Nonnegative int reqWidth, @Nonnegative int reqHeight) {
+	@Nullable
+	public static Bitmap decodeSampledBitmapFromResource(@NonNull Resources res, int resId,
+			@IntRange(from=0) int reqWidth, @IntRange(from=0) int reqHeight) {
 
 		// First decode with inJustDecodeBounds = true to check dimensions
 		final BitmapFactory.Options options = new BitmapFactory.Options();
@@ -233,7 +232,7 @@ public class BitmapUtils {
 	 * Only available from API >= 16:<br>
 	 * MediaStore.Images.Media.WIDTH, MediaStore.Images.Media.HEIGHT
 	 */
-	@Nonnull
+	@NonNull
 	public static final String[] getImagesMediaColumns() {
 		return MEDIA_COLUMNS.toArray(new String[MEDIA_COLUMNS.size()]);
 	}
@@ -252,9 +251,9 @@ public class BitmapUtils {
 	 *            The minimum required height
 	 * @return The Bitmap, or null if the URI didn't match any resource
 	 */
-	@CheckForNull
-	public static Bitmap loadBitmapFromUri(@Nonnull ContentResolver cr, @Nonnull Uri picUri,
-			@Nonnegative int reqWidth, @Nonnegative int reqHeight) {
+	@Nullable
+	public static Bitmap loadBitmapFromUri(@NonNull ContentResolver cr, @NonNull Uri picUri,
+			@IntRange(from=0) int reqWidth, @IntRange(from=0) int reqHeight) {
 		// TODO: handle bitmap orientation
 		final String[] mediaColumns = getImagesMediaColumns();
 		final Cursor cursor = cr.query(picUri, mediaColumns, null, null, null);
@@ -272,9 +271,9 @@ public class BitmapUtils {
 	 * 
 	 * Rotate flag set to true by default.
 	 */
-	@CheckForNull
-	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, @Nonnegative int reqWidth,
-			@Nonnegative int reqHeight) {
+	@Nullable
+	public static Bitmap loadBitmapFromPath(@NonNull String picturePath, @IntRange(from=0) int reqWidth,
+			@IntRange(from=0) int reqHeight) {
 		return loadBitmapFromPath(picturePath, reqWidth, reqHeight, true);
 	}
 
@@ -292,8 +291,8 @@ public class BitmapUtils {
 	 *            default orientation
 	 * @return The Bitmap, or null if the path wasn't valid
 	 */
-	@CheckForNull
-	public static Bitmap loadBitmapFromPath(@Nonnull String picturePath, int reqWidth,
+	@Nullable
+	public static Bitmap loadBitmapFromPath(@NonNull String picturePath, int reqWidth,
 			int reqHeight, boolean rotate) {
 		int rotateValue = 0;
 		if (rotate) { // check for orientation
@@ -339,8 +338,8 @@ public class BitmapUtils {
 	}
 
 	@TargetApi(11)
-	private static Bitmap decodeMutableBitmap(@Nonnull String picturePath,
-			@Nonnull BitmapFactory.Options options) {
+	private static Bitmap decodeMutableBitmap(@NonNull String picturePath,
+			@NonNull BitmapFactory.Options options) {
 		options.inMutable = true;
 		return BitmapFactory.decodeFile(picturePath, options);
 	}
@@ -353,7 +352,7 @@ public class BitmapUtils {
 	 * @return The orientation constant, see {@link ExifInterface}
 	 * @throws IOException
 	 */
-	public static int getExifOrientation(@Nonnull String path) {
+	public static int getExifOrientation(@NonNull String path) {
 		ExifInterface exif = null;
 		final int defOrientation = ExifInterface.ORIENTATION_NORMAL;
 		try {
@@ -396,8 +395,8 @@ public class BitmapUtils {
 	 *            may be smaller)
 	 * @return The cropped {@link Bitmap} or null if an error occurred
 	 */
-	@CheckForNull
-	public static Bitmap cropProfileBitmap(@Nonnull String picturePath, int maxSide) {
+	@Nullable
+	public static Bitmap cropProfileBitmap(@NonNull String picturePath, int maxSide) {
 		Preconditions.checkArgument(maxSide > 0);
 
 		int rotateValue = 0;
@@ -433,8 +432,8 @@ public class BitmapUtils {
 	 *            The bitmap to crop (must already be resized if necessary)
 	 * @return The cropped {@link Bitmap} or null if an error occurred
 	 */
-	@CheckForNull
-	public static Bitmap cropProfileBitmap(@Nonnull Bitmap bitmap) {
+	@Nullable
+	public static Bitmap cropProfileBitmap(@NonNull Bitmap bitmap) {
 		if (bitmap.getWidth() == bitmap.getHeight()) {
 			return bitmap; // already squared, just return
 		} else {
@@ -451,8 +450,8 @@ public class BitmapUtils {
 	 *            The rotate value for the {@link Matrix} if needed
 	 * @return The processed {@link Bitmap}
 	 */
-	@CheckForNull
-	private static Bitmap cropSquaredBitmap(@Nonnull Bitmap bitmap, int rotateValue) {
+	@Nullable
+	private static Bitmap cropSquaredBitmap(@NonNull Bitmap bitmap, int rotateValue) {
 		// cropping calculations
 		final int width = bitmap.getWidth();
 		final int height = bitmap.getHeight();

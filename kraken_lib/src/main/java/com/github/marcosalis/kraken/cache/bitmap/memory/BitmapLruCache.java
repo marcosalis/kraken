@@ -16,15 +16,12 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.memory;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.CallSuper;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -32,6 +29,8 @@ import com.github.marcosalis.kraken.cache.ContentLruCache;
 import com.github.marcosalis.kraken.utils.BitmapUtils;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.google.common.annotations.Beta;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Abstract class that exposes basic functionalities implemented in any
@@ -50,9 +49,9 @@ public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements Bit
 
 	private static final String TAG = BitmapLruCache.class.getSimpleName();
 
-	@CheckForNull
+	@Nullable
 	private final String mLogName;
-	@CheckForNull
+	@Nullable
 	private volatile OnEntryRemovedListener<K, Bitmap> mEntryRemovedListener;
 
 	/**
@@ -66,7 +65,7 @@ public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements Bit
 	 * @param cacheLogName
 	 *            The (optional) name of the cache (for logging purposes)
 	 */
-	public BitmapLruCache(@Nonnegative int maxSize, @Nullable String cacheLogName) {
+	public BitmapLruCache(@IntRange(from=0) int maxSize, @Nullable String cacheLogName) {
 		super(maxSize);
 		mLogName = cacheLogName;
 		if (DroidConfig.DEBUG) {
@@ -85,7 +84,7 @@ public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements Bit
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected final int sizeOf(K key, @Nonnull Bitmap bitmap) {
+	protected final int sizeOf(K key, @NonNull Bitmap bitmap) {
 		return BitmapUtils.getSize(bitmap);
 	}
 
@@ -107,7 +106,7 @@ public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements Bit
 	 * {@inheritDoc}
 	 */
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	protected void entryRemoved(boolean evicted, K key, Bitmap oldValue, Bitmap newValue) {
 		super.entryRemoved(evicted, key, oldValue, newValue);
 		// remove evicted Bitmap task from the downloads cache if exists

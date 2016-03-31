@@ -16,17 +16,16 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import java.util.concurrent.ConcurrentMap;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
-import android.support.v4.util.LruCache;
+import android.support.annotation.CallSuper;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.LruCache;
 
 import com.google.common.annotations.Beta;
 import com.google.common.cache.Cache;
+
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Extension of the Android's {@link LruCache} to support some of the methods of
@@ -47,7 +46,7 @@ public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache
 	@SuppressWarnings("unused")
 	private static final String TAG = ContentLruCache.class.getSimpleName();
 
-	public ContentLruCache(@Nonnegative int maxSize) {
+	public ContentLruCache(@IntRange(from=1) int maxSize) {
 		super(maxSize);
 	}
 
@@ -64,8 +63,8 @@ public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache
 	 *         indicate that the map previously associated null with the key, if
 	 *         the implementation supports null values.)
 	 */
-	@CheckForNull
-	public synchronized V putIfAbsent(@Nonnull K key, V value) {
+	@Nullable
+	public synchronized V putIfAbsent(@NonNull K key, V value) {
 		V old = null;
 		if ((old = get(key)) == null) {
 			return put(key, value);
@@ -82,7 +81,7 @@ public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache
 	 * @param value
 	 * @return true if the element was removed, false otherwise
 	 */
-	public boolean remove(@Nonnull K key, V value) {
+	public boolean remove(@NonNull K key, V value) {
 		if (value == null) {
 			return false;
 		}
@@ -97,7 +96,7 @@ public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void clear() {
 		evictAll();
 	}

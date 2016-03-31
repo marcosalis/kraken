@@ -15,9 +15,8 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -35,7 +34,7 @@ public class EmptyMemoryCache<K, V> implements MemoryCache<K, V> {
 
 	private static final String TAG = EmptyMemoryCache.class.getSimpleName();
 
-	@CheckForNull
+	@Nullable
 	private volatile OnEntryRemovedListener<K, V> mEntryRemovedListener;
 
 	public EmptyMemoryCache(@Nullable String cacheLogName) {
@@ -45,14 +44,14 @@ public class EmptyMemoryCache<K, V> implements MemoryCache<K, V> {
 	}
 
 	@Override
-	@CheckForNull
-	public V get(K key) {
+	@Nullable
+	public V get(@NonNull K key) {
 		return null; // always null
 	}
 
 	@Override
-	@CheckForNull
-	public V put(K key, V value) {
+	@Nullable
+	public V put(@NonNull K key, V value) {
 		final OnEntryRemovedListener<K, V> listener = mEntryRemovedListener;
 		if (listener != null) {
 			// since the cache is empty, every item is immediately removed
@@ -62,13 +61,13 @@ public class EmptyMemoryCache<K, V> implements MemoryCache<K, V> {
 	}
 
 	@Override
-	@CheckForNull
-	public V putIfAbsent(K key, V value) {
+	@Nullable
+	public V putIfAbsent(@NonNull K key, V value) {
 		return put(key, value);
 	}
 
 	@Override
-	@CheckForNull
+	@Nullable
 	public V remove(K key) {
 		// does nothing
 		return null;

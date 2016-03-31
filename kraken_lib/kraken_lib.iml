@@ -94,9 +94,9 @@
     <orderEntry type="library" exported="" name="google-http-client-android-1.15.0-rc" level="project" />
     <orderEntry type="library" exported="" name="guava-jdk5-13.0" level="project" />
     <orderEntry type="library" exported="" name="support-vector-drawable-23.2.1" level="project" />
-    <orderEntry type="library" exported="" name="annotations" level="project" />
     <orderEntry type="library" exported="" name="jackson-datatype-guava-2.2.2" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.2.1" level="project" />
+    <orderEntry type="library" exported="" name="guava-13.0" level="project" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy-android-23" level="project" />
   </component>
 </module>

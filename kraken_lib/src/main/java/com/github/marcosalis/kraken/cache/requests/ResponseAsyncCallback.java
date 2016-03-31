@@ -16,12 +16,12 @@
  */
 package com.github.marcosalis.kraken.cache.requests;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.google.common.annotations.Beta;
+
+import java.io.IOException;
 
 /**
  * Generic callback interface to use asynchronous HTTP(S) requests through
@@ -66,6 +66,6 @@ public interface ResponseAsyncCallback<E> {
 	 * @param ex
 	 *            The exception thrown by the request and caught for the caller
 	 */
-	public void onException(@Nonnull Exception ex);
+	public void onException(@NonNull Exception ex);
 
 }

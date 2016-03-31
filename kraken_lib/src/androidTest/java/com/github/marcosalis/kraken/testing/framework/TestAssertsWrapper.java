@@ -15,7 +15,7 @@
  */
 package com.github.marcosalis.kraken.testing.framework;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import junit.framework.AssertionFailedError;
@@ -36,7 +36,7 @@ public class TestAssertsWrapper {
 
 	private Runnable mAssertsRunnable;
 
-	public synchronized void setAsserts(@Nonnull Runnable asserts) {
+	public synchronized void setAsserts(@NonNull Runnable asserts) {
 		mAssertsRunnable = asserts;
 	}
 

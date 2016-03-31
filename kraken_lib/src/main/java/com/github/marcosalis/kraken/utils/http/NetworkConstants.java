@@ -16,14 +16,7 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
-
-import org.apache.http.HeaderElement;
-import org.apache.http.HeaderElementIterator;
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicHeaderElementIterator;
-import org.apache.http.protocol.HTTP;
+import android.support.annotation.NonNull;
 
 import com.google.api.client.http.HttpBackOffIOExceptionHandler;
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler.BackOffRequired;
@@ -31,6 +24,14 @@ import com.google.api.client.http.HttpIOExceptionHandler;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.api.client.util.BackOff;
 import com.google.common.annotations.Beta;
+
+import org.apache.http.HeaderElement;
+import org.apache.http.HeaderElementIterator;
+import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicHeaderElementIterator;
+import org.apache.http.protocol.HTTP;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Simple class holding default constants related to network connections, such
@@ -94,7 +95,7 @@ public class NetworkConstants {
 	 * 
 	 * @return The keep alive time or -1 if not found
 	 */
-	public static long getKeepAliveHeader(@Nonnull HttpResponse response) {
+	public static long getKeepAliveHeader(@NonNull HttpResponse response) {
 		HeaderElementIterator it = new BasicHeaderElementIterator(
 				response.headerIterator(HTTP.CONN_KEEP_ALIVE));
 		while (it.hasNext()) {

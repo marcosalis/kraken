@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.CheckForNull;
+import android.support.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import android.widget.Filter;
@@ -110,7 +110,7 @@ public abstract class JsonModel {
 	 * object, avoid using this method inside production code for logging
 	 * purposes only.
 	 */
-	@CheckForNull
+	@Nullable
 	public String toJsonString() {
 		return JacksonJsonManager.toJsonString(this);
 	}
@@ -127,8 +127,8 @@ public abstract class JsonModel {
 	 * @return The instance of the given type or null if the string could not be
 	 *         parsed
 	 */
-	@CheckForNull
-	public static <E> E parseFromString(@CheckForNull String modelJson, Class<E> type) {
+	@Nullable
+	public static <E> E parseFromString(@Nullable String modelJson, Class<E> type) {
 		E model = null;
 		if (modelJson != null) {
 			try {
@@ -156,8 +156,8 @@ public abstract class JsonModel {
 	 * @throws JsonMappingException
 	 * @throws JsonParseException
 	 */
-	@CheckForNull
-	public static <E> E parseFromStringOrThrow(@CheckForNull String modelJson, Class<E> type)
+	@Nullable
+	public static <E> E parseFromStringOrThrow(@Nullable String modelJson, Class<E> type)
 			throws JsonParseException, JsonMappingException, IOException {
 		E model = null;
 		if (modelJson != null) {
@@ -179,8 +179,8 @@ public abstract class JsonModel {
 	 *            The type of the object to parse
 	 * @return The list of models or null if the string could not be parsed
 	 */
-	@CheckForNull
-	public static <E extends JsonModel> List<E> parseListFromString(@CheckForNull String modelJson,
+	@Nullable
+	public static <E extends JsonModel> List<E> parseListFromString(@Nullable String modelJson,
 			Class<E> type) {
 		List<E> list = null;
 		if (modelJson != null) {
@@ -209,9 +209,9 @@ public abstract class JsonModel {
 	 * @throws JsonMappingException
 	 * @throws JsonParseException
 	 */
-	@CheckForNull
+	@Nullable
 	public static <E extends JsonModel> List<E> parseListFromStringOrThrow(
-			@CheckForNull String modelJson, Class<E> type) throws JsonParseException,
+			@Nullable String modelJson, Class<E> type) throws JsonParseException,
 			JsonMappingException, IOException {
 		ArrayList<E> list = null;
 		if (modelJson != null) {

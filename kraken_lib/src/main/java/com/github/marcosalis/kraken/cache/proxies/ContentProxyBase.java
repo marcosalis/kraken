@@ -16,15 +16,9 @@
  */
 package com.github.marcosalis.kraken.cache.proxies;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.os.Process;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -32,6 +26,12 @@ import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.google.common.annotations.Beta;
+
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * <p>
@@ -100,7 +100,7 @@ public abstract class ContentProxyBase implements ContentProxy {
 	 * @param runnable
 	 *            The {@link Runnable} to execute (must be non null)
 	 */
-	protected static synchronized final void execute(@Nonnull Runnable runnable) {
+	protected static synchronized final void execute(@NonNull Runnable runnable) {
 		PROXY_EXECUTOR.execute(runnable);
 	}
 
@@ -111,7 +111,7 @@ public abstract class ContentProxyBase implements ContentProxy {
 	 * @param runnable
 	 *            The {@link Runnable} to execute (must be non null)
 	 */
-	protected static synchronized final void executeLowPriority(@Nonnull Runnable runnable) {
+	protected static synchronized final void executeLowPriority(@NonNull Runnable runnable) {
 		LOW_PRIORITY_EXECUTOR.execute(runnable);
 	}
 
@@ -122,7 +122,7 @@ public abstract class ContentProxyBase implements ContentProxy {
 	 * @param runnable
 	 *            The {@link Runnable} to execute (must be non null)
 	 */
-	public static synchronized final void prefetch(@Nonnull Runnable runnable) {
+	public static synchronized final void prefetch(@NonNull Runnable runnable) {
 		PRE_FETCH_EXECUTOR.execute(runnable);
 	}
 
@@ -148,7 +148,7 @@ public abstract class ContentProxyBase implements ContentProxy {
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void clearCache() {
 		clearMemoryCache();
 		clearDiskCache(ClearMode.ALL);

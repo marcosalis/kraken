@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.cache.keys;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import android.annotation.SuppressLint;
 import android.os.Parcelable;
@@ -40,13 +40,13 @@ public interface CacheUrlKey extends CacheKey, Parcelable {
 	/**
 	 * Gets the hash string used as a key
 	 */
-	@Nonnull
+	@NonNull
 	public String hash();
 
 	/**
 	 * Gets the string URL hold by this {@link CacheUrlKey}
 	 */
-	@Nonnull
+	@NonNull
 	public String getUrl();
 
 }

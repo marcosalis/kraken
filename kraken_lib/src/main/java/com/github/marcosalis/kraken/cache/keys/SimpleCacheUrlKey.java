@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.cache.keys;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.Immutable;
 
 import android.os.Parcel;
@@ -49,9 +49,9 @@ public class SimpleCacheUrlKey implements CacheUrlKey {
 	 */
 	protected static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
 
-	@Nonnull
+	@NonNull
 	private final String mKey;
-	@Nonnull
+	@NonNull
 	private final String mUrl;
 
 	/**
@@ -63,7 +63,7 @@ public class SimpleCacheUrlKey implements CacheUrlKey {
 	 * @throws NullPointerException
 	 *             if the passed string URL is null
 	 */
-	public SimpleCacheUrlKey(@Nonnull String url) {
+	public SimpleCacheUrlKey(@NonNull String url) {
 		Preconditions.checkNotNull(url);
 		mUrl = url;
 		// process URI
@@ -106,7 +106,7 @@ public class SimpleCacheUrlKey implements CacheUrlKey {
 	/**
 	 * Gets the generated key for this object
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public String hash() {
 		return mKey;
@@ -115,7 +115,7 @@ public class SimpleCacheUrlKey implements CacheUrlKey {
 	/**
 	 * Gets the full URL for GET requests
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public String getUrl() {
 		return mUrl;

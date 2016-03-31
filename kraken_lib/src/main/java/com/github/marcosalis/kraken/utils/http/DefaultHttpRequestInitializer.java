@@ -16,14 +16,14 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestInitializer;
+
+import java.io.IOException;
 
 /**
  * Default implementation of {@link HttpRequestInitializer}. Every request is
@@ -33,8 +33,8 @@ import com.google.api.client.http.HttpRequestInitializer;
 public class DefaultHttpRequestInitializer implements HttpRequestInitializer {
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
-	public void initialize(@Nonnull HttpRequest request) throws IOException {
+	@CallSuper
+	public void initialize(@NonNull HttpRequest request) throws IOException {
 		setDefaultRequestParams(request);
 	}
 
@@ -45,7 +45,7 @@ public class DefaultHttpRequestInitializer implements HttpRequestInitializer {
 	 * @param request
 	 *            The request to set the parameters in
 	 */
-	protected static void setDefaultRequestParams(@Nonnull HttpRequest request) {
+	protected static void setDefaultRequestParams(@NonNull HttpRequest request) {
 		request.setConnectTimeout(NetworkConstants.DEFAULT_CONN_TIMEOUT);
 		request.setReadTimeout(NetworkConstants.DEFAULT_READ_TIMEOUT);
 		request.setNumberOfRetries(NetworkConstants.REQUEST_RETRIES);

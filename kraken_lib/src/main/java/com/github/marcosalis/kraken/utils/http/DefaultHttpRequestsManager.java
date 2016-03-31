@@ -16,20 +16,10 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.ThreadSafe;
-
-import org.apache.http.conn.ConnectionKeepAliveStrategy;
-import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.app.Application;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -45,6 +35,16 @@ import com.google.api.client.util.Preconditions;
 import com.google.common.annotations.Beta;
 import com.google.common.annotations.VisibleForTesting;
 
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.impl.client.DefaultConnectionKeepAliveStrategy;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Default implementation of {@link HttpRequestsManager}, a decorator around the
  * Google library {@link HttpRequestFactory} to build requests using the same
@@ -52,18 +52,18 @@ import com.google.common.annotations.VisibleForTesting;
  * same {@link HttpTransport} for any connection and uses an
  * {@link HttpRequestFactory} initialised with default connection parameters,
  * user agent and timeouts.
- * 
+ *
  * The global instance, suitable for most uses, can be retrieved by calling
  * {@link #get()}, and {@link #initialize(ConnectionKeepAliveStrategy)} must be
  * called before accessing the request facory.
- * 
+ *
  * Please note that no limits are put on the number of concurrent connection at
  * this abstraction level. Clients must implement their own pooling mechanism to
  * limit it or just rely on the wrapped connection library pooling policies.
- * 
+ *
  * To debug network connections executed from the {@link HttpTransport} library
  * in a device or emulator do the following:
- * 
+ *
  * <ul>
  * <li>set the DEBUG flag to true in the {@link DroidConfig} class</li>
  * <li>add
@@ -73,7 +73,7 @@ import com.google.common.annotations.VisibleForTesting;
  * to enable debug logging for the transport class in the connected device or
  * emulator</li>
  * </ul>
- * 
+ *
  * @since 1.0
  * @author Marco Salis
  */
@@ -106,13 +106,13 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	/**
 	 * Initializes the {@link DefaultHttpRequestsManager}. Call this preferably
 	 * from the {@link Application#onCreate()} method.
-	 * 
+	 *
 	 * @param strategy
 	 *            The {@link ConnectionKeepAliveStrategy} if
 	 *            {@link ApacheHttpTransport} is used.
 	 */
-	@OverridingMethodsMustInvokeSuper
-	public synchronized void initialize(@Nonnull ConnectionKeepAliveStrategy strategy) {
+	@CallSuper
+	public synchronized void initialize(@NonNull ConnectionKeepAliveStrategy strategy) {
 
 		if (DroidConfig.DEBUG) { // logging system properties values
 			Log.d(TAG, "http.maxConnections: " + System.getProperty("http.maxConnections"));
@@ -139,7 +139,7 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 			 * {@link SecureRandom} values which can affect secure connections
 			 * with the Apache http library. See the link below for more
 			 * information.
-			 * 
+			 *
 			 * <pre>
 			 * http://android-developers.blogspot.com.au/2013/08/some-securerandom-thoughts.html
 			 * </pre>
@@ -159,23 +159,23 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	/**
 	 * <b>Only for testing purposes.</b><br>
 	 * Inject a custom {@link HttpTransport} inside the manager
-	 * 
+	 *
 	 * @param transport
 	 *            The {@link HttpTransport} to inject
 	 */
 	@VisibleForTesting
-	synchronized void injectTransport(@Nonnull HttpTransport transport) {
+	synchronized void injectTransport(@NonNull HttpTransport transport) {
 		mDefaultRequestFactory = createRequestFactory(transport);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * 
+	 *
 	 * The HttpRequest objects created with this factory don't throw exceptions
 	 * if the request is not successful (response < 200 or >299), so you have to
 	 * check the HTTP result code within the response.
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public HttpRequestFactory getRequestFactory() {
 		Preconditions.checkArgument(mDefaultRequestFactory != null, "initialize() not called");
@@ -185,18 +185,18 @@ public class DefaultHttpRequestsManager implements HttpRequestsManager {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Nonnull
+	@NonNull
 	@Override
-	public HttpRequestFactory createRequestFactory(@Nonnull HttpTransport transport) {
+	public HttpRequestFactory createRequestFactory(@NonNull HttpTransport transport) {
 		return transport.createRequestFactory(new DefaultHttpRequestInitializer());
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
-	@Nonnull
+	@NonNull
 	@Override
-	public HttpRequest buildRequest(@Nonnull String method, @Nonnull String urlString,
+	public HttpRequest buildRequest(@NonNull String method, @NonNull String urlString,
 			@Nullable HttpContent content) throws IOException {
 		Preconditions.checkArgument(mDefaultRequestFactory != null, "initialize() not called");
 		return mDefaultRequestFactory.buildRequest(method, new GenericUrl(urlString), content);

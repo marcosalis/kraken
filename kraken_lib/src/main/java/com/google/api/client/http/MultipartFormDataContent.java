@@ -15,19 +15,20 @@
  */
 package com.google.api.client.http;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.google.api.client.util.StreamingContent;
+import com.google.common.annotations.Beta;
+import com.google.common.base.Preconditions;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.Locale;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-
-import com.google.api.client.util.StreamingContent;
-import com.google.common.annotations.Beta;
-import com.google.common.base.Preconditions;
 
 /**
  * Serializes MIME "multipart/form-data" content as specified by <a
@@ -179,7 +180,7 @@ public class MultipartFormDataContent extends MultipartContent {
 	 *            The optional filename of the part (usually for adding a
 	 *            {@link FileContent} part)
 	 */
-	public MultipartFormDataContent addPart(@Nonnull Part part, @Nonnull String dispositionName,
+	public MultipartFormDataContent addPart(@NonNull Part part, @NonNull String dispositionName,
 			@Nullable String dispositionFilename) {
 		Preconditions.checkNotNull(dispositionName);
 		String value = null;
@@ -199,18 +200,18 @@ public class MultipartFormDataContent extends MultipartContent {
 	/* Overriding this superclass methods just to change the return type */
 
 	@Override
-	public MultipartFormDataContent addPart(@Nonnull Part part) {
+	public MultipartFormDataContent addPart(@NonNull Part part) {
 		return (MultipartFormDataContent) super.addPart(part);
 	}
 
 	@Override
-	public MultipartFormDataContent setParts(@Nonnull Collection<Part> parts) {
+	public MultipartFormDataContent setParts(@NonNull Collection<Part> parts) {
 		return (MultipartFormDataContent) super.setParts(parts);
 	}
 
 	@Override
 	public MultipartFormDataContent setContentParts(
-			@Nonnull Collection<? extends HttpContent> contentParts) {
+			@NonNull Collection<? extends HttpContent> contentParts) {
 		return (MultipartFormDataContent) super.setContentParts(contentParts);
 	}
 
@@ -231,7 +232,7 @@ public class MultipartFormDataContent extends MultipartContent {
 	 *             if boundary is null
 	 */
 	@Override
-	public MultipartFormDataContent setBoundary(@Nonnull String boundary) {
+	public MultipartFormDataContent setBoundary(@NonNull String boundary) {
 		return (MultipartFormDataContent) super.setBoundary(boundary);
 	}
 

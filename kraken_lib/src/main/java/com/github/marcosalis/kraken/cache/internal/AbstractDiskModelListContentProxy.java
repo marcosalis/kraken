@@ -18,7 +18,7 @@ package com.github.marcosalis.kraken.cache.internal;
 
 import java.io.File;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.content.Context;
@@ -54,21 +54,21 @@ public abstract class AbstractDiskModelListContentProxy<MODEL extends JsonModel,
 
 	private final ListContentProxy mListContentProxy;
 
-	public AbstractDiskModelListContentProxy(@Nonnull Context context,
-			@Nonnull ObjectMapper mapper, @Nonnull Class<MODEL> modelClass, int modelsInCache,
-			@Nonnull Class<LIST> modelListClass, int listsInCache, @Nonnull String diskFolder,
+	public AbstractDiskModelListContentProxy(@NonNull Context context,
+			@NonNull ObjectMapper mapper, @NonNull Class<MODEL> modelClass, int modelsInCache,
+			@NonNull Class<LIST> modelListClass, int listsInCache, @NonNull String diskFolder,
 			final long expiration,
-			@Nonnull ModelDiskContentLoaderFactory<CacheableRequest<MODEL>, MODEL> loaderFactory,
-			@Nonnull ModelDiskContentLoaderFactory<CacheableRequest<LIST>, LIST> listLoaderFactory) {
+			@NonNull ModelDiskContentLoaderFactory<CacheableRequest<MODEL>, MODEL> loaderFactory,
+			@NonNull ModelDiskContentLoaderFactory<CacheableRequest<LIST>, LIST> listLoaderFactory) {
 		super(context, mapper, modelClass, modelsInCache, diskFolder, expiration, loaderFactory);
 		final String subFolder = diskFolder + File.separator + "list";
 		mListContentProxy = new ListContentProxy(context, mapper, modelListClass, listsInCache,
 				subFolder, expiration, listLoaderFactory);
 	}
 
-	public AbstractDiskModelListContentProxy(@Nonnull Context context,
-			@Nonnull ObjectMapper mapper, @Nonnull Class<MODEL> modelClass, int modelsInCache,
-			@Nonnull Class<LIST> modelListClass, int listsInCache, @Nonnull String diskFolder,
+	public AbstractDiskModelListContentProxy(@NonNull Context context,
+			@NonNull ObjectMapper mapper, @NonNull Class<MODEL> modelClass, int modelsInCache,
+			@NonNull Class<LIST> modelListClass, int listsInCache, @NonNull String diskFolder,
 			final long expiration) {
 		super(context, mapper, modelClass, modelsInCache, diskFolder, expiration);
 		final String subFolder = diskFolder + File.separator + "list";

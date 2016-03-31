@@ -16,14 +16,15 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
+import android.support.annotation.NonNull;
 
 import com.google.api.client.http.HttpBackOffUnsuccessfulResponseHandler;
 import com.google.api.client.http.HttpIOExceptionHandler;
 import com.google.api.client.http.HttpUnsuccessfulResponseHandler;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.common.annotations.Beta;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Static helper class containing factory methods to get instances of the
@@ -45,7 +46,7 @@ public class DefaultResponseHandlerFactory {
 	 * Returns a new instance of the default
 	 * {@link HttpUnsuccessfulResponseHandler}
 	 */
-	@Nonnull
+	@NonNull
 	public static final HttpUnsuccessfulResponseHandler createHttpUnsuccessfulResponseHandler() {
 		return new DefaultBackOffUnsuccessfulResponseHandler(
 				NetworkConstants.DEFAULT_BACKOFF_REQUIRED, NetworkConstants.DEFAULT_BACKOFF);
@@ -58,7 +59,7 @@ public class DefaultResponseHandlerFactory {
 	 * Do not reuse the created handler in more than a request as its state
 	 * wouldn't be reset.
 	 */
-	@Nonnull
+	@NonNull
 	public static final HttpUnsuccessfulResponseHandler createExponentialBackOffResponseHandler() {
 		return new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff());
 	}
@@ -66,7 +67,7 @@ public class DefaultResponseHandlerFactory {
 	/**
 	 * Returns a new instance of the default {@link HttpIOExceptionHandler}
 	 */
-	@Nonnull
+	@NonNull
 	public static final HttpIOExceptionHandler createHttpIOExceptionHandler() {
 		return new DefaultHttpIOExceptionHandler();
 	}

@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.Immutable;
 
 import android.util.Log;
@@ -61,11 +61,11 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 	/**
 	 * Uses the default {@link HttpRequestFactory}
 	 */
-	public ByteArrayDownloader(@Nonnull String url) {
+	public ByteArrayDownloader(@NonNull String url) {
 		this(DefaultHttpRequestsManager.get().getRequestFactory(), url);
 	}
 
-	public ByteArrayDownloader(@Nonnull HttpRequestFactory factory, @Nonnull String url) {
+	public ByteArrayDownloader(@NonNull HttpRequestFactory factory, @NonNull String url) {
 		mRequestFactory = factory;
 		mUrl = url;
 	}
@@ -86,9 +86,9 @@ public final class ByteArrayDownloader implements Callable<byte[]> {
 	 * @throws IOException
 	 * @throws IllegalArgumentException
 	 */
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
-	public static byte[] downloadByteArray(@Nonnull HttpRequestFactory factory, @Nonnull String url)
+	public static byte[] downloadByteArray(@NonNull HttpRequestFactory factory, @NonNull String url)
 			throws IOException, IllegalArgumentException {
 		HttpRequest request = null;
 		HttpResponse response = null;

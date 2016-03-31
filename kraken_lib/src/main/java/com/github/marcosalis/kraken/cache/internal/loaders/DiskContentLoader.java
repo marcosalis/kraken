@@ -20,9 +20,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.util.Log;
@@ -74,7 +73,7 @@ public final class DiskContentLoader<D> implements ContentLoader<CacheableReques
 	@Nullable
 	private final ModelDiskCache<D> mDiskCache;
 	private final long mExpiration;
-	@CheckForNull
+	@Nullable
 	private final RequestHandler mRequestHandler;
 	@Nullable
 	private final ConnectionMonitor mConnMonitor;
@@ -94,8 +93,8 @@ public final class DiskContentLoader<D> implements ContentLoader<CacheableReques
 	 * @param connMonitor
 	 *            The (optional) {@link ConnectionMonitor} for this loader
 	 */
-	public DiskContentLoader(@Nonnull ContentLruCache<String, ExpirableFutureTask<D>> memCache,
-			@CheckForNull ModelDiskCache<D> diskCache, long expiration,
+	public DiskContentLoader(@NonNull ContentLruCache<String, ExpirableFutureTask<D>> memCache,
+			@Nullable ModelDiskCache<D> diskCache, long expiration,
 			@Nullable RequestHandler requestHandler, @Nullable ConnectionMonitor connMonitor) {
 		mMemCache = memCache;
 		mDiskCache = diskCache;
@@ -109,7 +108,7 @@ public final class DiskContentLoader<D> implements ContentLoader<CacheableReques
 	 *      ContentUpdateCallback)
 	 */
 	@Override
-	public D load(@Nullable AccessPolicy action, @Nonnull CacheableRequest<D> request,
+	public D load(@Nullable AccessPolicy action, @NonNull CacheableRequest<D> request,
 			@Nullable ContentUpdateCallback<D> callback) throws Exception {
 		// TODO: improve this? It's almost procedural
 
@@ -216,7 +215,7 @@ public final class DiskContentLoader<D> implements ContentLoader<CacheableReques
 		@Nullable
 		private final ContentUpdateCallback<D> mUpdateCallback;
 
-		public IOContentLoader(@Nonnull AccessPolicy action, @Nonnull CacheableRequest<D> request,
+		public IOContentLoader(@NonNull AccessPolicy action, @NonNull CacheableRequest<D> request,
 				@Nullable ContentUpdateCallback<D> callback) {
 			mAction = action;
 			mRequest = request;

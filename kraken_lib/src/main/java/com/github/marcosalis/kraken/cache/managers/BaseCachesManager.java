@@ -19,7 +19,7 @@ package com.github.marcosalis.kraken.cache.managers;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.app.Application;
@@ -48,7 +48,7 @@ import com.google.common.annotations.Beta;
 @ThreadSafe
 public class BaseCachesManager<E> implements CachesManager<E> {
 
-	@Nonnull
+	@NonNull
 	private final ConcurrentMap<E, ContentProxy> mContents;
 
 	public BaseCachesManager(int initSize) {
@@ -57,12 +57,12 @@ public class BaseCachesManager<E> implements CachesManager<E> {
 	}
 
 	@Override
-	public boolean registerContent(@Nonnull E contentId, @Nonnull ContentProxy content) {
+	public boolean registerContent(@NonNull E contentId, @NonNull ContentProxy content) {
 		return (mContents.putIfAbsent(contentId, content) == null);
 	}
 
 	@Override
-	public ContentProxy getContent(@Nonnull E contentId) {
+	public ContentProxy getContent(@NonNull E contentId) {
 		return mContents.get(contentId);
 	}
 
@@ -72,7 +72,7 @@ public class BaseCachesManager<E> implements CachesManager<E> {
 	 * @param contentId
 	 *            The identificator of the content to remove
 	 */
-	protected void removeContent(@Nonnull E contentId) {
+	protected void removeContent(@NonNull E contentId) {
 		mContents.remove(contentId);
 	}
 

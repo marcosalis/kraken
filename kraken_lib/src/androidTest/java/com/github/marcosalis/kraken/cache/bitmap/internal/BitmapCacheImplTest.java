@@ -15,20 +15,11 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-
-import junit.framework.AssertionFailedError;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.widget.ImageView;
@@ -52,6 +43,15 @@ import com.google.api.client.http.LowLevelHttpResponse;
 import com.google.api.client.testing.http.MockHttpTransport;
 import com.google.api.client.testing.http.MockLowLevelHttpRequest;
 import com.google.api.client.testing.http.MockLowLevelHttpResponse;
+
+import junit.framework.AssertionFailedError;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Unit tests for the {@link BitmapCacheImpl} class.
@@ -172,8 +172,8 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 
 		final OnSuccessfulBitmapRetrievalListener listener = new OnSuccessfulBitmapRetrievalListener() {
 			@Override
-			public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull final Bitmap bitmap,
-					@Nonnull final CacheSource source) {
+			public void onBitmapRetrieved(@NonNull CacheUrlKey key, @NonNull final Bitmap bitmap,
+					@NonNull final CacheSource source) {
 				asserts.setAsserts(new Runnable() {
 					@Override
 					public void run() {
@@ -211,8 +211,8 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 
 		final OnBitmapSetListener listener = new OnBitmapSetListener() {
 			@Override
-			public void onBitmapSet(@Nonnull CacheUrlKey url, @Nonnull final Bitmap bitmap,
-					@Nonnull final CacheSource source) {
+			public void onBitmapSet(@NonNull CacheUrlKey url, @NonNull final Bitmap bitmap,
+					@NonNull final CacheSource source) {
 				asserts.setAsserts(new Runnable() {
 					@Override
 					public void run() {
@@ -233,7 +233,7 @@ public class BitmapCacheImplTest extends AndroidTestCase {
 		asserts.runAsserts();
 	}
 
-	public static HttpRequestFactory createRequestFactory(@Nonnull final Bitmap bitmap) {
+	public static HttpRequestFactory createRequestFactory(@NonNull final Bitmap bitmap) {
 		return new MockHttpTransport() {
 			@Override
 			public LowLevelHttpRequest buildRequest(String method, String url) throws IOException {

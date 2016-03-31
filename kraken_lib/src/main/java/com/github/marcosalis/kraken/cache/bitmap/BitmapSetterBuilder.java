@@ -17,9 +17,8 @@ package com.github.marcosalis.kraken.cache.bitmap;
 
 import java.util.HashMap;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import android.graphics.drawable.Drawable;
@@ -88,7 +87,7 @@ public final class BitmapSetterBuilder {
 	private final BitmapCache mCache;
 	private final boolean mCachingEnabled;
 
-	@CheckForNull
+	@Nullable
 	private HashMap<String, CacheUrlKey> mKeysCache;
 
 	private CacheUrlKey mKey;
@@ -103,7 +102,7 @@ public final class BitmapSetterBuilder {
 	 * 
 	 * @param cache
 	 */
-	public BitmapSetterBuilder(@Nonnull BitmapCache cache) {
+	public BitmapSetterBuilder(@NonNull BitmapCache cache) {
 		this(cache, true);
 	}
 
@@ -114,7 +113,7 @@ public final class BitmapSetterBuilder {
 	 * @param cache
 	 * @param reusable
 	 */
-	public BitmapSetterBuilder(@Nonnull BitmapCache cache, boolean reusable) {
+	public BitmapSetterBuilder(@NonNull BitmapCache cache, boolean reusable) {
 		mCache = cache;
 		mCachingEnabled = reusable;
 	}
@@ -126,13 +125,13 @@ public final class BitmapSetterBuilder {
 	 *            The URL string
 	 * @return This builder for call chaining
 	 */
-	@Nonnull
-	public BitmapSetterBuilder setAsync(@Nonnull String url) {
+	@NonNull
+	public BitmapSetterBuilder setAsync(@NonNull String url) {
 		mKey = getKeyFromCacheOrCreate(url);
 		return this;
 	}
 
-	private CacheUrlKey getKeyFromCacheOrCreate(@Nonnull String url) {
+	private CacheUrlKey getKeyFromCacheOrCreate(@NonNull String url) {
 		if (mCachingEnabled) {
 			if (mKeysCache == null) { // lazily initialized
 				mKeysCache = new HashMap<String, CacheUrlKey>();
@@ -160,8 +159,8 @@ public final class BitmapSetterBuilder {
 	 *            The {@link CacheUrlKey} for the bitmap
 	 * @return This builder for call chaining
 	 */
-	@Nonnull
-	public BitmapSetterBuilder setAsync(@Nonnull CacheUrlKey key) {
+	@NonNull
+	public BitmapSetterBuilder setAsync(@NonNull CacheUrlKey key) {
 		mKey = key;
 		return this;
 	}
@@ -176,7 +175,7 @@ public final class BitmapSetterBuilder {
 	 *            The placeholder {@link Drawable}
 	 * @return This builder for call chaining
 	 */
-	@Nonnull
+	@NonNull
 	public BitmapSetterBuilder placeholder(@Nullable Drawable placeholder) {
 		mPlaceholder = placeholder;
 		return this;
@@ -190,8 +189,8 @@ public final class BitmapSetterBuilder {
 	 *            The access policy to retrieve the bitmap
 	 * @return This builder for call chaining
 	 */
-	@Nonnull
-	public BitmapSetterBuilder policy(@Nonnull AccessPolicy policy) {
+	@NonNull
+	public BitmapSetterBuilder policy(@NonNull AccessPolicy policy) {
 		mPolicy = policy;
 		return this;
 	}
@@ -204,8 +203,8 @@ public final class BitmapSetterBuilder {
 	 *            The {@link AnimationMode} for the bitmap
 	 * @return This builder for call chaining
 	 */
-	@Nonnull
-	public BitmapSetterBuilder animate(@Nonnull AnimationMode mode) {
+	@NonNull
+	public BitmapSetterBuilder animate(@NonNull AnimationMode mode) {
 		mAnimationMode = mode;
 		return this;
 	}
@@ -218,8 +217,8 @@ public final class BitmapSetterBuilder {
 	 *            The listener (can be safely a context, it won't be leaked)
 	 * @return This builder for call chaining
 	 */
-	@Nonnull
-	public BitmapSetterBuilder listener(@Nonnull OnBitmapSetListener listener) {
+	@NonNull
+	public BitmapSetterBuilder listener(@NonNull OnBitmapSetListener listener) {
 		mListener = listener;
 		return this;
 	}
@@ -236,7 +235,7 @@ public final class BitmapSetterBuilder {
 	 * @throws NullPointerException
 	 *             if any of the mandatory parameters were not set
 	 */
-	public void into(@Nonnull ImageView view) {
+	public void into(@NonNull ImageView view) {
 		checkParameters();
 
 		// build setter
@@ -251,7 +250,7 @@ public final class BitmapSetterBuilder {
 	 * @param view
 	 * @throws UnsupportedOperationException
 	 */
-	public void asBackground(@Nonnull View view) {
+	public void asBackground(@NonNull View view) {
 		throw new UnsupportedOperationException("Not yet supported");
 	}
 
@@ -283,8 +282,8 @@ public final class BitmapSetterBuilder {
 		Preconditions.checkNotNull(mAnimationMode);
 	}
 
-	@Nonnull
-	private BitmapSetter getBitmapSetter(@Nonnull ImageView view) {
+	@NonNull
+	private BitmapSetter getBitmapSetter(@NonNull ImageView view) {
 		if (mAnimationMode == AnimationMode.NEVER) {
 			return new BitmapAsyncSetter(mKey, view, mListener);
 		} else {

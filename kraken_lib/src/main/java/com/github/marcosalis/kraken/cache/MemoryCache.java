@@ -16,9 +16,8 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.google.common.annotations.Beta;
@@ -51,8 +50,8 @@ public interface MemoryCache<K, V> extends ContentCache<K, V> {
 	 *            The cache key for the requested item
 	 * @return The value (or null if not present)
 	 */
-	@CheckForNull
-	public V get(@Nonnull K key);
+	@Nullable
+	public V get(@NonNull K key);
 
 	/**
 	 * Puts an element into the cache.
@@ -63,8 +62,8 @@ public interface MemoryCache<K, V> extends ContentCache<K, V> {
 	 *            The cache value or null to unset
 	 * @return The old element for the passed key if present
 	 */
-	@CheckForNull
-	public V put(@Nonnull K key, @Nullable V value);
+	@Nullable
+	public V put(@NonNull K key, @Nullable V value);
 
 	/**
 	 * If the specified key is not already associated with a value, associate it
@@ -79,8 +78,8 @@ public interface MemoryCache<K, V> extends ContentCache<K, V> {
 	 *         indicate that the map previously associated null with the key, if
 	 *         the implementation supports null values.)
 	 */
-	@CheckForNull
-	public V putIfAbsent(@Nonnull K key, V value);
+	@Nullable
+	public V putIfAbsent(@NonNull K key, V value);
 
 	/**
 	 * Removes the entry for the passed key if it exists.
@@ -88,7 +87,7 @@ public interface MemoryCache<K, V> extends ContentCache<K, V> {
 	 * @param key
 	 * @return the previous value mapped by key
 	 */
-	@CheckForNull
+	@Nullable
 	public V remove(K key);
 
 }

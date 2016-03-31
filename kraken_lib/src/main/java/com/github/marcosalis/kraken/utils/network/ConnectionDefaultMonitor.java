@@ -18,7 +18,7 @@ package com.github.marcosalis.kraken.utils.network;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.app.Application;
@@ -84,7 +84,7 @@ public enum ConnectionDefaultMonitor implements ConnectionMonitor {
 	 * @param application
 	 *            The {@link Application} object
 	 */
-	public void register(@Nonnull Application application) {
+	public void register(@NonNull Application application) {
 		if (mIsRegistered.compareAndSet(false, true)) {
 			// permanently register the listener using the application context
 			final IntentFilter filter = NetworkReceiver.getFilter();
@@ -101,7 +101,7 @@ public enum ConnectionDefaultMonitor implements ConnectionMonitor {
 	 * @param application
 	 *            The {@link Application} object
 	 */
-	public void unregister(@Nonnull Application application) {
+	public void unregister(@NonNull Application application) {
 		if (mIsRegistered.compareAndSet(true, false)) {
 			LocalBroadcastManager.getInstance(application).unregisterReceiver(mNetReceiver);
 		}

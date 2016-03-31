@@ -15,17 +15,17 @@
  */
 package com.github.marcosalis.kraken.utils.concurrent;
 
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.os.Process;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
 import com.google.common.annotations.Beta;
+
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * {@link ThreadFactory} implementation that allow callers to set a custom
@@ -55,7 +55,7 @@ public class PriorityThreadFactory implements ThreadFactory {
 	/**
 	 * Constructor that uses priority {@link Process#THREAD_PRIORITY_DEFAULT}
 	 */
-	public PriorityThreadFactory(@Nonnull String threadName) {
+	public PriorityThreadFactory(@NonNull String threadName) {
 		this(threadName, Process.THREAD_PRIORITY_DEFAULT);
 	}
 
@@ -69,7 +69,7 @@ public class PriorityThreadFactory implements ThreadFactory {
 	 *            The thread priority (must be one of the constants in
 	 *            {@link android.os.Process})
 	 */
-	public PriorityThreadFactory(@Nonnull String threadsName, int priority) {
+	public PriorityThreadFactory(@NonNull String threadsName, int priority) {
 		mThreadsName = threadsName;
 		mPriority = priority;
 	}
@@ -78,7 +78,7 @@ public class PriorityThreadFactory implements ThreadFactory {
 	 * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
 	 */
 	@Override
-	public Thread newThread(@Nonnull Runnable r) {
+	public Thread newThread(@NonNull Runnable r) {
 		String name = mThreadsName + " #" + mThreadCount.incrementAndGet();
 		final PrioritizableThread thread = new PrioritizableThread(r, name, mPriority);
 

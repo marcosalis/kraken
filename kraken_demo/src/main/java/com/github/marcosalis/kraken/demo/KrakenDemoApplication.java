@@ -15,12 +15,9 @@
  */
 package com.github.marcosalis.kraken.demo;
 
-import java.io.IOException;
-
-import javax.annotation.Nonnull;
-
 import android.annotation.TargetApi;
 import android.app.Application;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCacheBuilder;
@@ -30,6 +27,8 @@ import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.DroidApplication;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
+
+import java.io.IOException;
 
 /**
  * {@link Application} subclass that initializes caches and holds a
@@ -111,17 +110,17 @@ public class KrakenDemoApplication extends DroidApplication {
 		super.onTrimMemory(level);
 	}
 
-	@Nonnull
-	public ContentProxy getCache(@Nonnull CacheId id) {
+	@NonNull
+	public ContentProxy getCache(@NonNull CacheId id) {
 		return mCachesManager.getContent(id);
 	}
 
-	@Nonnull
+	@NonNull
 	public BaseCachesManager<CacheId> getCachesManager() {
 		return mCachesManager;
 	}
 
-	private void buildAndRegisterCache(@Nonnull CacheId cacheId, @Nonnull BitmapCacheBuilder builder) {
+	private void buildAndRegisterCache(@NonNull CacheId cacheId, @NonNull BitmapCacheBuilder builder) {
 		try {
 			final BitmapCache cache = builder.build();
 			mCachesManager.registerContent(cacheId, cache);

@@ -16,19 +16,19 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import com.google.common.annotations.Beta;
 
 /**
  * Base, simple interface that every content cache should implement in order to
  * perform some common operations.
- * 
+ *
  * TODO: consider implementing {@link com.google.common.cache.Cache}
- * 
+ *
  * @since 1.0
  * @author Marco Salis
- * 
+ *
  * @param <K>
  *            Cache keys type
  * @param <V>
@@ -48,7 +48,7 @@ public interface ContentCache<K, V> {
 
 		/**
 		 * Called when a cache entry has been removed.
-		 * 
+		 *
 		 * @param evicted
 		 *            true if the item has been removed for space constraints,
 		 *            false otherwise (because it's been explicitly removed or
@@ -58,13 +58,13 @@ public interface ContentCache<K, V> {
 		 * @param value
 		 *            the removed element
 		 */
-		public void onEntryRemoved(boolean evicted, @Nonnull K key, @Nonnull V value);
+		public void onEntryRemoved(boolean evicted, @NonNull K key, @NonNull V value);
 	}
 
 	/**
 	 * Possible cache "sources" for an item retrieved from a
 	 * {@link ContentCache}.
-	 * 
+	 *
 	 * @since 1.0.2
 	 */
 	@Beta

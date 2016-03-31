@@ -16,12 +16,13 @@
  */
 package com.github.marcosalis.kraken.utils.concurrent;
 
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -45,7 +46,7 @@ public class ExpirableFutureTask<E> extends SettableFutureTask<E> {
 	 *            The expiration time, in milliseconds, or
 	 *            {@link Long#MAX_VALUE} for no expiration.
 	 */
-	public ExpirableFutureTask(@Nonnull Callable<E> callable, @Nonnegative long expiration) {
+	public ExpirableFutureTask(@NonNull Callable<E> callable, @IntRange(from=0) long expiration) {
 		super(callable);
 		if (expiration == Long.MAX_VALUE) {
 			// force task to never expire
@@ -66,8 +67,8 @@ public class ExpirableFutureTask<E> extends SettableFutureTask<E> {
 	 *            The expiration time, in milliseconds, or
 	 *            {@link Long#MAX_VALUE} for no expiration.
 	 */
-	public ExpirableFutureTask(@Nonnull Runnable runnable, @Nullable E result,
-			@Nonnegative long expiration) {
+	public ExpirableFutureTask(@NonNull Runnable runnable, @Nullable E result,
+							   @IntRange(from=0) long expiration) {
 		super(runnable, result);
 		if (expiration == Long.MAX_VALUE) {
 			// force task to never expire

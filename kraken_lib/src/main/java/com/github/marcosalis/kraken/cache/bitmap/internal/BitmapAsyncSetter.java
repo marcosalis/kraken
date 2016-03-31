@@ -16,18 +16,14 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import java.lang.ref.SoftReference;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -39,6 +35,10 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapCache.OnBitmapSetListener
 import com.github.marcosalis.kraken.cache.keys.CacheUrlKey;
 import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.google.common.annotations.Beta;
+
+import java.lang.ref.SoftReference;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * <p>
@@ -91,7 +91,7 @@ public class BitmapAsyncSetter implements BitmapSetter {
 	 * @param imgView
 	 *            The {@link ImageView} to set the bitmap into
 	 */
-	public BitmapAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView) {
+	public BitmapAsyncSetter(@NonNull CacheUrlKey key, @NonNull ImageView imgView) {
 		this(key, imgView, null);
 	}
 
@@ -106,7 +106,7 @@ public class BitmapAsyncSetter implements BitmapSetter {
 	 *            The listener to be called when the image gets set (can be
 	 *            null)
 	 */
-	public BitmapAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
+	public BitmapAsyncSetter(@NonNull CacheUrlKey key, @NonNull ImageView imgView,
 			@Nullable OnBitmapSetListener listener) {
 		mCacheKey = key;
 		imgView.setTag(key.hash()); // set view tag for identification
@@ -132,8 +132,8 @@ public class BitmapAsyncSetter implements BitmapSetter {
 	 * @param bitmap
 	 *            The {@link Bitmap} image to set
 	 */
-	@OverridingMethodsMustInvokeSuper
-	public void setBitmapSync(@Nonnull Bitmap bitmap) {
+	@CallSuper
+	public void setBitmapSync(@NonNull Bitmap bitmap) {
 		final ImageView view = mImageView.get();
 		if (view != null) {
 			setImageBitmap(view, bitmap, CacheSource.MEMORY);
@@ -150,13 +150,13 @@ public class BitmapAsyncSetter implements BitmapSetter {
 	}
 
 	@Override
-	public final void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-			@Nonnull CacheSource source) {
+	public final void onBitmapRetrieved(@NonNull CacheUrlKey key, @NonNull Bitmap bitmap,
+			@NonNull CacheSource source) {
 		setBitmapAsync(bitmap, source);
 	}
 
 	@Override
-	public void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e) {
+	public void onBitmapRetrievalFailed(@NonNull CacheUrlKey key, @Nullable Exception e) {
 		// TODO: handle placeholder setting when the bitmap loading fails?
 	}
 
@@ -170,10 +170,10 @@ public class BitmapAsyncSetter implements BitmapSetter {
 	 * @param source
 	 *            The {@link CacheSource} of the bitmap
 	 */
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
-	protected synchronized void setBitmapAsync(@Nonnull Bitmap bitmap,
-			@Nonnull final CacheSource source) {
+	protected synchronized void setBitmapAsync(@NonNull Bitmap bitmap,
+			@NonNull final CacheSource source) {
 		// do not pass this reference to the runnable
 		final ImageView view = mImageView.get();
 		if (view != null) {
@@ -229,8 +229,8 @@ public class BitmapAsyncSetter implements BitmapSetter {
 	 * @param source
 	 *            The origin {@link CacheSource} of the bitmap
 	 */
-	protected void setImageBitmap(@Nonnull ImageView imageView, @Nonnull Bitmap bitmap,
-			@Nonnull CacheSource source) {
+	protected void setImageBitmap(@NonNull ImageView imageView, @NonNull Bitmap bitmap,
+			@NonNull CacheSource source) {
 		imageView.setImageBitmap(bitmap);
 	}
 

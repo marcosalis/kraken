@@ -15,16 +15,16 @@
  */
 package com.github.marcosalis.kraken.utils.android;
 
-import java.util.concurrent.Executor;
-
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.annotation.TargetApi;
 import android.os.AsyncTask;
+import android.support.annotation.CallSuper;
 
 import com.google.common.annotations.Beta;
+
+import java.util.concurrent.Executor;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Extension of {@link AsyncTask} that forces parallel tasks execution in
@@ -94,7 +94,7 @@ public abstract class ParallelAsyncTask<Params, Progress, Result> extends
 	 *             instead of {@link #parallelExec(Object...)}.
 	 */
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	protected void onPreExecute() {
 		if (!mParallelExec) {
 			throw new IllegalStateException("Task not started with parallel executor");

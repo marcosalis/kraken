@@ -20,10 +20,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.os.Process;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
@@ -51,13 +51,13 @@ public final class DefaultBitmapThreadingPolicy implements BitmapThreadingPolicy
 				Process.THREAD_PRIORITY_DEFAULT);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ThreadPoolExecutor getBitmapDiskExecutor() {
 		return mBitmapDiskExecutor;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ThreadPoolExecutor getBitmapDownloader() {
 		return mDownloaderExecutor;
@@ -73,7 +73,7 @@ public final class DefaultBitmapThreadingPolicy implements BitmapThreadingPolicy
 		return DroidUtils.getIOBoundPoolSize();
 	}
 
-	@Nonnull
+	@NonNull
 	static final ThreadPoolExecutor buildDefaultDiskExecutor(int executorSize, int priority) {
 		final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
 		// priority here is less than default to face decoding overhead
@@ -84,7 +84,7 @@ public final class DefaultBitmapThreadingPolicy implements BitmapThreadingPolicy
 				executorQueue, executorFactory);
 	}
 
-	@Nonnull
+	@NonNull
 	static final ReorderingThreadPoolExecutor<String> buildDefaultDownloader(int executorSize,
 			int priority) {
 		final BlockingQueue<Runnable> downloaderQueue = ReorderingThreadPoolExecutor

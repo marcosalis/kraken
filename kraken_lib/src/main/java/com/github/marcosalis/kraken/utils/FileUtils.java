@@ -16,14 +16,15 @@
  */
 package com.github.marcosalis.kraken.utils;
 
+import android.support.annotation.NonNull;
+
+import com.google.common.annotations.Beta;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Stack;
 
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-
-import com.google.common.annotations.Beta;
 
 /**
  * Helper class that contains static methods to perform common complex
@@ -47,7 +48,7 @@ public class FileUtils {
 	 *            The directory to remove
 	 * @return True if successful, false otherwise
 	 */
-	public static boolean deleteDirectoryTree(@Nonnull File directory) {
+	public static boolean deleteDirectoryTree(@NonNull File directory) {
 
 		// if the directory already doesn't exist, we're successful
 		if (!directory.exists()) {
@@ -91,7 +92,7 @@ public class FileUtils {
 	 *            The directory path to create
 	 * @return true if the directory exists after this call, false otherwise
 	 */
-	public static boolean createDir(@Nonnull File directory) {
+	public static boolean createDir(@NonNull File directory) {
 		if (!directory.exists() || directory.isFile()) {
 			if (directory.isFile()) {
 				if (!directory.delete()) {
@@ -112,7 +113,7 @@ public class FileUtils {
 	 * @throws IllegalArgumentException
 	 *             if the passed File is a directory
 	 */
-	public static boolean createNewFileAndPath(@Nonnull File file) {
+	public static boolean createNewFileAndPath(@NonNull File file) {
 		if (file.exists()) {
 			return false;
 		}

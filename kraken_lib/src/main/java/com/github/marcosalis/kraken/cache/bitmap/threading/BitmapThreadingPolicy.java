@@ -17,7 +17,7 @@ package com.github.marcosalis.kraken.cache.bitmap.threading;
 
 import java.util.concurrent.ThreadPoolExecutor;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 
@@ -48,10 +48,10 @@ import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
  */
 public interface BitmapThreadingPolicy {
 
-	@Nonnull
+	@NonNull
 	public ThreadPoolExecutor getBitmapDiskExecutor();
 
-	@Nonnull
+	@NonNull
 	public ThreadPoolExecutor getBitmapDownloader();
 
 }

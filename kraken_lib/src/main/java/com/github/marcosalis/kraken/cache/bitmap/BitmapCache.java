@@ -15,11 +15,10 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
@@ -62,8 +61,8 @@ public interface BitmapCache extends ContentProxy {
 		 *            The {@link CacheSource} from where the bitmap has been
 		 *            retrieved
 		 */
-		public void onBitmapRetrieved(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-				@Nonnull CacheSource source);
+		public void onBitmapRetrieved(@NonNull CacheUrlKey key, @NonNull Bitmap bitmap,
+				@NonNull CacheSource source);
 
 		/**
 		 * Called when a bitmap could not be retrieved.
@@ -73,7 +72,7 @@ public interface BitmapCache extends ContentProxy {
 		 * @param e
 		 *            The exception that caused the error (if any)
 		 */
-		public void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e);
+		public void onBitmapRetrievalFailed(@NonNull CacheUrlKey key, @Nullable Exception e);
 	}
 
 	/**
@@ -106,7 +105,7 @@ public interface BitmapCache extends ContentProxy {
 	public static abstract class OnSuccessfulBitmapRetrievalListener implements
 			OnBitmapRetrievalListener {
 		@Override
-		public final void onBitmapRetrievalFailed(@Nonnull CacheUrlKey key, @Nullable Exception e) {
+		public final void onBitmapRetrievalFailed(@NonNull CacheUrlKey key, @Nullable Exception e) {
 			// does nothing
 		}
 	}
@@ -132,8 +131,8 @@ public interface BitmapCache extends ContentProxy {
 		 * @param source
 		 *            The {@link CacheSource} of the bitmap
 		 */
-		public void onBitmapSet(@Nonnull CacheUrlKey key, @Nonnull Bitmap bitmap,
-				@Nonnull CacheSource source);
+		public void onBitmapSet(@NonNull CacheUrlKey key, @NonNull Bitmap bitmap,
+				@NonNull CacheSource source);
 	}
 
 	/**
@@ -151,7 +150,7 @@ public interface BitmapCache extends ContentProxy {
 	 *            to create a one-off builder
 	 * @return The built instance
 	 */
-	@Nonnull
+	@NonNull
 	public BitmapSetterBuilder newBitmapSetterBuilder(boolean allowReuse);
 
 	/**
@@ -170,8 +169,8 @@ public interface BitmapCache extends ContentProxy {
 	 * @throws IllegalArgumentException
 	 *             if policy is {@link AccessPolicy#PRE_FETCH}
 	 */
-	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnBitmapRetrievalListener listener);
+	public void getBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
+			@NonNull OnBitmapRetrievalListener listener);
 
 	/**
 	 * Preloads a bitmap into the cache for future use. Does nothing if the
@@ -180,7 +179,7 @@ public interface BitmapCache extends ContentProxy {
 	 * @param key
 	 *            The {@link CacheUrlKey} of the bitmap
 	 */
-	public void preloadBitmap(@Nonnull CacheUrlKey key);
+	public void preloadBitmap(@NonNull CacheUrlKey key);
 
 	/**
 	 * Asynchronously sets the retrieved bitmap into the passed image view.
@@ -190,7 +189,7 @@ public interface BitmapCache extends ContentProxy {
 	 * @param view
 	 *            The {@link ImageView} to set the bitmap into
 	 */
-	public void setBitmapAsync(@Nonnull String url, @Nonnull ImageView view);
+	public void setBitmapAsync(@NonNull String url, @NonNull ImageView view);
 
 	/**
 	 * Asynchronously sets the retrieved bitmap into the passed image view.
@@ -200,7 +199,7 @@ public interface BitmapCache extends ContentProxy {
 	 * @param view
 	 *            The {@link ImageView} to set the bitmap into
 	 */
-	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view);
+	public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull ImageView view);
 
 	/**
 	 * <strong>Note:</strong> this method is not officially part of the public
@@ -225,7 +224,7 @@ public interface BitmapCache extends ContentProxy {
 	 *            A (optional) placeholder {@link Drawable} to set inside the
 	 *            image view when the bitmap is not available in memory
 	 */
-	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull BitmapSetter setter, @Nullable Drawable placeholder);
+	public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
+			@NonNull BitmapSetter setter, @Nullable Drawable placeholder);
 
 }

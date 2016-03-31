@@ -28,9 +28,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -103,7 +102,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 
 	protected final String mHttpMethod;
 
-	@CheckForNull
+	@Nullable
 	@GuardedBy("this")
 	private volatile String mRequestUrl;
 
@@ -133,7 +132,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @throws IllegalArgumentException
 	 *             if httpMethod is null
 	 */
-	public BaseCacheableRequest(@Nonnull String httpMethod) {
+	public BaseCacheableRequest(@NonNull String httpMethod) {
 		this(httpMethod, null);
 	}
 
@@ -148,7 +147,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @throws IllegalArgumentException
 	 *             if any parameter is null
 	 */
-	public BaseCacheableRequest(@Nonnull String httpMethod, @Nullable String requestUrl) {
+	public BaseCacheableRequest(@NonNull String httpMethod, @Nullable String requestUrl) {
 		Preconditions.checkNotNull(httpMethod);
 		mHttpMethod = httpMethod;
 		mRequestUrl = requestUrl;
@@ -176,7 +175,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * 
 	 * @return The handler or null if not set
 	 */
-	@CheckForNull
+	@Nullable
 	public HttpUnsuccessfulResponseHandler getHttpUnsuccessfulResponseHandler() {
 		return mHttpUnsuccessfulResponseHandler;
 	}
@@ -184,7 +183,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	/**
 	 * Returns the concrete request class HTTP method as per {@link HttpMethods}
 	 */
-	@Nonnull
+	@NonNull
 	public final String getHttpMethod() {
 		return mHttpMethod;
 	}
@@ -195,7 +194,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 */
 
 	@Override
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
 	public final E call() throws Exception {
 		return execute();
@@ -208,16 +207,16 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * to build the request.
 	 */
 	@Override
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
 	public E execute() throws Exception {
 		return execute(DefaultHttpRequestsManager.get());
 	}
 
 	@Override
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
-	public E execute(@Nonnull HttpRequestsManager connManager) throws Exception {
+	public E execute(@NonNull HttpRequestsManager connManager) throws Exception {
 		// TODO: refactor this
 		HttpResponse response = null;
 		final String requestUrl = mRequestUrl;
@@ -310,8 +309,8 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @throws IllegalStateException
 	 *             If the request object hasn't been initialised properly
 	 */
-	@Nonnull
-	public Future<E> executeAsync(@Nonnull ResponseAsyncCallback<E> callback) {
+	@NonNull
+	public Future<E> executeAsync(@NonNull ResponseAsyncCallback<E> callback) {
 		Preconditions.checkNotNull(callback);
 		// save a callback reference
 		mCallback = callback;
@@ -332,14 +331,14 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @throws IllegalArgumentException
 	 *             if requestUrl is null
 	 */
-	public final synchronized void setRequestUrl(@Nonnull String requestUrl) {
+	public final synchronized void setRequestUrl(@NonNull String requestUrl) {
 		Preconditions.checkNotNull(requestUrl);
 		mRequestUrl = requestUrl;
 		mHash = null; // reset hash value
 	}
 
 	@Override
-	@CheckForNull
+	@Nullable
 	public final synchronized String getRequestUrl() {
 		return mRequestUrl;
 	}
@@ -352,7 +351,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @param authorization
 	 *            The authorization string
 	 */
-	protected void setAuth(@Nonnull HttpRequest request, @Nullable String authorization) {
+	protected void setAuth(@NonNull HttpRequest request, @Nullable String authorization) {
 		request.getHeaders().setAuthorization(authorization);
 	}
 
@@ -363,11 +362,11 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * @param request
 	 *            The current HTTP request
 	 */
-	protected abstract void configRequest(@Nonnull HttpRequest request);
+	protected abstract void configRequest(@NonNull HttpRequest request);
 
 	protected abstract ObjectParser getObjectParser();
 
-	@CheckForNull
+	@Nullable
 	protected abstract E parseResponse(HttpResponse response) throws IOException,
 			IllegalArgumentException;
 
@@ -387,7 +386,7 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 * cache keys.
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public synchronized String hash() {
 		if (mHash == null) { // lazy initialization
 			final String requestUrl = mRequestUrl; // FindBugs, don't complain
@@ -415,8 +414,8 @@ public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 	 *            The URL to hash
 	 * @return The String representation of this hash function
 	 */
-	@Nonnull
-	public static String hashUrl(@Nonnull String url) {
+	@NonNull
+	public static String hashUrl(@NonNull String url) {
 		return HashUtils.getHash(HASH_FUNCTION, url);
 	}
 

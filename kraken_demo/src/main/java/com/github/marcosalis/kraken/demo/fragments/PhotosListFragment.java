@@ -15,16 +15,11 @@
  */
 package com.github.marcosalis.kraken.demo.fragments;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ListFragment;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -48,6 +43,10 @@ import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.github.marcosalis.kraken.utils.android.ParallelAsyncTask;
 import com.google.common.collect.ImmutableList;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * ListFragment that displays a list of images from a {@link BitmapCache}.
@@ -106,7 +105,7 @@ public class PhotosListFragment extends ListFragment {
 		super.onDestroyView();
 	}
 
-	@Nonnull
+	@NonNull
 	private ArrayAdapter<Photo> buildAdapter(List<Photo> photos) {
 		switch (mPhotosSize) {
 		case SMALL:
@@ -163,12 +162,12 @@ public class PhotosListFragment extends ListFragment {
 			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		}
 
-		protected void setViewSquaredHeight(@Nonnull View parent, @Nonnull ImageView imgView) {
+		protected void setViewSquaredHeight(@NonNull View parent, @NonNull ImageView imgView) {
 			final LayoutParams params = imgView.getLayoutParams();
 			params.height = parent.getWidth();
 		}
 
-		protected void setBitmapAnimated(@Nonnull ViewHolder holder, @Nonnull Photo photo) {
+		protected void setBitmapAnimated(@NonNull ViewHolder holder, @NonNull Photo photo) {
 			final String photoUrl = photo.getPhotoUrl();
 			if (photoUrl != null) {
 				mBitmapSetterBuilder.setAsync(photoUrl) //

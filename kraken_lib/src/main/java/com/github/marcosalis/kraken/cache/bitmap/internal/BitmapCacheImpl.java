@@ -15,14 +15,10 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import java.util.concurrent.Future;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.widget.ImageView;
 
 import com.github.marcosalis.kraken.cache.AccessPolicy;
@@ -41,7 +37,7 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.concurrent.Future;
 
 /**
  * Concrete default implementation for a {@link BitmapCache}.
@@ -53,12 +49,12 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 class BitmapCacheImpl extends BitmapCacheBase {
 
 	private final BitmapMemoryCache<String> mMemoryCache;
-	@CheckForNull
+	@Nullable
 	private final BitmapDiskCache mDiskCache;
 	private final BitmapLoader.Config mLoaderConfig;
 
-	BitmapCacheImpl(@Nonnull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
-			@Nonnull HttpRequestFactory factory, @Nonnull BitmapDecoder decoder) {
+	BitmapCacheImpl(@NonNull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
+			@NonNull HttpRequestFactory factory, @NonNull BitmapDecoder decoder) {
 		mMemoryCache = cache;
 		cache.setOnEntryRemovedListener(this);
 		mDiskCache = diskCache;
@@ -66,15 +62,15 @@ class BitmapCacheImpl extends BitmapCacheBase {
 				decoder);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public BitmapSetterBuilder newBitmapSetterBuilder(boolean allowReuse) {
 		return new BitmapSetterBuilder(this, allowReuse);
 	}
 
 	@Override
-	public void getBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull OnBitmapRetrievalListener listener) {
+	public void getBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
+			@NonNull OnBitmapRetrievalListener listener) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
@@ -93,28 +89,27 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	}
 
 	@Override
-	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-	public void preloadBitmap(@Nonnull CacheUrlKey key) {
+	public void preloadBitmap(@NonNull CacheUrlKey key) {
 		final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH,
 				null);
 		BitmapCacheBase.submitInExecutor(loader);
 	}
 
 	@Override
-	public void setBitmapAsync(@Nonnull String url, @Nonnull ImageView view) {
+	public void setBitmapAsync(@NonNull String url, @NonNull ImageView view) {
 		final SimpleCacheUrlKey key = new SimpleCacheUrlKey(url);
 		setBitmapAsync(key, view);
 	}
 
 	@Override
-	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull ImageView view) {
+	public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull ImageView view) {
 		final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view);
 		getBitmap(key, AccessPolicy.NORMAL, setter, null);
 	}
 
 	@Override
-	public void setBitmapAsync(@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
-			@Nonnull BitmapSetter setter, @Nullable Drawable placeholder) {
+	public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
+			@NonNull BitmapSetter setter, @Nullable Drawable placeholder) {
 		getBitmap(key, policy, setter, placeholder);
 	}
 
@@ -140,9 +135,9 @@ class BitmapCacheImpl extends BitmapCacheBase {
 	 *            if the bitmap is not in the memory cache
 	 * @return The {@link Future} that holds the Bitmap loading
 	 */
-	@Nonnull
-	protected final Future<Bitmap> getBitmap(@Nonnull CacheUrlKey key,
-			@Nonnull AccessPolicy policy, @Nonnull BitmapSetter setter,
+	@NonNull
+	protected final Future<Bitmap> getBitmap(@NonNull CacheUrlKey key,
+			@NonNull AccessPolicy policy, @NonNull BitmapSetter setter,
 			@Nullable Drawable placeholder) {
 		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
 		final boolean isRefresh = policy == AccessPolicy.REFRESH;
@@ -165,9 +160,9 @@ class BitmapCacheImpl extends BitmapCacheBase {
 		}
 	}
 
-	@CheckForNull
-	private Future<Bitmap> getBitmapFromMemory(@Nonnull CacheUrlKey key,
-			@Nonnull OnBitmapRetrievalListener listener) {
+	@Nullable
+	private Future<Bitmap> getBitmapFromMemory(@NonNull CacheUrlKey key,
+			@NonNull OnBitmapRetrievalListener listener) {
 		final Bitmap bitmap;
 		if ((bitmap = mMemoryCache.get(key.hash())) != null) {
 			if (listener instanceof BitmapAsyncSetter) {

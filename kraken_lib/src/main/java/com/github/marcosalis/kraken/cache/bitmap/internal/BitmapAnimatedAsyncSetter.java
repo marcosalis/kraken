@@ -15,13 +15,14 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import android.support.annotation.NonNull;
 import javax.annotation.concurrent.ThreadSafe;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -53,11 +54,11 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 
 	/* Constructors from superclass */
 
-	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView) {
+	public BitmapAnimatedAsyncSetter(@NonNull CacheUrlKey key, @NonNull ImageView imgView) {
 		this(key, imgView, AnimationMode.NOT_IN_MEMORY, null, -1);
 	}
 
-	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
+	public BitmapAnimatedAsyncSetter(@NonNull CacheUrlKey key, @NonNull ImageView imgView,
 			@Nullable OnBitmapSetListener listener) {
 		this(key, imgView, AnimationMode.NOT_IN_MEMORY, listener, -1);
 	}
@@ -74,8 +75,8 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 *            The ID of a custom animation to load, or -1 to use the default
 	 *            Android fade-in animation.
 	 */
-	public BitmapAnimatedAsyncSetter(@Nonnull CacheUrlKey key, @Nonnull ImageView imgView,
-			@Nonnull AnimationMode mode, @Nullable OnBitmapSetListener listener,
+	public BitmapAnimatedAsyncSetter(@NonNull CacheUrlKey key, @NonNull ImageView imgView,
+			@NonNull AnimationMode mode, @Nullable OnBitmapSetListener listener,
 			int customAnimationId) {
 		super(key, imgView, listener);
 		mAnimationMode = mode;
@@ -95,8 +96,8 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 * @param source
 	 *            The {@link CacheSource} from where the bitmap was loaded
 	 */
-	protected void setImageBitmap(@Nonnull final ImageView imageView, @Nonnull Bitmap bitmap,
-			@Nonnull CacheSource source) {
+	protected void setImageBitmap(@NonNull final ImageView imageView, @NonNull Bitmap bitmap,
+			@NonNull CacheSource source) {
 		// only animate when the bitmap source is compatible with the set mode
 		if (shouldAnimate(source, mAnimationMode)) {
 			final Animation animation = imageView.getAnimation();
@@ -150,8 +151,8 @@ public class BitmapAnimatedAsyncSetter extends BitmapAsyncSetter {
 	 * Returns whether the bitmap setting should be animate depending on the
 	 * current {@link CacheSource} and {@link AnimationMode}.
 	 */
-	protected static final boolean shouldAnimate(@Nonnull CacheSource source,
-			@Nonnull AnimationMode mode) {
+	protected static final boolean shouldAnimate(@NonNull CacheSource source,
+			@NonNull AnimationMode mode) {
 		switch (mode) {
 		case ALWAYS:
 			return true;

@@ -15,17 +15,17 @@
  */
 package com.github.marcosalis.kraken.utils.android;
 
+import android.os.AsyncTask;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.google.common.annotations.Beta;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
-
-import android.os.AsyncTask;
-
-import com.google.common.annotations.Beta;
 
 /**
  * Small component that allows managing the lifecycle (execution and
@@ -38,7 +38,7 @@ import com.google.common.annotations.Beta;
 @NotThreadSafe
 public class ParallelAsyncTasksManager {
 
-	@Nonnull
+	@NonNull
 	private final ArrayList<ParallelAsyncTask<?, ?, ?>> mManagedTasks;
 
 	/**
@@ -54,7 +54,7 @@ public class ParallelAsyncTasksManager {
 	 * @param task
 	 *            The task to add to the manager
 	 */
-	public void addTask(@Nonnull ParallelAsyncTask<?, ?, ?> task) {
+	public void addTask(@NonNull ParallelAsyncTask<?, ?, ?> task) {
 		mManagedTasks.add(task);
 	}
 
@@ -68,9 +68,9 @@ public class ParallelAsyncTasksManager {
 	 *            {@link ParallelAsyncTask#parallelExec(Object...)}
 	 * @return The executed {@link ParallelAsyncTask}
 	 */
-	@Nonnull
+	@NonNull
 	public <Params> ParallelAsyncTask<Params, ?, ?> addAndExecute(
-			@Nonnull ParallelAsyncTask<Params, ?, ?> task, @Nullable Params... params) {
+			@NonNull ParallelAsyncTask<Params, ?, ?> task, @Nullable Params... params) {
 		addTask(task);
 		return (ParallelAsyncTask<Params, ?, ?>) task.parallelExec(params);
 	}
@@ -82,7 +82,7 @@ public class ParallelAsyncTasksManager {
 	 * @param tasks
 	 *            A {@link Collection} of async tasks
 	 */
-	public void addAllTasks(@Nonnull Collection<? extends ParallelAsyncTask<?, ?, ?>> tasks) {
+	public void addAllTasks(@NonNull Collection<? extends ParallelAsyncTask<?, ?, ?>> tasks) {
 		mManagedTasks.addAll(tasks);
 	}
 
@@ -100,8 +100,8 @@ public class ParallelAsyncTasksManager {
 	 *            See {@link AsyncTask#cancel(boolean)}
 	 * @return The number of tasks cancelled
 	 */
-	@Nonnegative
-	public <C> int cancelTask(@Nonnull Class<? extends C> taskClass, boolean mayInterruptIfRunning) {
+	@IntRange(from=0)
+	public <C> int cancelTask(@NonNull Class<? extends C> taskClass, boolean mayInterruptIfRunning) {
 		int cancelledTasks = 0;
 		for (ParallelAsyncTask<?, ?, ?> task : mManagedTasks) {
 			if (task.getClass().equals(taskClass)) {

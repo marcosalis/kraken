@@ -16,21 +16,9 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;
 
-import java.io.IOException;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
-import javax.annotation.concurrent.NotThreadSafe;
-
 import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -50,6 +38,17 @@ import com.github.marcosalis.kraken.utils.http.ByteArrayDownloader;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 import com.google.common.collect.Sets;
+
+import java.io.IOException;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * General loader for a {@link Bitmap} from a {@link BitmapCacheBase}.<br>
@@ -94,10 +93,10 @@ public class BitmapLoader implements Callable<Bitmap> {
 		 * @param decoder
 		 *            The {@link BitmapDecoder} to use for decoding
 		 */
-		public Config(@Nonnull Memoizer<String, Bitmap> downloadsCache,
-				@Nonnull BitmapMemoryCache<String> memoryCache,
-				@Nullable BitmapDiskCache diskCache, @Nonnull HttpRequestFactory requestFactory,
-				@Nonnull BitmapDecoder decoder) {
+		public Config(@NonNull Memoizer<String, Bitmap> downloadsCache,
+				@NonNull BitmapMemoryCache<String> memoryCache,
+				@Nullable BitmapDiskCache diskCache, @NonNull HttpRequestFactory requestFactory,
+				@NonNull BitmapDecoder decoder) {
 			this.downloadsCache = downloadsCache;
 			this.memoryCache = memoryCache;
 			this.diskCache = diskCache;
@@ -140,8 +139,8 @@ public class BitmapLoader implements Callable<Bitmap> {
 	 * @param callback
 	 *            {@link OnBitmapRetrievalListener} for the image (can be null)
 	 */
-	BitmapLoader(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key,
-			@Nonnull AccessPolicy policy, @Nullable OnBitmapRetrievalListener callback) {
+	BitmapLoader(@NonNull BitmapLoader.Config config, @NonNull CacheUrlKey key,
+			@NonNull AccessPolicy policy, @Nullable OnBitmapRetrievalListener callback) {
 		mLoaderConfig = config;
 		mKey = key;
 		mPolicy = policy;
@@ -149,7 +148,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 	}
 
 	@Override
-	@CheckForNull
+	@Nullable
 	public Bitmap call() {
 		// TODO: refactor this
 		final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
@@ -208,9 +207,9 @@ public class BitmapLoader implements Callable<Bitmap> {
 		}
 	}
 
-	@Nonnull
-	static Future<Bitmap> executeDownload(@Nonnull BitmapLoader.Config config,
-			@Nonnull CacheUrlKey key, @Nonnull AccessPolicy policy,
+	@NonNull
+	static Future<Bitmap> executeDownload(@NonNull BitmapLoader.Config config,
+			@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
 			@Nullable OnBitmapRetrievalListener callback) {
 		final MemoizerCallable memoizer = new MemoizerCallable(config, key, policy, callback);
 		final String hash = key.hash();
@@ -236,8 +235,8 @@ public class BitmapLoader implements Callable<Bitmap> {
 		private final AccessPolicy mPolicy;
 		private OnBitmapRetrievalListener mBitmapCallback;
 
-		public MemoizerCallable(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key,
-				@Nonnull AccessPolicy policy, @Nullable OnBitmapRetrievalListener callback) {
+		public MemoizerCallable(@NonNull BitmapLoader.Config config, @NonNull CacheUrlKey key,
+				@NonNull AccessPolicy policy, @Nullable OnBitmapRetrievalListener callback) {
 			mLoaderConfig = config;
 			mKey = key;
 			mPolicy = policy;
@@ -245,7 +244,7 @@ public class BitmapLoader implements Callable<Bitmap> {
 		}
 
 		@Override
-		@CheckForNull
+		@Nullable
 		public Bitmap call() throws InterruptedException {
 			final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
 			final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
@@ -315,13 +314,13 @@ public class BitmapLoader implements Callable<Bitmap> {
 		private final BitmapLoader.Config mLoaderConfig;
 		private final CacheUrlKey mKey;
 
-		public DownloaderCallable(@Nonnull BitmapLoader.Config config, @Nonnull CacheUrlKey key) {
+		public DownloaderCallable(@NonNull BitmapLoader.Config config, @NonNull CacheUrlKey key) {
 			mLoaderConfig = config;
 			mKey = key;
 		}
 
 		@Override
-		@CheckForNull
+		@Nullable
 		public Bitmap call() throws IOException {
 			final BitmapMemoryCache<String> memoryCache = mLoaderConfig.memoryCache;
 			final BitmapDiskCache diskCache = mLoaderConfig.diskCache;
@@ -399,8 +398,8 @@ public class BitmapLoader implements Callable<Bitmap> {
 		failures.set(0);
 	}
 
-	private static void saveIntoDiskCache(@Nullable BitmapDiskCache diskCache, @Nonnull String key,
-			@Nonnull byte[] data) {
+	private static void saveIntoDiskCache(@Nullable BitmapDiskCache diskCache, @NonNull String key,
+			@NonNull byte[] data) {
 
 		if (diskCache != null) {
 			long startSave = 0;

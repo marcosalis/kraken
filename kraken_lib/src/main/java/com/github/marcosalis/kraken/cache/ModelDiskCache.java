@@ -15,14 +15,9 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
-
 import android.content.Context;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -35,7 +30,10 @@ import com.google.api.client.util.ObjectParser;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.io.File;
+import java.io.IOException;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Disk cache that stores a POJO/DTO object into its JSON representation in text
@@ -79,8 +77,8 @@ public class ModelDiskCache<V> extends SimpleDiskCache<V> {
 	 *            The POJO object to store class type
 	 * @throws IOException
 	 */
-	public ModelDiskCache(@Nonnull Context context, @Nonnull ObjectMapper mapper,
-			@Nonnull String subFolder, @Nonnull Class<V> modelClass) throws IOException {
+	public ModelDiskCache(@NonNull Context context, @NonNull ObjectMapper mapper,
+			@NonNull String subFolder, @NonNull Class<V> modelClass) throws IOException {
 		super(context, CacheLocation.INTERNAL, PATH + File.separator + subFolder, true);
 		mModelClass = modelClass;
 		mObjectMapper = mapper;
@@ -96,9 +94,8 @@ public class ModelDiskCache<V> extends SimpleDiskCache<V> {
 	 *            The cache item key (must be not null)
 	 * @return The cached item, null if not present or an error occurred
 	 */
-	@CheckForNull
-	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-	public V get(@Nonnull String key) {
+	@Nullable
+	public V get(@NonNull String key) {
 		File jsonFile = new File(mCacheLocation, key);
 		if (!jsonFile.exists()) {
 			return null;
@@ -129,9 +126,8 @@ public class ModelDiskCache<V> extends SimpleDiskCache<V> {
 	 * @return The cached item, null if not present, expired or an error
 	 *         occurred
 	 */
-	@CheckForNull
-	@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
-	public V get(@Nonnull String key, long expiration) {
+	@Nullable
+	public V get(@NonNull String key, long expiration) {
 		File jsonFile = new File(mCacheLocation, key);
 		if (!jsonFile.exists()) {
 			return null;
@@ -159,7 +155,7 @@ public class ModelDiskCache<V> extends SimpleDiskCache<V> {
 	 * @return true if successful, false otherwise (IO error while saving the
 	 *         stream)
 	 */
-	public boolean put(@Nonnull String key, @Nonnull V model) {
+	public boolean put(@NonNull String key, @NonNull V model) {
 		Preconditions.checkNotNull(key);
 		Preconditions.checkNotNull(model);
 		// don't care if the file already exist, it will be replaced
@@ -180,7 +176,7 @@ public class ModelDiskCache<V> extends SimpleDiskCache<V> {
 	 *            The cache item key to remove (must be not null)
 	 * @return true if successful, false otherwise
 	 */
-	public boolean remove(@Nonnull String key) {
+	public boolean remove(@NonNull String key) {
 		Preconditions.checkNotNull(key);
 		File jsonFile = new File(mCacheLocation, key);
 		return jsonFile.delete();

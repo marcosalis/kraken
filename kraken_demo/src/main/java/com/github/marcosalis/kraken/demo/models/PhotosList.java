@@ -15,15 +15,16 @@
  */
 package com.github.marcosalis.kraken.demo.models;
 
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.Immutable;
+import android.support.annotation.NonNull;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.collect.ImmutableList;
+
+import java.util.List;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * JSON data model for a list of photos.
@@ -44,7 +45,7 @@ public class PhotosList extends JsonModel {
 		this.photos = photos != null ? ImmutableList.copyOf(photos) : EMPTY_LIST;
 	}
 
-	@Nonnull
+	@NonNull
 	@JsonProperty(DATA)
 	public ImmutableList<Photo> getPhotos() {
 		return photos;

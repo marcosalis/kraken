@@ -18,6 +18,7 @@ package com.github.marcosalis.kraken.testing.mock;
 import java.io.IOException;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.ModelDiskCache;
 import com.github.marcosalis.kraken.utils.json.JacksonJsonManager;
@@ -40,7 +41,7 @@ public class MockModelDiskCache<V extends JsonModel> extends ModelDiskCache<V> {
 	}
 
 	@Override
-	public V get(String key) {
+	public V get(@NonNull String key) {
 		throw new UnsupportedOperationException("Mock!");
 	}
 

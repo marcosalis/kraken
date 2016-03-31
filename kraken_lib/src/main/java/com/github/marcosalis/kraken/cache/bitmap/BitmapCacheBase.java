@@ -16,16 +16,10 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.Immutable;
-
 import android.app.Application;
 import android.graphics.Bitmap;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -38,6 +32,12 @@ import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.Memoizer;
 import com.github.marcosalis.kraken.utils.concurrent.ReorderingThreadPoolExecutor;
 import com.google.common.annotations.Beta;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * <p>
@@ -80,7 +80,7 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	 * @param policy
 	 *            The bitmap threading policy to set
 	 */
-	public static final synchronized void setThreadingPolicy(@Nonnull BitmapThreadingPolicy policy) {
+	public static final synchronized void setThreadingPolicy(@NonNull BitmapThreadingPolicy policy) {
 		mThreadingPolicy = policy;
 	}
 
@@ -90,9 +90,9 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	 * @param callable
 	 *            The {@link Callable} to execute
 	 */
-	@Nonnull
+	@NonNull
 	public static synchronized final Future<Bitmap> submitInExecutor(
-			@Nonnull Callable<Bitmap> callable) {
+			@NonNull Callable<Bitmap> callable) {
 		return mThreadingPolicy.getBitmapDiskExecutor().submit(callable);
 	}
 
@@ -102,7 +102,7 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	 * @param runnable
 	 *            The {@link Runnable} to execute
 	 */
-	public static synchronized final void executeInDownloader(@Nonnull Runnable runnable) {
+	public static synchronized final void executeInDownloader(@NonNull Runnable runnable) {
 		mThreadingPolicy.getBitmapDownloader().execute(runnable);
 	}
 
@@ -112,9 +112,9 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	 * @param callable
 	 *            The {@link Callable} to execute
 	 */
-	@Nonnull
+	@NonNull
 	public static synchronized final Future<Bitmap> submitInDownloader(
-			@Nonnull Callable<Bitmap> callable) {
+			@NonNull Callable<Bitmap> callable) {
 		return mThreadingPolicy.getBitmapDownloader().submit(callable);
 	}
 
@@ -127,8 +127,8 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	 *            The {@link Callable} to execute
 	 */
 	@SuppressWarnings("unchecked")
-	public static synchronized final Future<Bitmap> submitInDownloader(@Nonnull String key,
-			@Nonnull Callable<Bitmap> callable) {
+	public static synchronized final Future<Bitmap> submitInDownloader(@NonNull String key,
+			@NonNull Callable<Bitmap> callable) {
 		final ThreadPoolExecutor executor = mThreadingPolicy.getBitmapDownloader();
 		if (executor instanceof ReorderingThreadPoolExecutor) {
 			return ((ReorderingThreadPoolExecutor<String>) executor).submitWithKey(key, callable);
@@ -149,7 +149,7 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 	 */
 	@NotForUIThread
 	@SuppressWarnings("unchecked")
-	public static synchronized final void moveDownloadToFront(@Nonnull String key) {
+	public static synchronized final void moveDownloadToFront(@NonNull String key) {
 		final ThreadPoolExecutor executor = mThreadingPolicy.getBitmapDownloader();
 		if (executor instanceof ReorderingThreadPoolExecutor) {
 			((ReorderingThreadPoolExecutor<String>) executor).moveToFront(key);
@@ -199,13 +199,13 @@ public abstract class BitmapCacheBase extends ContentProxyBase implements Bitmap
 		mBitmapMemoizer.remove(key);
 	}
 
-	@Nonnull
+	@NonNull
 	protected final Memoizer<String, Bitmap> getMemoizer() {
 		return mBitmapMemoizer;
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void clearMemoryCache() {
 		mBitmapMemoizer.clear();
 	}

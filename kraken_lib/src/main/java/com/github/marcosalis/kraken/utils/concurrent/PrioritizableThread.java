@@ -16,13 +16,13 @@
  */
 package com.github.marcosalis.kraken.utils.concurrent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
-
 import android.os.HandlerThread;
 import android.os.Process;
+import android.support.annotation.NonNull;
 
 import com.google.common.annotations.Beta;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Extension of {@link Thread} that allows setting a Linux thread priority to
@@ -45,14 +45,14 @@ public class PrioritizableThread extends Thread {
 	 * Instantiate a thread with priority
 	 * {@link Process#THREAD_PRIORITY_DEFAULT}
 	 */
-	public PrioritizableThread(@Nonnull Runnable runnable, @Nonnull String threadName) {
+	public PrioritizableThread(@NonNull Runnable runnable, @NonNull String threadName) {
 		this(runnable, threadName, Process.THREAD_PRIORITY_DEFAULT);
 	}
 
 	/**
 	 * Instantiate a thread with the specified priority.
 	 */
-	public PrioritizableThread(@Nonnull Runnable runnable, @Nonnull String threadName, int priority) {
+	public PrioritizableThread(@NonNull Runnable runnable, @NonNull String threadName, int priority) {
 		super(runnable, threadName);
 		mPriority = priority;
 	}

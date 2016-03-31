@@ -16,6 +16,14 @@
  */
 package com.github.marcosalis.kraken.utils.concurrent;
 
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
+import com.google.common.annotations.Beta;
+import com.google.common.cache.LoadingCache;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,14 +32,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
 import javax.annotation.concurrent.ThreadSafe;
-
-import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
-import com.google.common.annotations.Beta;
-import com.google.common.cache.LoadingCache;
 
 /**
  * General purpose implementation of the Memoizer pattern to avoid repeated
@@ -65,7 +66,7 @@ public class Memoizer<K, V> {
 	 * @param concurrencyLevel
 	 *            The estimated concurrency level of the underlying cache
 	 */
-	public Memoizer(@Nonnegative int concurrencyLevel) {
+	public Memoizer(@IntRange(from=1) int concurrencyLevel) {
 		mTaskCache = new ConcurrentHashMap<K, Future<V>>(INIT_CACHE_SIZE, 0.75f, concurrencyLevel);
 	}
 
@@ -84,9 +85,9 @@ public class Memoizer<K, V> {
 	 * @throws Exception
 	 *             if the {@link Callable} threw an exception
 	 */
-	@CheckForNull
+	@Nullable
 	@NotForUIThread
-	public V execute(@Nonnull final K key, @Nonnull Callable<V> task) throws Exception {
+	public V execute(@NonNull final K key, @NonNull Callable<V> task) throws Exception {
 		// we try to retrieve item from our task cache
 		Future<V> future = mTaskCache.get(key);
 		if (future == null) { // no task found
@@ -120,8 +121,8 @@ public class Memoizer<K, V> {
 	 *            The cache key
 	 * @return The {@link Future} associated with the key, if any
 	 */
-	@CheckForNull
-	public final Future<V> remove(@Nonnull K key) {
+	@Nullable
+	public final Future<V> remove(@NonNull K key) {
 		return mTaskCache.remove(key);
 	}
 
@@ -138,8 +139,8 @@ public class Memoizer<K, V> {
 	 * If the Throwable is an Error, throw it; if it is a RuntimeException
 	 * return it, otherwise throw IllegalStateException
 	 */
-	@Nonnull
-	public static Exception launderThrowable(@Nonnull Throwable t) {
+	@NonNull
+	public static Exception launderThrowable(@NonNull Throwable t) {
 		if (t instanceof RuntimeException) {
 			return (RuntimeException) t;
 		} else if (t instanceof Exception) {

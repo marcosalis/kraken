@@ -15,15 +15,11 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap;
 
-import java.io.IOException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnegative;
-import javax.annotation.Nonnull;
-import javax.annotation.concurrent.NotThreadSafe;
-
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.annotation.IntRange;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import com.github.marcosalis.kraken.cache.EmptyMemoryCache;
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
@@ -40,6 +36,10 @@ import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 import com.google.common.base.Preconditions;
+
+import java.io.IOException;
+
+import javax.annotation.concurrent.NotThreadSafe;
 
 /**
  * Public builder to customize and initialize a {@link BitmapCache}. See
@@ -101,11 +101,11 @@ public class BitmapCacheBuilder {
 	HttpRequestFactory requestFactory;
 	BitmapDecoder bitmapDecoder;
 
-	public BitmapCacheBuilder(@Nonnull Context context) {
+	public BitmapCacheBuilder(@NonNull Context context) {
 		this.context = context;
 	}
 
-	@Nonnull
+	@NonNull
 	public BitmapCacheBuilder disableMemoryCache() {
 		memoryCacheEnabled = false;
 		return this;
@@ -121,8 +121,8 @@ public class BitmapCacheBuilder {
 	 * @param maxBytes
 	 * @return This builder
 	 */
-	@Nonnull
-	public BitmapCacheBuilder maxMemoryCacheBytes(@Nonnegative int maxBytes) {
+	@NonNull
+	public BitmapCacheBuilder maxMemoryCacheBytes(@IntRange(from=0) int maxBytes) {
 		Preconditions.checkArgument(maxBytes > 0);
 		memoryCacheEnabled = true;
 		memoryCacheMaxBytes = maxBytes;
@@ -142,8 +142,8 @@ public class BitmapCacheBuilder {
 	 *            A percentage value (0 < percentage <= 100)
 	 * @return This builder
 	 */
-	@Nonnull
-	public BitmapCacheBuilder maxMemoryCachePercentage(@Nonnegative float percentage) {
+	@NonNull
+	public BitmapCacheBuilder maxMemoryCachePercentage(@IntRange(from=0) float percentage) {
 		Preconditions.checkArgument(percentage > 0f && percentage <= 100f);
 		memoryCacheEnabled = true;
 		final int appMemoryClass = DroidUtils.getApplicationMemoryClass(context);
@@ -151,7 +151,7 @@ public class BitmapCacheBuilder {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public BitmapCacheBuilder disableDiskCache() {
 		diskCacheEnabled = false;
 		return this;
@@ -168,8 +168,8 @@ public class BitmapCacheBuilder {
 	 *            The cache directory (with no trailing slashes)
 	 * @return This builder
 	 */
-	@Nonnull
-	public BitmapCacheBuilder diskCacheDirectoryName(@Nonnull String cacheDirectory) {
+	@NonNull
+	public BitmapCacheBuilder diskCacheDirectoryName(@NonNull String cacheDirectory) {
 		diskCacheEnabled = true;
 		diskCacheDirectory = cacheDirectory;
 		return this;
@@ -191,7 +191,7 @@ public class BitmapCacheBuilder {
 	 *            {@link SimpleDiskCache#MIN_EXPIRE_IN_SEC} if less than that
 	 * @return This builder
 	 */
-	@Nonnull
+	@NonNull
 	public BitmapCacheBuilder diskCachePurgeableAfter(long seconds) {
 		diskCacheEnabled = true;
 		purgeableAfterSeconds = seconds;
@@ -208,8 +208,8 @@ public class BitmapCacheBuilder {
 	 *            The request factory to use
 	 * @return This builder
 	 */
-	@Nonnull
-	public BitmapCacheBuilder httpRequestFactory(@Nonnull HttpRequestFactory factory) {
+	@NonNull
+	public BitmapCacheBuilder httpRequestFactory(@NonNull HttpRequestFactory factory) {
 		requestFactory = factory;
 		return this;
 	}
@@ -221,7 +221,7 @@ public class BitmapCacheBuilder {
 	 *            The decoder to use
 	 * @return This builder
 	 */
-	public BitmapCacheBuilder bitmapDecoder(@Nonnull BitmapDecoder decoder) {
+	public BitmapCacheBuilder bitmapDecoder(@NonNull BitmapDecoder decoder) {
 		bitmapDecoder = decoder;
 		return this;
 	}
@@ -233,8 +233,8 @@ public class BitmapCacheBuilder {
 	 * @param cacheName
 	 * @return This builder
 	 */
-	@Nonnull
-	public BitmapCacheBuilder cacheLogName(@Nonnull String cacheName) {
+	@NonNull
+	public BitmapCacheBuilder cacheLogName(@NonNull String cacheName) {
 		cacheLogName = cacheName;
 		return this;
 	}
@@ -248,7 +248,7 @@ public class BitmapCacheBuilder {
 	 * @throws IllegalArgumentException
 	 *             If one of the mandatory configuration parameters were not set
 	 */
-	@Nonnull
+	@NonNull
 	public BitmapCache build() throws IOException {
 		checkMandatoryValuesConsistency();
 		setConfigDefaults();
@@ -279,7 +279,7 @@ public class BitmapCacheBuilder {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private BitmapMemoryCache<String> buildMemoryCache() {
 		if (memoryCacheEnabled) {
 			return new BitmapLruCache<String>(memoryCacheMaxBytes, cacheLogName);
@@ -288,8 +288,8 @@ public class BitmapCacheBuilder {
 		}
 	}
 
-	@CheckForNull
-	private BitmapDiskCache buildDiskCache(@Nonnull BitmapDecoder decoder) throws IOException {
+	@Nullable
+	private BitmapDiskCache buildDiskCache(@NonNull BitmapDecoder decoder) throws IOException {
 		if (diskCacheEnabled) {
 			return new SimpleBitmapDiskCache(context, diskCacheDirectory, decoder,
 					purgeableAfterSeconds);
@@ -297,7 +297,7 @@ public class BitmapCacheBuilder {
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	private HttpRequestFactory getRequestFactory() {
 		if (requestFactory != null) {
 			return requestFactory;
@@ -306,7 +306,7 @@ public class BitmapCacheBuilder {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private BitmapDecoder getBitmapDecoder() {
 		if (bitmapDecoder != null) {
 			return bitmapDecoder;

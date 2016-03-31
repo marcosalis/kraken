@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.utils.android;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -30,6 +30,7 @@ import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
 import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
+import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -221,7 +222,7 @@ public class DroidApplication extends Application {
 	/**
 	 * Gets the current display's {@link DisplayMetrics}
 	 */
-	@Nonnull
+	@NonNull
 	public final DisplayMetrics getDisplayMetrics() {
 		final DisplayMetrics metrics = new DisplayMetrics();
 		mDefaultDisplay.getMetrics(metrics);
@@ -269,7 +270,7 @@ public class DroidApplication extends Application {
 	 *            The {@link DroidStrictMode} to enable
 	 */
 	@TargetApi(9)
-	public final void setStrictMode(@Nonnull DroidStrictMode mode) {
+	public final void setStrictMode(@NonNull DroidStrictMode mode) {
 		switch (mode) {
 		case DEBUG:
 			StrictMode.setThreadPolicy(getDebugCustomThreadPolicy());
@@ -298,7 +299,7 @@ public class DroidApplication extends Application {
 	 * 
 	 * <b>Always call this from the UI thread.</b>
 	 */
-	@Nonnull
+	@NonNull
 	@TargetApi(9)
 	protected StrictMode.ThreadPolicy getDebugCustomThreadPolicy() {
 		return new ThreadPolicy.Builder() //
@@ -319,7 +320,7 @@ public class DroidApplication extends Application {
 	 * 
 	 * <b>Always call this from the UI thread.</b>
 	 */
-	@Nonnull
+	@NonNull
 	@TargetApi(9)
 	protected StrictMode.ThreadPolicy getStrictCustomThreadPolicy() {
 		final Builder builder = new ThreadPolicy.Builder().detectAll().penaltyLog();
@@ -337,7 +338,7 @@ public class DroidApplication extends Application {
 	 * Override this method to provide a custom policy for
 	 * {@link DroidStrictMode#DEBUG}.
 	 */
-	@Nonnull
+	@NonNull
 	@TargetApi(9)
 	protected StrictMode.VmPolicy getDebugCustomVmPolicy() {
 		final VmPolicy.Builder builder = new VmPolicy.Builder();
@@ -358,26 +359,26 @@ public class DroidApplication extends Application {
 	 * Override this method to provide a custom policy for
 	 * {@link DroidStrictMode#STRICT}.
 	 */
-	@Nonnull
+	@NonNull
 	@TargetApi(9)
 	protected StrictMode.VmPolicy getStrictCustomVmPolicy() {
 		return new VmPolicy.Builder().detectAll().penaltyLog().build();
 	}
 
 	@TargetApi(11)
-	private static final void setHoneycombVmPolicy(@Nonnull VmPolicy.Builder builder) {
+	private static final void setHoneycombVmPolicy(@NonNull VmPolicy.Builder builder) {
 		builder //
 		// .detectActivityLeaks() // buggy
 		.detectLeakedClosableObjects();
 	}
 
 	@TargetApi(16)
-	private static final void setICSVmPolicy(@Nonnull VmPolicy.Builder builder) {
+	private static final void setICSVmPolicy(@NonNull VmPolicy.Builder builder) {
 		builder.detectLeakedRegistrationObjects();
 	}
 
 	@TargetApi(11)
-	private static final void setPenaltyFlashScreen(@Nonnull ThreadPolicy.Builder builder) {
+	private static final void setPenaltyFlashScreen(@NonNull ThreadPolicy.Builder builder) {
 		builder.penaltyFlashScreen();
 	}
 

@@ -16,7 +16,7 @@
  */
 package com.github.marcosalis.kraken.utils.network;
 
-import javax.annotation.Nonnull;
+import android.support.annotation.NonNull;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -47,7 +47,7 @@ public class NetworkUtils {
 	 *            The application or activity context
 	 * @return true if a connection is currently active, false otherwise
 	 */
-	public static boolean isConnectionEnabled(@Nonnull Context context) {
+	public static boolean isConnectionEnabled(@NonNull Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final NetworkInfo netInfo = cm.getActiveNetworkInfo();

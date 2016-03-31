@@ -16,15 +16,10 @@
  */
 package com.github.marcosalis.kraken.cache.internal;
 
-import java.io.IOException;
-import java.util.concurrent.Callable;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.content.Context;
+import android.support.annotation.CallSuper;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -43,6 +38,11 @@ import com.github.marcosalis.kraken.utils.annotations.NotForUIThread;
 import com.github.marcosalis.kraken.utils.concurrent.ExpirableFutureTask;
 import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.annotations.Beta;
+
+import java.io.IOException;
+import java.util.concurrent.Callable;
+
+import javax.annotation.concurrent.ThreadSafe;
 
 /**
  * Generic, abstract implementation of {@link ContentProxy} that handles the
@@ -85,8 +85,8 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * @param loaderFactory
 	 *            An (optional) custom {@link ModelDiskContentLoaderFactory}
 	 */
-	public AbstractDiskModelContentProxy(@Nonnull Context context, @Nonnull ObjectMapper mapper,
-			@Nonnull Class<MODEL> modelClass, int modelsInCache, @Nonnull String diskFolder,
+	public AbstractDiskModelContentProxy(@NonNull Context context, @NonNull ObjectMapper mapper,
+			@NonNull Class<MODEL> modelClass, int modelsInCache, @NonNull String diskFolder,
 			long expiration,
 			ModelDiskContentLoaderFactory<CacheableRequest<MODEL>, MODEL> loaderFactory) {
 		// initialize memory LRU caches
@@ -110,8 +110,8 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * @see {@link #AbstractDiskModelContentProxy(Context, ObjectMapper, Class, int, String, long, ModelDiskContentLoaderFactory)}
 	 *      with default content loader factory.
 	 */
-	public AbstractDiskModelContentProxy(@Nonnull Context context, @Nonnull ObjectMapper mapper,
-			@Nonnull Class<MODEL> modelClass, int modelsInCache, @Nonnull String diskFolder,
+	public AbstractDiskModelContentProxy(@NonNull Context context, @NonNull ObjectMapper mapper,
+			@NonNull Class<MODEL> modelClass, int modelsInCache, @NonNull String diskFolder,
 			long expiration) {
 		this(context, mapper, modelClass, modelsInCache, diskFolder, expiration, null);
 	}
@@ -120,9 +120,9 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * {@inheritDoc}
 	 */
 	@Override
-	@CheckForNull
+	@Nullable
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
 	public MODEL getModel(AccessPolicy policy, CacheableRequest<MODEL> request,
 			ContentUpdateCallback<MODEL> callback) throws Exception {
 		return mContentLoader.load(policy, request, callback);
@@ -132,9 +132,9 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * {@inheritDoc}
 	 */
 	@Override
-	@CheckForNull
+	@Nullable
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
 	public MODEL getModel(AccessPolicy policy, CacheableRequest<MODEL> request) throws Exception {
 		return mContentLoader.load(policy, request, null);
 	}
@@ -143,8 +143,8 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * {@inheritDoc}
 	 */
 	@Override
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
 	public void putModel(final MODEL model) {
 		if (model == null) {
 			return; // fail-safe attitude
@@ -158,9 +158,9 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * {@inheritDoc}
 	 */
 	@Override
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
-	public void putModel(@Nonnull final String key, final MODEL model) {
+	public void putModel(@NonNull final String key, final MODEL model) {
 		if (model == null) {
 			return; // fail-safe attitude
 		}
@@ -191,9 +191,9 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * @param key
 	 *            The string key for the model to remove
 	 */
+	@CallSuper
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
-	protected void invalidateModel(@Nonnull String key) {
+	protected void invalidateModel(@NonNull String key) {
 		mModelCache.remove(key);
 		if (mModelDisk != null) {
 			mModelDisk.remove(key);
@@ -210,7 +210,7 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 *            The model to generate the key from
 	 * @return The generated key
 	 */
-	protected String generateModelKey(@Nonnull MODEL model) {
+	protected String generateModelKey(@NonNull MODEL model) {
 		throw new IllegalArgumentException("Not implemented");
 	}
 
@@ -219,7 +219,7 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * Always call to the superclass when overriding.
 	 */
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void clearMemoryCache() {
 		mModelCache.clear();
 	}
@@ -229,7 +229,7 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 * Always call to the superclass when overriding.
 	 */
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void scheduleClearDiskCache() {
 		if (mModelDisk != null) {
 			mModelDisk.clear();
@@ -242,7 +242,7 @@ public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> ext
 	 */
 	@Override
 	@NotForUIThread
-	@OverridingMethodsMustInvokeSuper
+	@CallSuper
 	public void clearDiskCache(SimpleDiskCache.ClearMode mode) {
 		if (mModelDisk != null) {
 			mModelDisk.clear(mode);
