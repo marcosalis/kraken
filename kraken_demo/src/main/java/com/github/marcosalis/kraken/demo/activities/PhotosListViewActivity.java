@@ -25,35 +25,35 @@ import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment.PhotosSize
 
 /**
  * Demo activity holding a {@link PhotosListFragment}.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 public class PhotosListViewActivity extends FragmentActivity {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_list_view);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_list_view);
 
-		final PhotosSize size = (PhotosSize) getIntent().getSerializableExtra(
-				PhotosListFragment.ARGS_PHOTOS_SIZE);
-		final Bundle args = new Bundle();
-		args.putSerializable(PhotosListFragment.ARGS_PHOTOS_SIZE, size);
+        final PhotosSize size = (PhotosSize) getIntent().getSerializableExtra(
+                PhotosListFragment.ARGS_PHOTOS_SIZE);
+        final Bundle args = new Bundle();
+        args.putSerializable(PhotosListFragment.ARGS_PHOTOS_SIZE, size);
 
-		switch (size) {
-		case SMALL:
-			setTitle(R.string.title_listview_small);
-			break;
-		case FULL_SCREEN:
-			setTitle(R.string.title_listview_fullscreen);
-			break;
-		}
+        switch (size) {
+            case SMALL:
+                setTitle(R.string.title_listview_small);
+                break;
+            case FULL_SCREEN:
+                setTitle(R.string.title_listview_fullscreen);
+                break;
+        }
 
-		final Fragment fragment = Fragment.instantiate(this,
-				"com.github.marcosalis.kraken.demo.fragments.PhotosListFragment", args);
-		getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment)
-				.commit();
-	}
+        final Fragment fragment = Fragment.instantiate(this,
+                "com.github.marcosalis.kraken.demo.fragments.PhotosListFragment", args);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, fragment)
+                .commit();
+    }
 
 }

@@ -50,212 +50,212 @@ import java.util.List;
 
 /**
  * ListFragment that displays a list of images from a {@link BitmapCache}.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 public class PhotosListFragment extends ListFragment {
 
-	public static final String ARGS_PHOTOS_SIZE = "com.github.marcosalis.kraken.demo.fragments.photos_size";
+    public static final String ARGS_PHOTOS_SIZE = "com.github.marcosalis.kraken.demo.fragments.photos_size";
 
-	public enum PhotosSize {
-		SMALL,
-		FULL_SCREEN;
-	}
+    public enum PhotosSize {
+        SMALL,
+        FULL_SCREEN
+    }
 
-	private PhotosSize mPhotosSize;
-	private ArrayAdapter<Photo> mAdapter;
-	private PhotosListTask mPhotosTask;
+    private PhotosSize mPhotosSize;
+    private ArrayAdapter<Photo> mAdapter;
+    private PhotosListTask mPhotosTask;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		mPhotosSize = (PhotosSize) getArguments().getSerializable(ARGS_PHOTOS_SIZE);
-	}
+        mPhotosSize = (PhotosSize) getArguments().getSerializable(ARGS_PHOTOS_SIZE);
+    }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-	}
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+    }
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-		switch (mPhotosSize) {
-		case SMALL:
-			mPhotosTask = new PhotosListTask("photos_130x130.json");
-			break;
-		case FULL_SCREEN:
-			final DisplayMetrics metrics = DroidUtils.getDefaultDisplayMetrics(getActivity());
-			if (metrics.densityDpi >= DisplayMetrics.DENSITY_HIGH) {
-				mPhotosTask = new PhotosListTask("photos_720x720.json");
-			} else {
-				mPhotosTask = new PhotosListTask("photos_480x480.json");
-			}
-			break;
-		}
-		mPhotosTask.parallelExec(getActivity().getAssets());
-	}
+        switch (mPhotosSize) {
+            case SMALL:
+                mPhotosTask = new PhotosListTask("photos_130x130.json");
+                break;
+            case FULL_SCREEN:
+                final DisplayMetrics metrics = DroidUtils.getDefaultDisplayMetrics(getActivity());
+                if (metrics.densityDpi >= DisplayMetrics.DENSITY_HIGH) {
+                    mPhotosTask = new PhotosListTask("photos_720x720.json");
+                } else {
+                    mPhotosTask = new PhotosListTask("photos_480x480.json");
+                }
+                break;
+        }
+        mPhotosTask.parallelExec(getActivity().getAssets());
+    }
 
-	@Override
-	public void onDestroyView() {
-		mPhotosTask.cancel(true);
-		super.onDestroyView();
-	}
+    @Override
+    public void onDestroyView() {
+        mPhotosTask.cancel(true);
+        super.onDestroyView();
+    }
 
-	@NonNull
-	private ArrayAdapter<Photo> buildAdapter(List<Photo> photos) {
-		switch (mPhotosSize) {
-		case SMALL:
-			mAdapter = new SmallPhotosAdapter(getActivity(), photos);
-			break;
-		case FULL_SCREEN:
-			mAdapter = new FullScreenPhotosAdapter(getActivity(), photos);
-			break;
-		}
-		return mAdapter;
-	}
+    @NonNull
+    private ArrayAdapter<Photo> buildAdapter(List<Photo> photos) {
+        switch (mPhotosSize) {
+            case SMALL:
+                mAdapter = new SmallPhotosAdapter(getActivity(), photos);
+                break;
+            case FULL_SCREEN:
+                mAdapter = new FullScreenPhotosAdapter(getActivity(), photos);
+                break;
+        }
+        return mAdapter;
+    }
 
-	private class PhotosListTask extends ParallelAsyncTask<AssetManager, Void, PhotosList> {
+    private class PhotosListTask extends ParallelAsyncTask<AssetManager, Void, PhotosList> {
 
-		private final String mJsonFile;
+        private final String mJsonFile;
 
-		public PhotosListTask(String jsonFile) {
-			mJsonFile = jsonFile;
-		}
+        public PhotosListTask(String jsonFile) {
+            mJsonFile = jsonFile;
+        }
 
-		@Override
-		protected PhotosList doInBackground(AssetManager... params) {
-			try {
-				final InputStream stream = params[0].open(mJsonFile);
-				final ObjectMapper mapper = new ObjectMapper();
-				return mapper.readValue(stream, PhotosList.class);
-			} catch (IOException e) {
-				LogUtils.logException(e);
-			}
-			return null;
-		}
+        @Override
+        protected PhotosList doInBackground(AssetManager... params) {
+            try {
+                final InputStream stream = params[0].open(mJsonFile);
+                final ObjectMapper mapper = new ObjectMapper();
+                return mapper.readValue(stream, PhotosList.class);
+            } catch (IOException e) {
+                LogUtils.logException(e);
+            }
+            return null;
+        }
 
-		@Override
-		protected void onPostExecute(PhotosList result) {
-			final ImmutableList<Photo> list;
-			if (result != null && (list = result.getPhotos()) != null) {
-				final ArrayAdapter<Photo> adapter = buildAdapter(list);
-				setListAdapter(adapter);
-			} else {
-				setListShown(true);
-				setEmptyText("Error while retrieving the items");
-			}
-		}
-	}
+        @Override
+        protected void onPostExecute(PhotosList result) {
+            final ImmutableList<Photo> list;
+            if (result != null && (list = result.getPhotos()) != null) {
+                final ArrayAdapter<Photo> adapter = buildAdapter(list);
+                setListAdapter(adapter);
+            } else {
+                setListShown(true);
+                setEmptyText("Error while retrieving the items");
+            }
+        }
+    }
 
-	private static class PhotosAdapter extends ArrayAdapter<Photo> {
+    private static class PhotosAdapter extends ArrayAdapter<Photo> {
 
-		protected LayoutInflater mInflater;
-		protected BitmapSetterBuilder mBitmapSetterBuilder;
-		protected Drawable mPlaceholder;
+        protected LayoutInflater mInflater;
+        protected BitmapSetterBuilder mBitmapSetterBuilder;
+        protected Drawable mPlaceholder;
 
-		public PhotosAdapter(Context context, int resource, List<Photo> objects) {
-			super(context, resource, objects);
-			mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		}
+        public PhotosAdapter(Context context, int resource, List<Photo> objects) {
+            super(context, resource, objects);
+            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
 
-		protected void setViewSquaredHeight(@NonNull View parent, @NonNull ImageView imgView) {
-			final LayoutParams params = imgView.getLayoutParams();
-			params.height = parent.getWidth();
-		}
+        protected void setViewSquaredHeight(@NonNull View parent, @NonNull ImageView imgView) {
+            final LayoutParams params = imgView.getLayoutParams();
+            params.height = parent.getWidth();
+        }
 
-		protected void setBitmapAnimated(@NonNull ViewHolder holder, @NonNull Photo photo) {
-			final String photoUrl = photo.getPhotoUrl();
-			if (photoUrl != null) {
-				mBitmapSetterBuilder.setAsync(photoUrl) //
-						.placeholder(mPlaceholder) //
-						.animate(AnimationMode.NOT_IN_MEMORY) //
-						.into(holder.imageView);
-			} else {
-				holder.imageView.setImageDrawable(mPlaceholder);
-			}
-		}
+        protected void setBitmapAnimated(@NonNull ViewHolder holder, @NonNull Photo photo) {
+            final String photoUrl = photo.getPhotoUrl();
+            if (photoUrl != null) {
+                mBitmapSetterBuilder.setAsync(photoUrl) //
+                        .placeholder(mPlaceholder) //
+                        .animate(AnimationMode.NOT_IN_MEMORY) //
+                        .into(holder.imageView);
+            } else {
+                holder.imageView.setImageDrawable(mPlaceholder);
+            }
+        }
 
-		protected static class ViewHolder {
-			public ImageView imageView;
-			public TextView textView;
-		}
-	}
+        protected static class ViewHolder {
+            public ImageView imageView;
+            public TextView textView;
+        }
+    }
 
-	private static class SmallPhotosAdapter extends PhotosAdapter {
+    private static class SmallPhotosAdapter extends PhotosAdapter {
 
-		public SmallPhotosAdapter(Context context, List<Photo> objects) {
-			super(context, -1, objects);
-			final BitmapCache cache = (BitmapCache) KrakenDemoApplication.get().getCache(
-					CacheId.BITMAPS_130);
-			mBitmapSetterBuilder = cache.newBitmapSetterBuilder(true);
-			mPlaceholder = context.getResources().getDrawable(R.drawable.ic_launcher);
-		}
+        public SmallPhotosAdapter(Context context, List<Photo> objects) {
+            super(context, -1, objects);
+            final BitmapCache cache = (BitmapCache) KrakenDemoApplication.get().getCache(
+                    CacheId.BITMAPS_130);
+            mBitmapSetterBuilder = cache.newBitmapSetterBuilder(true);
+            mPlaceholder = context.getResources().getDrawable(R.drawable.ic_launcher);
+        }
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final Photo photo = getItem(position);
-			final View view;
-			final ViewHolder holder;
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final Photo photo = getItem(position);
+            final View view;
+            final ViewHolder holder;
 
-			// view holder pattern to retrieve views references
-			if (convertView == null) {
-				view = mInflater.inflate(R.layout.adapter_listview_small, null);
-				holder = new ViewHolder();
-				holder.imageView = (ImageView) view.findViewById(R.id.image_view);
-				holder.textView = (TextView) view.findViewById(R.id.text_view);
-				view.setTag(holder);
-			} else {
-				view = convertView;
-				holder = (ViewHolder) convertView.getTag();
-			}
+            // view holder pattern to retrieve views references
+            if (convertView == null) {
+                view = mInflater.inflate(R.layout.adapter_listview_small, null);
+                holder = new ViewHolder();
+                holder.imageView = (ImageView) view.findViewById(R.id.image_view);
+                holder.textView = (TextView) view.findViewById(R.id.text_view);
+                view.setTag(holder);
+            } else {
+                view = convertView;
+                holder = (ViewHolder) convertView.getTag();
+            }
 
-			// populate data
-			setBitmapAnimated(holder, photo);
-			holder.textView.setText("Image n. " + position);
+            // populate data
+            setBitmapAnimated(holder, photo);
+            holder.textView.setText("Image n. " + position);
 
-			return view;
-		}
-	}
+            return view;
+        }
+    }
 
-	private static class FullScreenPhotosAdapter extends PhotosAdapter {
+    private static class FullScreenPhotosAdapter extends PhotosAdapter {
 
-		public FullScreenPhotosAdapter(Context context, List<Photo> objects) {
-			super(context, -1, objects);
-			final BitmapCache cache = (BitmapCache) KrakenDemoApplication.get().getCache(
-					CacheId.BITMAPS_LARGE);
-			mBitmapSetterBuilder = cache.newBitmapSetterBuilder(true);
-			mPlaceholder = context.getResources().getDrawable(R.drawable.ic_launcher);
-		}
+        public FullScreenPhotosAdapter(Context context, List<Photo> objects) {
+            super(context, -1, objects);
+            final BitmapCache cache = (BitmapCache) KrakenDemoApplication.get().getCache(
+                    CacheId.BITMAPS_LARGE);
+            mBitmapSetterBuilder = cache.newBitmapSetterBuilder(true);
+            mPlaceholder = context.getResources().getDrawable(R.drawable.ic_launcher);
+        }
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			final Photo photo = getItem(position);
-			final View view;
-			final ViewHolder holder;
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            final Photo photo = getItem(position);
+            final View view;
+            final ViewHolder holder;
 
-			// view holder pattern to retrieve views references
-			if (convertView == null) {
-				view = mInflater.inflate(R.layout.adapter_listview_fullscreen, null);
-				holder = new ViewHolder();
-				holder.imageView = (ImageView) view.findViewById(R.id.image_view);
-				holder.textView = (TextView) view.findViewById(R.id.text_view);
-				view.setTag(holder);
-			} else {
-				view = convertView;
-				holder = (ViewHolder) convertView.getTag();
-			}
+            // view holder pattern to retrieve views references
+            if (convertView == null) {
+                view = mInflater.inflate(R.layout.adapter_listview_fullscreen, null);
+                holder = new ViewHolder();
+                holder.imageView = (ImageView) view.findViewById(R.id.image_view);
+                holder.textView = (TextView) view.findViewById(R.id.text_view);
+                view.setTag(holder);
+            } else {
+                view = convertView;
+                holder = (ViewHolder) convertView.getTag();
+            }
 
-			// populate data
-			setViewSquaredHeight(parent, holder.imageView);
-			setBitmapAnimated(holder, photo);
-			holder.textView.setText("Image n. " + position);
+            // populate data
+            setViewSquaredHeight(parent, holder.imageView);
+            setBitmapAnimated(holder, photo);
+            holder.textView.setText("Image n. " + position);
 
-			return view;
-		}
-	}
+            return view;
+        }
+    }
 
 }

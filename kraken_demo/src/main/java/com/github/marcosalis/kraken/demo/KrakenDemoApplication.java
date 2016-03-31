@@ -31,102 +31,101 @@ import com.github.marcosalis.kraken.utils.http.DefaultHttpRequestsManager;
 import java.io.IOException;
 
 /**
- * {@link Application} subclass that initializes caches and holds a
- * {@link BaseCachesManager}.
- * 
- * @since 1.0
+ * {@link Application} subclass that initializes caches and holds a {@link BaseCachesManager}.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 public class KrakenDemoApplication extends DroidApplication {
 
-	public enum CacheId {
-		BITMAPS_130, // cache for 130x130 images
-		BITMAPS_LARGE; // cache for large images
-	}
+    public enum CacheId {
+        BITMAPS_130, // cache for 130x130 images
+        BITMAPS_LARGE // cache for large images
+    }
 
-	private static KrakenDemoApplication mInstance;
+    private static KrakenDemoApplication mInstance;
 
-	/**
-	 * Returns the application singleton.
-	 */
-	public static KrakenDemoApplication get() {
-		return mInstance;
-	}
+    /**
+     * Returns the application singleton.
+     */
+    public static KrakenDemoApplication get() {
+        return mInstance;
+    }
 
-	private static void setInstance(KrakenDemoApplication instance) {
-		mInstance = instance;
-	}
+    private static void setInstance(KrakenDemoApplication instance) {
+        mInstance = instance;
+    }
 
-	private final BaseCachesManager<CacheId> mCachesManager;
+    private final BaseCachesManager<CacheId> mCachesManager;
 
-	public KrakenDemoApplication() {
-		// instantiate the cache manager
-		mCachesManager = new BaseCachesManager<CacheId>(DroidUtils.CPU_CORES);
-	}
+    public KrakenDemoApplication() {
+        // instantiate the cache manager
+        mCachesManager = new BaseCachesManager<CacheId>(DroidUtils.CPU_CORES);
+    }
 
-	@Override
-	public void onCreate() {
-		setInstance(this);
-		super.onCreate();
+    @Override
+    public void onCreate() {
+        setInstance(this);
+        super.onCreate();
 
-		// initialize HTTP requests manager
-		DefaultHttpRequestsManager.get().initialize();
+        // initialize HTTP requests manager
+        DefaultHttpRequestsManager.get().initialize();
 
-		// initialize caches
-		final BitmapCacheBuilder builder130 = new BitmapCacheBuilder(this);
-		builder130.maxMemoryCachePercentage(10) //
-				.cacheLogName("BITMAPS_130") //
-				.diskCachePurgeableAfter(DroidUtils.DAY) //
-				.diskCacheDirectoryName("bitmaps130");
+        // initialize caches
+        final BitmapCacheBuilder builder130 = new BitmapCacheBuilder(this);
+        builder130.maxMemoryCachePercentage(10) //
+                .cacheLogName("BITMAPS_130") //
+                .diskCachePurgeableAfter(DroidUtils.DAY) //
+                .diskCacheDirectoryName("bitmaps130");
 
-		final BitmapCacheBuilder builderLarge = new BitmapCacheBuilder(this);
-		builderLarge.maxMemoryCachePercentage(25) //
-				.cacheLogName("BITMAPS_LARGE") //
-				.diskCachePurgeableAfter(DroidUtils.HOUR * 6) //
-				.diskCacheDirectoryName("bitmaps_large");
+        final BitmapCacheBuilder builderLarge = new BitmapCacheBuilder(this);
+        builderLarge.maxMemoryCachePercentage(25) //
+                .cacheLogName("BITMAPS_LARGE") //
+                .diskCachePurgeableAfter(DroidUtils.HOUR * 6) //
+                .diskCacheDirectoryName("bitmaps_large");
 
-		// build caches and register them in the manager
-		buildAndRegisterCache(CacheId.BITMAPS_130, builder130);
-		buildAndRegisterCache(CacheId.BITMAPS_LARGE, builderLarge);
-	}
+        // build caches and register them in the manager
+        buildAndRegisterCache(CacheId.BITMAPS_130, builder130);
+        buildAndRegisterCache(CacheId.BITMAPS_LARGE, builderLarge);
+    }
 
-	@Override
-	public void onLowMemory() {
-		// memory caches cleanup when running low
-		mCachesManager.clearMemoryCaches();
-		super.onLowMemory();
-	}
+    @Override
+    public void onLowMemory() {
+        // memory caches cleanup when running low
+        mCachesManager.clearMemoryCaches();
+        super.onLowMemory();
+    }
 
-	@Override
-	@TargetApi(14)
-	public void onTrimMemory(int level) {
-		switch (level) {
-		// memory caches cleanup when trimming memory
-		case TRIM_MEMORY_COMPLETE:
-		case TRIM_MEMORY_RUNNING_CRITICAL:
-			mCachesManager.clearMemoryCaches();
-			break;
-		}
-		super.onTrimMemory(level);
-	}
+    @Override
+    @TargetApi(14)
+    public void onTrimMemory(int level) {
+        switch (level) {
+            // memory caches cleanup when trimming memory
+            case TRIM_MEMORY_COMPLETE:
+            case TRIM_MEMORY_RUNNING_CRITICAL:
+                mCachesManager.clearMemoryCaches();
+                break;
+        }
+        super.onTrimMemory(level);
+    }
 
-	@NonNull
-	public ContentProxy getCache(@NonNull CacheId id) {
-		return mCachesManager.getContent(id);
-	}
+    @NonNull
+    public ContentProxy getCache(@NonNull CacheId id) {
+        return mCachesManager.getContent(id);
+    }
 
-	@NonNull
-	public BaseCachesManager<CacheId> getCachesManager() {
-		return mCachesManager;
-	}
+    @NonNull
+    public BaseCachesManager<CacheId> getCachesManager() {
+        return mCachesManager;
+    }
 
-	private void buildAndRegisterCache(@NonNull CacheId cacheId, @NonNull BitmapCacheBuilder builder) {
-		try {
-			final BitmapCache cache = builder.build();
-			mCachesManager.registerContent(cacheId, cache);
-		} catch (IOException e) {
-			LogUtils.logException(e);
-		}
-	}
+    private void buildAndRegisterCache(@NonNull CacheId cacheId, @NonNull BitmapCacheBuilder builder) {
+        try {
+            final BitmapCache cache = builder.build();
+            mCachesManager.registerContent(cacheId, cache);
+        } catch (IOException e) {
+            LogUtils.logException(e);
+        }
+    }
 
 }

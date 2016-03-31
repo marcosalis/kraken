@@ -1,4 +1,4 @@
-package com.github.marcosalis.kraken;
+package com.github.marcosalis.kraken.demo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

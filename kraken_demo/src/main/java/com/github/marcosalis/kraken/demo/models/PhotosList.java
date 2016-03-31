@@ -28,27 +28,27 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * JSON data model for a list of photos.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Immutable
 public class PhotosList extends JsonModel {
 
-	private static final String DATA = "data";
+    private static final String DATA = "data";
 
-	private final ImmutableList<Photo> photos;
+    private final ImmutableList<Photo> photos;
 
-	@JsonCreator
-	@SuppressWarnings("unchecked")
-	public PhotosList(@JsonProperty(DATA) List<Photo> photos) {
-		this.photos = photos != null ? ImmutableList.copyOf(photos) : EMPTY_LIST;
-	}
+    @JsonCreator
+    @SuppressWarnings("unchecked")
+    public PhotosList(@JsonProperty(DATA) List<Photo> photos) {
+        this.photos = photos != null ? ImmutableList.copyOf(photos) : EMPTY_LIST;
+    }
 
-	@NonNull
-	@JsonProperty(DATA)
-	public ImmutableList<Photo> getPhotos() {
-		return photos;
-	}
+    @NonNull
+    @JsonProperty(DATA)
+    public ImmutableList<Photo> getPhotos() {
+        return photos;
+    }
 
 }

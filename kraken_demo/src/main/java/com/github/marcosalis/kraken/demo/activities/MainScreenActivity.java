@@ -35,68 +35,70 @@ import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment.PhotosSize
 
 /**
  * Launcher activity that shows the possible demo options.
- * 
- * @since 1.0
+ *
+ * TODO: add RecyclerView demo
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 public class MainScreenActivity extends Activity implements OnClickListener {
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main_screen);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main_screen);
 
-		findViewById(R.id.list_view_small).setOnClickListener(this);
-		findViewById(R.id.list_view_fullscreen).setOnClickListener(this);
-		findViewById(R.id.grid_view).setOnClickListener(this);
-	}
+        findViewById(R.id.list_view_small).setOnClickListener(this);
+        findViewById(R.id.list_view_fullscreen).setOnClickListener(this);
+        findViewById(R.id.grid_view).setOnClickListener(this);
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main_screen, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_screen, menu);
+        return true;
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		final BaseCachesManager<CacheId> caches = KrakenDemoApplication.get().getCachesManager();
-		switch (item.getItemId()) {
-		case R.id.action_clear_caches:
-			caches.clearAllCaches();
-			BitmapCacheBase.clearBitmapExecutors(); // clear executors stats
-			Toast.makeText(this, "All caches cleared!", Toast.LENGTH_LONG).show();
-			break;
-		case R.id.action_clear_memory_caches:
-			caches.clearMemoryCaches();
-			Toast.makeText(this, "Memory caches cleared!", Toast.LENGTH_LONG).show();
-			break;
-		case R.id.action_clear_disk_caches:
-			caches.clearDiskCaches(ClearMode.ALL);
-			Toast.makeText(this, "Disk caches cleared!", Toast.LENGTH_LONG).show();
-			break;
-		}
-		return true;
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        final BaseCachesManager<CacheId> caches = KrakenDemoApplication.get().getCachesManager();
+        switch (item.getItemId()) {
+            case R.id.action_clear_caches:
+                caches.clearAllCaches();
+                BitmapCacheBase.clearBitmapExecutors(); // clear executors stats
+                Toast.makeText(this, "All caches cleared!", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.action_clear_memory_caches:
+                caches.clearMemoryCaches();
+                Toast.makeText(this, "Memory caches cleared!", Toast.LENGTH_LONG).show();
+                break;
+            case R.id.action_clear_disk_caches:
+                caches.clearDiskCaches(ClearMode.ALL);
+                Toast.makeText(this, "Disk caches cleared!", Toast.LENGTH_LONG).show();
+                break;
+        }
+        return true;
+    }
 
-	@Override
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.list_view_small:
-			startPhotosListViewActivity(PhotosSize.SMALL);
-			break;
-		case R.id.list_view_fullscreen:
-			startPhotosListViewActivity(PhotosSize.FULL_SCREEN);
-			break;
-		case R.id.grid_view:
-			Toast.makeText(this, "Coming soon!", Toast.LENGTH_SHORT).show();
-			break;
-		}
-	}
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.list_view_small:
+                startPhotosListViewActivity(PhotosSize.SMALL);
+                break;
+            case R.id.list_view_fullscreen:
+                startPhotosListViewActivity(PhotosSize.FULL_SCREEN);
+                break;
+            case R.id.grid_view:
+                Toast.makeText(this, "Coming soon!", Toast.LENGTH_SHORT).show();
+                break;
+        }
+    }
 
-	private void startPhotosListViewActivity(PhotosSize size) {
-		final Intent intent = new Intent(this, PhotosListViewActivity.class);
-		intent.putExtra(PhotosListFragment.ARGS_PHOTOS_SIZE, size);
-		startActivity(intent);
-	}
+    private void startPhotosListViewActivity(PhotosSize size) {
+        final Intent intent = new Intent(this, PhotosListViewActivity.class);
+        intent.putExtra(PhotosListFragment.ARGS_PHOTOS_SIZE, size);
+        startActivity(intent);
+    }
 
 }
