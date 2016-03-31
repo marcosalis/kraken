@@ -15,9 +15,10 @@
  */
 package com.github.marcosalis.kraken.demo.activities;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -41,12 +42,14 @@ import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment.PhotosSize
  * @author Marco Salis
  * @since 1.0
  */
-public class MainScreenActivity extends Activity implements OnClickListener {
+public class MainScreenActivity extends AppCompatActivity implements OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_screen);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         findViewById(R.id.list_view_small).setOnClickListener(this);
         findViewById(R.id.list_view_fullscreen).setOnClickListener(this);
@@ -65,7 +68,7 @@ public class MainScreenActivity extends Activity implements OnClickListener {
         switch (item.getItemId()) {
             case R.id.action_clear_caches:
                 caches.clearAllCaches();
-                BitmapCacheBase.clearBitmapExecutors(); // clear executors stats
+                BitmapCacheBase.clearBitmapExecutors(); // clear executors tasks
                 Toast.makeText(this, "All caches cleared!", Toast.LENGTH_LONG).show();
                 break;
             case R.id.action_clear_memory_caches:

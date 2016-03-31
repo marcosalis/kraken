@@ -1,19 +1,20 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_clear_caches"
         android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_clear_all_caches"/>
+        android:title="@string/action_clear_all_caches"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_clear_memory_caches"
         android:orderInCategory="200"
-        android:showAsAction="never"
-        android:title="@string/action_clear_memory_caches"/>
+        android:title="@string/action_clear_memory_caches"
+        app:showAsAction="never"/>
     <item
         android:id="@+id/action_clear_disk_caches"
         android:orderInCategory="300"
-        android:showAsAction="never"
-        android:title="@string/action_clear_disk_caches"/>
+        android:title="@string/action_clear_disk_caches"
+        app:showAsAction="never"/>
 
 </menu>

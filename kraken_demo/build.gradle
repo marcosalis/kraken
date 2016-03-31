@@ -28,4 +28,6 @@ android {
 
 dependencies {
     compile project(':kraken_lib')
+
+    compile 'com.android.support:design:23.2.1'
 }

@@ -17,7 +17,8 @@ package com.github.marcosalis.kraken.demo.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
 import com.github.marcosalis.kraken.demo.R;
 import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment;
@@ -29,12 +30,14 @@ import com.github.marcosalis.kraken.demo.fragments.PhotosListFragment.PhotosSize
  * @author Marco Salis
  * @since 1.0
  */
-public class PhotosListViewActivity extends FragmentActivity {
+public class PhotosListViewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list_view);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         final PhotosSize size = (PhotosSize) getIntent().getSerializableExtra(
                 PhotosListFragment.ARGS_PHOTOS_SIZE);
