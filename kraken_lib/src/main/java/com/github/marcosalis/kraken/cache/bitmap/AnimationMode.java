@@ -20,29 +20,29 @@ import android.widget.ImageView;
 import com.google.common.annotations.Beta;
 
 /**
- * Enumerates all possible animation policies for setting a bitmap into an
- * {@link ImageView}, depending on the bitmap loading source.
- * 
- * @since 1.0
+ * Enumerates all possible animation policies for setting a bitmap into an {@link ImageView},
+ * depending on the bitmap loading source.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public enum AnimationMode {
-	/**
-	 * Use no animation (same as using a normal {@link BitmapAsyncSetter})
-	 */
-	NEVER,
-	/**
-	 * Animate only if the bitmap is not already in the memory caches
-	 */
-	NOT_IN_MEMORY,
-	/**
-	 * Animate only if the bitmap was loaded from network
-	 */
-	FROM_NETWORK,
-	/**
-	 * Always animate (use with care: the performance impact can be
-	 * noticeable when scrolling long lists of bitmaps)
-	 */
-	ALWAYS;
+    /**
+     * Use no animation (same as using a normal {@link BitmapAsyncSetter})
+     */
+    NEVER,
+    /**
+     * Animate only if the bitmap is not already in the memory caches
+     */
+    NOT_IN_MEMORY,
+    /**
+     * Animate only if the bitmap was loaded from network
+     */
+    FROM_NETWORK,
+    /**
+     * Always animate (use with care: the performance impact can be noticeable when scrolling long
+     * lists of bitmaps)
+     */
+    ALWAYS;
 }

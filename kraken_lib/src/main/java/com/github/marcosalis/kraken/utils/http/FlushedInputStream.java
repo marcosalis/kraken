@@ -15,44 +15,43 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
+import com.google.common.annotations.Beta;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.google.common.annotations.Beta;
-
 /**
- * Workaround {@link InputStream} subclass to use when decoding a Bitmap or
- * large file from a network stream.
- * 
- * See Android bug #6066:<br>
- * {@link http://code.google.com/p/android/issues/detail?id=6066}
- * 
+ * Workaround {@link InputStream} subclass to use when decoding a Bitmap or large file from a
+ * network stream.
+ *
+ * See Android bug #6066:<br> {@link http://code.google.com/p/android/issues/detail?id=6066}
+ *
  * @since 1.0
  */
 @Beta
 public class FlushedInputStream extends FilterInputStream {
 
-	public FlushedInputStream(InputStream inputStream) {
-		super(inputStream);
-	}
+    public FlushedInputStream(InputStream inputStream) {
+        super(inputStream);
+    }
 
-	@Override
-	public long skip(long n) throws IOException {
-		long totalBytesSkipped = 0L;
-		while (totalBytesSkipped < n) {
-			long bytesSkipped = in.skip(n - totalBytesSkipped);
-			if (bytesSkipped == 0L) {
-				int b = read();
-				if (b < 0) {
-					break; // we reached EOF
-				} else {
-					bytesSkipped = 1; // we read one byte
-				}
-			}
-			totalBytesSkipped += bytesSkipped;
-		}
-		return totalBytesSkipped;
-	}
+    @Override
+    public long skip(long n) throws IOException {
+        long totalBytesSkipped = 0L;
+        while (totalBytesSkipped < n) {
+            long bytesSkipped = in.skip(n - totalBytesSkipped);
+            if (bytesSkipped == 0L) {
+                int b = read();
+                if (b < 0) {
+                    break; // we reached EOF
+                } else {
+                    bytesSkipped = 1; // we read one byte
+                }
+            }
+            totalBytesSkipped += bytesSkipped;
+        }
+        return totalBytesSkipped;
+    }
 
 }

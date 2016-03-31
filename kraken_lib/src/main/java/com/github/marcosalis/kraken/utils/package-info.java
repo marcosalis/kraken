@@ -16,14 +16,14 @@
  */
 
 /**
- * This package and its sub-packages contains a collection of static utility classes for different uses,
- * mainly related to general Android programming and controller/UI components subclasses extended
- * with new features.
- * 
- * All the public interfaces of the classes marked with the {@link Beta} annotation in this package 
+ * This package and its sub-packages contains a collection of static utility classes for different
+ * uses, mainly related to general Android programming and controller/UI components subclasses
+ * extended with new features.
+ *
+ * All the public interfaces of the classes marked with the {@link Beta} annotation in this package
  * and sub-packages are subject to change without notice.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.utils;

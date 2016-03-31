@@ -16,10 +16,10 @@
  */
 
 /**
- * This package contains library-level utilities to monitor
- * and access the device network connection state.
- * 
- * @since 1.0
+ * This package contains library-level utilities to monitor and access the device network connection
+ * state.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.utils.network;

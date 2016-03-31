@@ -33,94 +33,90 @@ import com.google.common.annotations.Beta;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Abstract class that exposes basic functionalities implemented in any
- * hard-referenced Bitmap cache. The size of the cache is strictly limited by
- * the memory occupation of the contained Bitmaps to avoid OutOfMemoryError.
- * 
- * The actual cache is implemented on top of an {@code LruCache<K, Bitmap>}
- * instance.
- * 
- * @since 1.0
+ * Abstract class that exposes basic functionalities implemented in any hard-referenced Bitmap
+ * cache. The size of the cache is strictly limited by the memory occupation of the contained
+ * Bitmaps to avoid OutOfMemoryError.
+ *
+ * The actual cache is implemented on top of an {@code LruCache<K, Bitmap>} instance.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @ThreadSafe
 public class BitmapLruCache<K> extends ContentLruCache<K, Bitmap> implements BitmapMemoryCache<K> {
 
-	private static final String TAG = BitmapLruCache.class.getSimpleName();
+    private static final String TAG = BitmapLruCache.class.getSimpleName();
 
-	@Nullable
-	private final String mLogName;
-	@Nullable
-	private volatile OnEntryRemovedListener<K, Bitmap> mEntryRemovedListener;
+    @Nullable
+    private final String mLogName;
+    @Nullable
+    private volatile OnEntryRemovedListener<K, Bitmap> mEntryRemovedListener;
 
-	/**
-	 * Constructor for a {@link BitmapLruCache}.<br>
-	 * Call {@link DroidUtils#getApplicationMemoryClass(Context)} to properly
-	 * size this cache depending on the maximum available app memory heap.
-	 * 
-	 * @param maxSize
-	 *            The max memory occupation, in bytes, that the cache will ever
-	 *            occupy when full
-	 * @param cacheLogName
-	 *            The (optional) name of the cache (for logging purposes)
-	 */
-	public BitmapLruCache(@IntRange(from=0) int maxSize, @Nullable String cacheLogName) {
-		super(maxSize);
-		mLogName = cacheLogName;
-		if (DroidConfig.DEBUG) {
-			Log.i(TAG, mLogName + ": max cache size is set to " + maxSize + " bytes");
-		}
-	}
+    /**
+     * Constructor for a {@link BitmapLruCache}.<br> Call {@link DroidUtils#getApplicationMemoryClass(Context)}
+     * to properly size this cache depending on the maximum available app memory heap.
+     *
+     * @param maxSize      The max memory occupation, in bytes, that the cache will ever occupy when
+     *                     full
+     * @param cacheLogName The (optional) name of the cache (for logging purposes)
+     */
+    public BitmapLruCache(@IntRange(from = 0) int maxSize, @Nullable String cacheLogName) {
+        super(maxSize);
+        mLogName = cacheLogName;
+        if (DroidConfig.DEBUG) {
+            Log.i(TAG, mLogName + ": max cache size is set to " + maxSize + " bytes");
+        }
+    }
 
-	public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, Bitmap> listener) {
-		mEntryRemovedListener = listener;
-	}
+    public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, Bitmap> listener) {
+        mEntryRemovedListener = listener;
+    }
 
-	/**
-	 * The cache items size is measured in terms of the Bitmap's size in bytes
-	 * (see {@link BitmapUtils#getSize(Bitmap)}.
-	 * 
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected final int sizeOf(K key, @NonNull Bitmap bitmap) {
-		return BitmapUtils.getSize(bitmap);
-	}
+    /**
+     * The cache items size is measured in terms of the Bitmap's size in bytes (see {@link
+     * BitmapUtils#getSize(Bitmap)}.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected final int sizeOf(K key, @NonNull Bitmap bitmap) {
+        return BitmapUtils.getSize(bitmap);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void clear() {
-		if (DroidConfig.DEBUG) {
-			Log.i(TAG, mLogName + " session stats: hits " + hitCount() + ", miss " + missCount());
-		}
-		super.clear();
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clear() {
+        if (DroidConfig.DEBUG) {
+            Log.i(TAG, mLogName + " session stats: hits " + hitCount() + ", miss " + missCount());
+        }
+        super.clear();
+    }
 
-	/**
-	 * Do NOT EVER attempt to recycle a Bitmap here, it still could be actively
-	 * used in layouts or drawables even if evicted from the cache.
-	 * 
-	 * {@inheritDoc}
-	 */
-	@Override
-	@CallSuper
-	protected void entryRemoved(boolean evicted, K key, Bitmap oldValue, Bitmap newValue) {
-		super.entryRemoved(evicted, key, oldValue, newValue);
-		// remove evicted Bitmap task from the downloads cache if exists
-		final OnEntryRemovedListener<K, Bitmap> listener = mEntryRemovedListener;
-		if (listener != null) {
-			listener.onEntryRemoved(evicted, key, oldValue);
-		}
+    /**
+     * Do NOT EVER attempt to recycle a Bitmap here, it still could be actively used in layouts or
+     * drawables even if evicted from the cache.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    @CallSuper
+    protected void entryRemoved(boolean evicted, K key, Bitmap oldValue, Bitmap newValue) {
+        super.entryRemoved(evicted, key, oldValue, newValue);
+        // remove evicted Bitmap task from the downloads cache if exists
+        final OnEntryRemovedListener<K, Bitmap> listener = mEntryRemovedListener;
+        if (listener != null) {
+            listener.onEntryRemoved(evicted, key, oldValue);
+        }
 
-		if (DroidConfig.DEBUG) {
-			if (oldValue != null && newValue != null) {
-				Log.w(TAG, mLogName + ": item " + key + " replaced: this should never happen!");
-			}
-			Log.v(TAG, mLogName + ": item removed, cache size is now " + size() + " bytes");
-		}
-	}
+        if (DroidConfig.DEBUG) {
+            if (oldValue != null && newValue != null) {
+                Log.w(TAG, mLogName + ": item " + key + " replaced: this should never happen!");
+            }
+            Log.v(TAG, mLogName + ": item removed, cache size is now " + size() + " bytes");
+        }
+    }
 
 }

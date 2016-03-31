@@ -24,48 +24,39 @@ import com.google.common.annotations.Beta;
 import java.io.IOException;
 
 /**
- * Generic callback interface to use asynchronous HTTP(S) requests through
- * {@link BaseCacheableRequest}. Mainly useful to execute requests from the UI
- * thread without blocking.
- * 
- * Must be used with the adequate model type as a parameter when passed to a
- * request.
- * 
- * @since 1.0
+ * Generic callback interface to use asynchronous HTTP(S) requests through {@link
+ * BaseCacheableRequest}. Mainly useful to execute requests from the UI thread without blocking.
+ *
+ * Must be used with the adequate model type as a parameter when passed to a request.
+ *
+ * @param <E> The response object to receive
  * @author Marco Salis
- * 
- * @param <E>
- *            The response object to receive
+ * @since 1.0
  */
 @Beta
 public interface ResponseAsyncCallback<E> {
 
-	/**
-	 * Called when the request is successful (2xx response code).
-	 * 
-	 * @param object
-	 *            The model object containing the requested data
-	 */
-	public void onSuccess(E object);
+    /**
+     * Called when the request is successful (2xx response code).
+     *
+     * @param object The model object containing the requested data
+     */
+    public void onSuccess(E object);
 
-	/**
-	 * Called when the server returned an error status code to the request
-	 * 
-	 * @param statusCode
-	 *            The returned status code
-	 * @param statusMessage
-	 *            The status message, if any
-	 */
-	public void onError(int statusCode, @Nullable String statusMessage);
+    /**
+     * Called when the server returned an error status code to the request
+     *
+     * @param statusCode    The returned status code
+     * @param statusMessage The status message, if any
+     */
+    public void onError(int statusCode, @Nullable String statusMessage);
 
-	/**
-	 * Called when the request caused an exception: can be an
-	 * {@link IOException} (connection error or timeout, error parsing the
-	 * response) or any other exception
-	 * 
-	 * @param ex
-	 *            The exception thrown by the request and caught for the caller
-	 */
-	public void onException(@NonNull Exception ex);
+    /**
+     * Called when the request caused an exception: can be an {@link IOException} (connection error
+     * or timeout, error parsing the response) or any other exception
+     *
+     * @param ex The exception thrown by the request and caught for the caller
+     */
+    public void onException(@NonNull Exception ex);
 
 }

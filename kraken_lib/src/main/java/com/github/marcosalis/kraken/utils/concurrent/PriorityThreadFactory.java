@@ -28,65 +28,61 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * {@link ThreadFactory} implementation that allow callers to set a custom
- * thread Linux priority by calling
- * {@link android.os.Process#setThreadPriority(int)} on the created threads.
- * Check the {@link android.os.Process} documentation to find out which
- * priorities can be used.
- * 
- * It also allows to set a human-readable concise description of the Thread
- * being created (for example, the thread pool or executor name). The
- * incremental number of built threads is appended to the passed string.
- * 
- * @since 1.0
+ * {@link ThreadFactory} implementation that allow callers to set a custom thread Linux priority by
+ * calling {@link android.os.Process#setThreadPriority(int)} on the created threads. Check the
+ * {@link android.os.Process} documentation to find out which priorities can be used.
+ *
+ * It also allows to set a human-readable concise description of the Thread being created (for
+ * example, the thread pool or executor name). The incremental number of built threads is appended
+ * to the passed string.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @ThreadSafe
 public class PriorityThreadFactory implements ThreadFactory {
 
-	private static final String TAG = PriorityThreadFactory.class.getSimpleName();
+    private static final String TAG = PriorityThreadFactory.class.getSimpleName();
 
-	private final String mThreadsName;
-	private final AtomicInteger mThreadCount = new AtomicInteger();
+    private final String mThreadsName;
+    private final AtomicInteger mThreadCount = new AtomicInteger();
 
-	private final int mPriority;
+    private final int mPriority;
 
-	/**
-	 * Constructor that uses priority {@link Process#THREAD_PRIORITY_DEFAULT}
-	 */
-	public PriorityThreadFactory(@NonNull String threadName) {
-		this(threadName, Process.THREAD_PRIORITY_DEFAULT);
-	}
+    /**
+     * Constructor that uses priority {@link Process#THREAD_PRIORITY_DEFAULT}
+     */
+    public PriorityThreadFactory(@NonNull String threadName) {
+        this(threadName, Process.THREAD_PRIORITY_DEFAULT);
+    }
 
-	/**
-	 * Costructor that allows setting a custom priority to the created threads.
-	 * 
-	 * @param threadsName
-	 *            Common string that identifies part of the name for all threads
-	 *            created by the factory
-	 * @param priority
-	 *            The thread priority (must be one of the constants in
-	 *            {@link android.os.Process})
-	 */
-	public PriorityThreadFactory(@NonNull String threadsName, int priority) {
-		mThreadsName = threadsName;
-		mPriority = priority;
-	}
+    /**
+     * Costructor that allows setting a custom priority to the created threads.
+     *
+     * @param threadsName Common string that identifies part of the name for all threads created by
+     *                    the factory
+     * @param priority    The thread priority (must be one of the constants in {@link
+     *                    android.os.Process})
+     */
+    public PriorityThreadFactory(@NonNull String threadsName, int priority) {
+        mThreadsName = threadsName;
+        mPriority = priority;
+    }
 
-	/**
-	 * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
-	 */
-	@Override
-	public Thread newThread(@NonNull Runnable r) {
-		String name = mThreadsName + " #" + mThreadCount.incrementAndGet();
-		final PrioritizableThread thread = new PrioritizableThread(r, name, mPriority);
+    /**
+     * @see java.util.concurrent.ThreadFactory#newThread(java.lang.Runnable)
+     */
+    @Override
+    public Thread newThread(@NonNull Runnable r) {
+        String name = mThreadsName + " #" + mThreadCount.incrementAndGet();
+        final PrioritizableThread thread = new PrioritizableThread(r, name, mPriority);
 
-		if (DroidConfig.DEBUG) {
-			Log.v(TAG, "Creating thread: " + name + " with priority " + mPriority);
-		}
+        if (DroidConfig.DEBUG) {
+            Log.v(TAG, "Creating thread: " + name + " with priority " + mPriority);
+        }
 
-		return thread;
-	}
+        return thread;
+    }
 
 }

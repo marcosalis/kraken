@@ -21,48 +21,43 @@ import com.github.marcosalis.kraken.cache.internal.loaders.ContentLoader;
 import com.google.common.annotations.Beta;
 
 /**
- * <p>
- * Interface for <i>content proxies</i>.
- * 
- * <p>
- * The purpose of a "content proxy" (or content provider) is to ensure a level
- * of abstraction for the client code, in order to avoid the need for it to
- * explicitly handle and manage the way a content is retrieved: the calls to the
- * proxy must be the same whether the content is available in a cache or needs
- * to be retrieved from a server. A {@link ContentLoader} is used internally to
+ * <p> Interface for <i>content proxies</i>.
+ *
+ * <p> The purpose of a "content proxy" (or content provider) is to ensure a level of abstraction
+ * for the client code, in order to avoid the need for it to explicitly handle and manage the way a
+ * content is retrieved: the calls to the proxy must be the same whether the content is available in
+ * a cache or needs to be retrieved from a server. A {@link ContentLoader} is used internally to
  * effectively retrieve the requested content.
- * 
+ *
  * All {@link ContentProxy} implementations should be thread safe.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface ContentProxy {
 
-	/**
-	 * Completely clears the memory cache of this content manager.
-	 */
-	public void clearMemoryCache();
+    /**
+     * Completely clears the memory cache of this content manager.
+     */
+    public void clearMemoryCache();
 
-	/**
-	 * Synchronously clears permanent storage (DB or flash disk) cache items of
-	 * this content proxy according to the passed
-	 * {@link SimpleDiskCache.ClearMode}
-	 */
-	public void clearDiskCache(SimpleDiskCache.ClearMode mode);
+    /**
+     * Synchronously clears permanent storage (DB or flash disk) cache items of this content proxy
+     * according to the passed {@link SimpleDiskCache.ClearMode}
+     */
+    public void clearDiskCache(SimpleDiskCache.ClearMode mode);
 
-	/**
-	 * Completely wipes any permanent storage (DB or flash disk) cache for this
-	 * content proxy.
-	 * 
-	 * Note: implementations must be asynchronous and non-blocking.
-	 */
-	public void scheduleClearDiskCache();
+    /**
+     * Completely wipes any permanent storage (DB or flash disk) cache for this content proxy.
+     *
+     * Note: implementations must be asynchronous and non-blocking.
+     */
+    public void scheduleClearDiskCache();
 
-	/**
-	 * Synchronously wipe any kind of cache for this content proxy.
-	 */
-	public void clearCache();
+    /**
+     * Synchronously wipe any kind of cache for this content proxy.
+     */
+    public void clearCache();
 
 }

@@ -25,31 +25,25 @@ import com.github.marcosalis.kraken.utils.json.JsonModel;
 import com.google.common.annotations.Beta;
 
 /**
- * Generic interface to for a factory class that builds instances of a
- * {@link ContentLoader} to be used inside an
- * {@link AbstractDiskModelContentProxy}.
- * 
- * @param <R>
- *            Requests extending {@link CacheableRequest}
- * @param <M>
- *            Models extending {@link JsonModel}
- * 
- * @since 1.0
+ * Generic interface to for a factory class that builds instances of a {@link ContentLoader} to be
+ * used inside an {@link AbstractDiskModelContentProxy}.
+ *
+ * @param <R> Requests extending {@link CacheableRequest}
+ * @param <M> Models extending {@link JsonModel}
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface ModelDiskContentLoaderFactory<R extends CacheableRequest<M>, M extends JsonModel> {
 
-	/**
-	 * Builds a {@link ContentLoader}.
-	 * 
-	 * @param memoryCache
-	 *            The {@link ContentLruCache} that the content loader will use.
-	 * @param diskCache
-	 *            The {@link ModelDiskCache} that the content loader will use.
-	 * @return The built {@link ContentLoader}
-	 */
-	public ContentLoader<R, M> getContentLoader(
-			ContentLruCache<String, ExpirableFutureTask<M>> memoryCache, ModelDiskCache<M> diskCache);
+    /**
+     * Builds a {@link ContentLoader}.
+     *
+     * @param memoryCache The {@link ContentLruCache} that the content loader will use.
+     * @param diskCache   The {@link ModelDiskCache} that the content loader will use.
+     * @return The built {@link ContentLoader}
+     */
+    public ContentLoader<R, M> getContentLoader(
+            ContentLruCache<String, ExpirableFutureTask<M>> memoryCache, ModelDiskCache<M> diskCache);
 
 }

@@ -15,8 +15,9 @@
  */
 
 /**
- * This package contains the public library classes for downloading, caching and setting bitmaps into {@link ImageView}s.
- * 
+ * This package contains the public library classes for downloading, caching and setting bitmaps
+ * into {@link ImageView}s.
+ *
  * @author Marco Salis
  */
 package com.github.marcosalis.kraken.cache.bitmap;

@@ -15,21 +15,21 @@
  */
 package com.github.marcosalis.kraken.utils.annotations;
 
+import com.google.common.annotations.Beta;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.google.common.annotations.Beta;
-
 /**
- * Simple annotation to be used for marking methods which are known to perform
- * (possibly) long-running I/O operations such as network connections or disk
- * accesses, and therefore should not be called from the UI thread.
- * 
- * @since 1.0
+ * Simple annotation to be used for marking methods which are known to perform (possibly)
+ * long-running I/O operations such as network connections or disk accesses, and therefore should
+ * not be called from the UI thread.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Inherited

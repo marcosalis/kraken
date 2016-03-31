@@ -27,49 +27,46 @@ import com.google.common.annotations.Beta;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Static helper class containing factory methods to get instances of the
- * default {@link HttpUnsuccessfulResponseHandler} and
- * {@link HttpIOExceptionHandler}.
- * 
- * @since 1.0
+ * Static helper class containing factory methods to get instances of the default {@link
+ * HttpUnsuccessfulResponseHandler} and {@link HttpIOExceptionHandler}.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public class DefaultResponseHandlerFactory {
 
-	private DefaultResponseHandlerFactory() {
-		// no instantiation needed
-	}
+    private DefaultResponseHandlerFactory() {
+        // no instantiation needed
+    }
 
-	/**
-	 * Returns a new instance of the default
-	 * {@link HttpUnsuccessfulResponseHandler}
-	 */
-	@NonNull
-	public static final HttpUnsuccessfulResponseHandler createHttpUnsuccessfulResponseHandler() {
-		return new DefaultBackOffUnsuccessfulResponseHandler(
-				NetworkConstants.DEFAULT_BACKOFF_REQUIRED, NetworkConstants.DEFAULT_BACKOFF);
-	}
+    /**
+     * Returns a new instance of the default {@link HttpUnsuccessfulResponseHandler}
+     */
+    @NonNull
+    public static final HttpUnsuccessfulResponseHandler createHttpUnsuccessfulResponseHandler() {
+        return new DefaultBackOffUnsuccessfulResponseHandler(
+                NetworkConstants.DEFAULT_BACKOFF_REQUIRED, NetworkConstants.DEFAULT_BACKOFF);
+    }
 
-	/**
-	 * Returns a new instance of a {@link HttpUnsuccessfulResponseHandler} using
-	 * {@link ExponentialBackOff} as back off policy.
-	 * 
-	 * Do not reuse the created handler in more than a request as its state
-	 * wouldn't be reset.
-	 */
-	@NonNull
-	public static final HttpUnsuccessfulResponseHandler createExponentialBackOffResponseHandler() {
-		return new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff());
-	}
+    /**
+     * Returns a new instance of a {@link HttpUnsuccessfulResponseHandler} using {@link
+     * ExponentialBackOff} as back off policy.
+     *
+     * Do not reuse the created handler in more than a request as its state wouldn't be reset.
+     */
+    @NonNull
+    public static final HttpUnsuccessfulResponseHandler createExponentialBackOffResponseHandler() {
+        return new HttpBackOffUnsuccessfulResponseHandler(new ExponentialBackOff());
+    }
 
-	/**
-	 * Returns a new instance of the default {@link HttpIOExceptionHandler}
-	 */
-	@NonNull
-	public static final HttpIOExceptionHandler createHttpIOExceptionHandler() {
-		return new DefaultHttpIOExceptionHandler();
-	}
+    /**
+     * Returns a new instance of the default {@link HttpIOExceptionHandler}
+     */
+    @NonNull
+    public static final HttpIOExceptionHandler createHttpIOExceptionHandler() {
+        return new DefaultHttpIOExceptionHandler();
+    }
 
 }

@@ -15,43 +15,37 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.threading;
 
-import java.util.concurrent.ThreadPoolExecutor;
-
 import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.bitmap.BitmapCache;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
 /**
- * <p>
- * Public interface to access a threading policy for the bitmap caches.
- * 
- * <p>
- * Classes implementing it should provide a set of {@link ThreadPoolExecutor}s
- * that will be shared among all created {@link BitmapCache}s instances inside
- * the application. In most cases the policy provided by
- * {@link DefaultBitmapThreadingPolicy} is optimal and should be preferred to
+ * <p> Public interface to access a threading policy for the bitmap caches.
+ *
+ * <p> Classes implementing it should provide a set of {@link ThreadPoolExecutor}s that will be
+ * shared among all created {@link BitmapCache}s instances inside the application. In most cases the
+ * policy provided by {@link DefaultBitmapThreadingPolicy} is optimal and should be preferred to
  * custom implementations.
- * 
- * The default bitmap caches implementations use two different executors:
- * <ol>
- * <li>A <b>bitmap disk executor</b>, where the caches are accessed and bitmaps
- * are decoded from the disk cache if needed. The tasks executed here are mostly
- * CPU/(disk)IO bound and the pool size should be therefore limited.</li>
- * <li>A <b>bitmap downloader executor</b>, in charge of executing the tasks
- * that effectively download the bitmaps and decode the response to a Bitmap
- * instance. Performance-wise, the pool size should be bigger than the previous
- * as the tasks executed here are mostly network-bound.</li>
- * </ol>
- * 
- * @since 1.0
+ *
+ * The default bitmap caches implementations use two different executors: <ol> <li>A <b>bitmap disk
+ * executor</b>, where the caches are accessed and bitmaps are decoded from the disk cache if
+ * needed. The tasks executed here are mostly CPU/(disk)IO bound and the pool size should be
+ * therefore limited.</li> <li>A <b>bitmap downloader executor</b>, in charge of executing the tasks
+ * that effectively download the bitmaps and decode the response to a Bitmap instance.
+ * Performance-wise, the pool size should be bigger than the previous as the tasks executed here are
+ * mostly network-bound.</li> </ol>
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 public interface BitmapThreadingPolicy {
 
-	@NonNull
-	public ThreadPoolExecutor getBitmapDiskExecutor();
+    @NonNull
+    public ThreadPoolExecutor getBitmapDiskExecutor();
 
-	@NonNull
-	public ThreadPoolExecutor getBitmapDownloader();
+    @NonNull
+    public ThreadPoolExecutor getBitmapDownloader();
 
 }

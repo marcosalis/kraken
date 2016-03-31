@@ -16,43 +16,41 @@
  */
 package com.github.marcosalis.kraken.utils.network;
 
-import android.support.annotation.NonNull;
-
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 
 import com.google.common.annotations.Beta;
 
 /**
- * Helper class that contains static methods to check the network connection
- * state and other network-related properties.
- * 
- * @since 1.0
+ * Helper class that contains static methods to check the network connection state and other
+ * network-related properties.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public class NetworkUtils {
 
-	private NetworkUtils() {
-		// hidden constructor, no instantiation needed
-	}
+    private NetworkUtils() {
+        // hidden constructor, no instantiation needed
+    }
 
-	/**
-	 * Check whether there is *any* active network connection available.
-	 * 
-	 * Requires the <i>android.permission.ACCESS_NETWORK_STATE</i> permission.
-	 * 
-	 * @param context
-	 *            The application or activity context
-	 * @return true if a connection is currently active, false otherwise
-	 */
-	public static boolean isConnectionEnabled(@NonNull Context context) {
-		ConnectivityManager cm = (ConnectivityManager) context
-				.getSystemService(Context.CONNECTIVITY_SERVICE);
-		final NetworkInfo netInfo = cm.getActiveNetworkInfo();
+    /**
+     * Check whether there is *any* active network connection available.
+     *
+     * Requires the <i>android.permission.ACCESS_NETWORK_STATE</i> permission.
+     *
+     * @param context The application or activity context
+     * @return true if a connection is currently active, false otherwise
+     */
+    public static boolean isConnectionEnabled(@NonNull Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        final NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-		return netInfo != null && netInfo.isConnected();
-	}
+        return netInfo != null && netInfo.isConnected();
+    }
 
 }

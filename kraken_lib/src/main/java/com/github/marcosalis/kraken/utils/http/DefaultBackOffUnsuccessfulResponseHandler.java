@@ -35,98 +35,92 @@ import java.io.IOException;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * {@link HttpUnsuccessfulResponseHandler} that mimics the behavior of the
- * library {@link HttpBackOffUnsuccessfulResponseHandler} but allows overriding
- * the {@link #handleResponse(HttpRequest, HttpResponse, boolean)} to subclasses
- * in order to allow custom handling of specific HTTP status codes.
- * 
- * @since 1.0
+ * {@link HttpUnsuccessfulResponseHandler} that mimics the behavior of the library {@link
+ * HttpBackOffUnsuccessfulResponseHandler} but allows overriding the {@link
+ * #handleResponse(HttpRequest, HttpResponse, boolean)} to subclasses in order to allow custom
+ * handling of specific HTTP status codes.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @ThreadSafe
 public class DefaultBackOffUnsuccessfulResponseHandler implements HttpUnsuccessfulResponseHandler {
 
-	private static final DefaultBackOffRequired DEFAULT_BACK_OFF_REQUIRED = new DefaultBackOffRequired();
-	private static final DefaultLinearBackOff DEFAULT_BACK_OFF = new DefaultLinearBackOff();
+    private static final DefaultBackOffRequired DEFAULT_BACK_OFF_REQUIRED = new DefaultBackOffRequired();
+    private static final DefaultLinearBackOff DEFAULT_BACK_OFF = new DefaultLinearBackOff();
 
-	protected final BackOff mBackOff;
-	protected final BackOffRequired mBackOffRequired;
+    protected final BackOff mBackOff;
+    protected final BackOffRequired mBackOffRequired;
 
-	private volatile Sleeper mSleeper = Sleeper.DEFAULT;
+    private volatile Sleeper mSleeper = Sleeper.DEFAULT;
 
-	/**
-	 * Constructs a new instance using the default {@link BackOffRequired} and a
-	 * linear {@link BackOff}.
-	 * 
-	 * An instance built using this constructor can be reused among different
-	 * requests as it's immutable.
-	 */
-	public DefaultBackOffUnsuccessfulResponseHandler() {
-		this(DEFAULT_BACK_OFF_REQUIRED, DEFAULT_BACK_OFF);
-	}
+    /**
+     * Constructs a new instance using the default {@link BackOffRequired} and a linear {@link
+     * BackOff}.
+     *
+     * An instance built using this constructor can be reused among different requests as it's
+     * immutable.
+     */
+    public DefaultBackOffUnsuccessfulResponseHandler() {
+        this(DEFAULT_BACK_OFF_REQUIRED, DEFAULT_BACK_OFF);
+    }
 
-	/**
-	 * Constructs a new instance from a {@link BackOffRequired} and a
-	 * {@link BackOff}.
-	 * 
-	 * When using this constructor, be aware that {@link BackOff} should be used
-	 * for only one request as the Google library doesn't reset it anymore. The
-	 * only exception is when either {@link BackOff} and {@link BackOffRequired}
-	 * are stateless.
-	 * 
-	 * @param backOffRequired
-	 *            The {@link BackOffRequired}
-	 * @param backOff
-	 *            back-off policy
-	 */
-	public DefaultBackOffUnsuccessfulResponseHandler(@NonNull BackOffRequired backOffRequired,
-			@NonNull BackOff backOff) {
-		mBackOffRequired = Preconditions.checkNotNull(backOffRequired);
-		mBackOff = Preconditions.checkNotNull(backOff);
-	}
+    /**
+     * Constructs a new instance from a {@link BackOffRequired} and a {@link BackOff}.
+     *
+     * When using this constructor, be aware that {@link BackOff} should be used for only one
+     * request as the Google library doesn't reset it anymore. The only exception is when either
+     * {@link BackOff} and {@link BackOffRequired} are stateless.
+     *
+     * @param backOffRequired The {@link BackOffRequired}
+     * @param backOff         back-off policy
+     */
+    public DefaultBackOffUnsuccessfulResponseHandler(@NonNull BackOffRequired backOffRequired,
+                                                     @NonNull BackOff backOff) {
+        mBackOffRequired = Preconditions.checkNotNull(backOffRequired);
+        mBackOff = Preconditions.checkNotNull(backOff);
+    }
 
-	@NonNull
-	@VisibleForTesting
-	final BackOff getBackOff() {
-		return mBackOff;
-	}
+    @NonNull
+    @VisibleForTesting
+    final BackOff getBackOff() {
+        return mBackOff;
+    }
 
-	@NonNull
-	@VisibleForTesting
-	final Sleeper getSleeper() {
-		return mSleeper;
-	}
+    @NonNull
+    @VisibleForTesting
+    final Sleeper getSleeper() {
+        return mSleeper;
+    }
 
-	/**
-	 * Sets the sleeper.
-	 * 
-	 * <p>
-	 * The default value is {@link Sleeper#DEFAULT}.
-	 * </p>
-	 */
-	@VisibleForTesting
-	final void setSleeper(@NonNull Sleeper sleeper) {
-		mSleeper = Preconditions.checkNotNull(sleeper);
-	}
+    /**
+     * Sets the sleeper.
+     *
+     * <p> The default value is {@link Sleeper#DEFAULT}. </p>
+     */
+    @VisibleForTesting
+    final void setSleeper(@NonNull Sleeper sleeper) {
+        mSleeper = Preconditions.checkNotNull(sleeper);
+    }
 
-	@Override
-	public boolean handleResponse(HttpRequest request, HttpResponse response, boolean supportsRetry)
-			throws IOException {
-		// return false if retry is not supported
-		if (!supportsRetry) {
-			return false;
-		}
+    @Override
+    public boolean handleResponse(HttpRequest request, HttpResponse response, boolean supportsRetry)
+            throws IOException {
+        // return false if retry is not supported
+        if (!supportsRetry) {
+            return false;
+        }
 
-		// check if back-off is required for this response
-		if (mBackOffRequired.isRequired(response)) {
-			try {
-				return BackOffUtils.next(mSleeper, mBackOff);
-			} catch (InterruptedException exception) {
-				// ignore
-			}
-		}
-		return false;
-	}
+        // check if back-off is required for this response
+        if (mBackOffRequired.isRequired(response)) {
+            try {
+                return BackOffUtils.next(mSleeper, mBackOff);
+            } catch (InterruptedException exception) {
+                // ignore
+            }
+        }
+        return false;
+    }
 
 }

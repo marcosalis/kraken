@@ -16,73 +16,67 @@
  */
 package com.github.marcosalis.kraken.cache.managers;
 
-import android.support.annotation.NonNull;
-
 import android.app.Application;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.cache.SecondLevelCache.ClearMode;
 import com.github.marcosalis.kraken.cache.proxies.ContentProxy;
 import com.google.common.annotations.Beta;
 
 /**
- * General interface for an application global contents manager.<br>
- * Provides methods to put and get global content managers from a single
- * endpoint, and utility functionalities to clear and manage their caches.
- * 
+ * General interface for an application global contents manager.<br> Provides methods to put and get
+ * global content managers from a single endpoint, and utility functionalities to clear and manage
+ * their caches.
+ *
  * Can be used to allow dependencies injection when accessing a content manager.
- * 
- * @param <E>
- *            The content identificator
- * @since 1.0
+ *
+ * @param <E> The content identificator
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface CachesManager<E> {
 
-	/**
-	 * Register a content proxy into the manager.<br>
-	 * This should only be done once, preferably in the
-	 * {@link Application#onCreate()} method.
-	 * 
-	 * @param contentId
-	 *            The content proxy identificator object (preferably a String or
-	 *            an enum type)
-	 * @param content
-	 *            The content proxy instance
-	 * @return true if the content proxy was successfully added, false if
-	 *         another cache is already registered with the same ID
-	 */
-	public boolean registerContent(@NonNull E contentId, @NonNull ContentProxy content);
+    /**
+     * Register a content proxy into the manager.<br> This should only be done once, preferably in
+     * the {@link Application#onCreate()} method.
+     *
+     * @param contentId The content proxy identificator object (preferably a String or an enum
+     *                  type)
+     * @param content   The content proxy instance
+     * @return true if the content proxy was successfully added, false if another cache is already
+     * registered with the same ID
+     */
+    public boolean registerContent(@NonNull E contentId, @NonNull ContentProxy content);
 
-	/**
-	 * Gets a previously registered content proxy from the manager.
-	 * 
-	 * @param contentId
-	 *            The content proxy identification string
-	 * @return The required content proxy instance, or null if it doesn't exist
-	 */
-	public ContentProxy getContent(@NonNull E contentId);
+    /**
+     * Gets a previously registered content proxy from the manager.
+     *
+     * @param contentId The content proxy identification string
+     * @return The required content proxy instance, or null if it doesn't exist
+     */
+    public ContentProxy getContent(@NonNull E contentId);
 
-	/**
-	 * Clears all the registered caches contents.
-	 */
-	public void clearAllCaches();
+    /**
+     * Clears all the registered caches contents.
+     */
+    public void clearAllCaches();
 
-	/**
-	 * Clears all the registered memory caches contents.<br>
-	 * <strong>Warning:</strong> use this only on extreme low memory situations.
-	 */
-	public void clearMemoryCaches();
+    /**
+     * Clears all the registered memory caches contents.<br> <strong>Warning:</strong> use this only
+     * on extreme low memory situations.
+     */
+    public void clearMemoryCaches();
 
-	/**
-	 * Clears all the registered disk caches contents.
-	 */
-	public void scheduleClearDiskCaches();
+    /**
+     * Clears all the registered disk caches contents.
+     */
+    public void scheduleClearDiskCaches();
 
-	/**
-	 * Synchronously clears all the registered disk caches contents using the
-	 * passed {@link ClearMode}.
-	 */
-	public void clearDiskCaches(@NonNull ClearMode mode);
+    /**
+     * Synchronously clears all the registered disk caches contents using the passed {@link
+     * ClearMode}.
+     */
+    public void clearDiskCaches(@NonNull ClearMode mode);
 
 }

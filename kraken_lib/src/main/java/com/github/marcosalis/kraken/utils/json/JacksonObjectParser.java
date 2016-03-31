@@ -15,6 +15,10 @@
  */
 package com.github.marcosalis.kraken.utils.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.util.ObjectParser;
+import com.google.common.annotations.Beta;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -23,21 +27,13 @@ import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.client.util.ObjectParser;
-import com.google.common.annotations.Beta;
-
 /**
  * Parses JSON data into an data class of key/value pairs.
- * 
- * <p>
- * Implementation is thread-safe.
- * </p>
- * 
- * <p>
- * Sample usage:
- * </p>
- * 
+ *
+ * <p> Implementation is thread-safe. </p>
+ *
+ * <p> Sample usage: </p>
+ *
  * <pre>
  * <code>
  *   static void setParser(HttpRequest request) {
@@ -45,38 +41,38 @@ import com.google.common.annotations.Beta;
  *   }
  * </code>
  * </pre>
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public class JacksonObjectParser implements ObjectParser {
 
-	private final ObjectMapper mMapper;
+    private final ObjectMapper mMapper;
 
-	public JacksonObjectParser(ObjectMapper mapper) {
-		mMapper = mapper;
-	}
+    public JacksonObjectParser(ObjectMapper mapper) {
+        mMapper = mapper;
+    }
 
-	public <T> T parseAndClose(InputStream in, Charset charset, Class<T> dataClass)
-			throws IOException {
-		// encoding is automatically detected by ObjectMapper
-		return (T) mMapper.readValue(in, dataClass);
-	}
+    public <T> T parseAndClose(InputStream in, Charset charset, Class<T> dataClass)
+            throws IOException {
+        // encoding is automatically detected by ObjectMapper
+        return (T) mMapper.readValue(in, dataClass);
+    }
 
-	public Object parseAndClose(InputStream in, Charset charset, Type dataType) throws IOException {
-		// encoding is automatically detected by ObjectMapper
-		// TODO detect if passed class is consistent
-		return mMapper.readValue(in, dataType.getClass());
-	}
+    public Object parseAndClose(InputStream in, Charset charset, Type dataType) throws IOException {
+        // encoding is automatically detected by ObjectMapper
+        // TODO detect if passed class is consistent
+        return mMapper.readValue(in, dataType.getClass());
+    }
 
-	public <T> T parseAndClose(Reader reader, Class<T> dataClass) throws IOException {
-		return (T) mMapper.readValue(reader, dataClass);
-	}
+    public <T> T parseAndClose(Reader reader, Class<T> dataClass) throws IOException {
+        return (T) mMapper.readValue(reader, dataClass);
+    }
 
-	public Object parseAndClose(Reader reader, Type dataType) throws IOException {
-		// TODO detect if passed class is consistent
-		return mMapper.readValue(reader, dataType.getClass());
-	}
+    public Object parseAndClose(Reader reader, Type dataType) throws IOException {
+        // TODO detect if passed class is consistent
+        return mMapper.readValue(reader, dataType.getClass());
+    }
 }

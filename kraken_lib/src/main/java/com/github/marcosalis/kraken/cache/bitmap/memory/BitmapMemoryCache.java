@@ -21,19 +21,19 @@ import com.github.marcosalis.kraken.cache.MemoryCache;
 import com.google.common.annotations.Beta;
 
 /**
- * Public interface for a 1st level, memory based cache for bitmaps. It holds no
- * additional methods at the moment.
- * 
- * @since 1.0
+ * Public interface for a 1st level, memory based cache for bitmaps. It holds no additional methods
+ * at the moment.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface BitmapMemoryCache<K> extends MemoryCache<K, Bitmap> {
 
-	/**
-	 * Default maximum percentage of the application memory to use when
-	 * configuring a bitmap memory cache.
-	 */
-	public static final float DEFAULT_MAX_MEMORY_PERCENTAGE = 10f;
+    /**
+     * Default maximum percentage of the application memory to use when configuring a bitmap memory
+     * cache.
+     */
+    public static final float DEFAULT_MAX_MEMORY_PERCENTAGE = 10f;
 
 }

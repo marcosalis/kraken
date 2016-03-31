@@ -26,28 +26,28 @@ import com.google.api.client.http.HttpRequestFactory;
 import com.google.common.annotations.Beta;
 
 /**
- * Internal utility class containing static methods to build the default
- * implementations of {@link BitmapCache}s and their components.
- * 
- * @since 1.0
+ * Internal utility class containing static methods to build the default implementations of {@link
+ * BitmapCache}s and their components.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public class BitmapCacheFactory {
 
-	private BitmapCacheFactory() {
-		// no instantiation needed
-	}
+    private BitmapCacheFactory() {
+        // no instantiation needed
+    }
 
-	/**
-	 * Builds an instance of the default {@link BitmapCache} implementation
-	 * given the passed components.
-	 */
-	@NonNull
-	public static BitmapCache buildDefaultBitmapCache(@NonNull BitmapMemoryCache<String> cache,
-			@Nullable BitmapDiskCache diskCache, @NonNull HttpRequestFactory factory,
-			@NonNull BitmapDecoder decoder) {
-		return new BitmapCacheImpl(cache, diskCache, factory, decoder);
-	}
+    /**
+     * Builds an instance of the default {@link BitmapCache} implementation given the passed
+     * components.
+     */
+    @NonNull
+    public static BitmapCache buildDefaultBitmapCache(@NonNull BitmapMemoryCache<String> cache,
+                                                      @Nullable BitmapDiskCache diskCache, @NonNull HttpRequestFactory factory,
+                                                      @NonNull BitmapDecoder decoder) {
+        return new BitmapCacheImpl(cache, diskCache, factory, decoder);
+    }
 
 }

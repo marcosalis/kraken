@@ -24,57 +24,57 @@ import com.google.common.hash.Hashing;
 
 /**
  * Helper class containing static utility methods for hashing objects.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 public final class HashUtils {
 
-	private static final HashFunction DEFAULT_HASH = Hashing.murmur3_128();
+    private static final HashFunction DEFAULT_HASH = Hashing.murmur3_128();
 
-	private HashUtils() {
-		// hidden constructor, no instantiation needed
-	}
+    private HashUtils() {
+        // hidden constructor, no instantiation needed
+    }
 
-	/**
-	 * Gets a String hash generated using the default hashing algorithm with the
-	 * passed strings as input.
-	 */
-	@NonNull
-	public static String getDefaultHash(@NonNull String... strings) {
-		return getHash(DEFAULT_HASH, strings);
-	}
+    /**
+     * Gets a String hash generated using the default hashing algorithm with the passed strings as
+     * input.
+     */
+    @NonNull
+    public static String getDefaultHash(@NonNull String... strings) {
+        return getHash(DEFAULT_HASH, strings);
+    }
 
-	/**
-	 * Gets a String hash generated using the MD5 hashing algorithm with the
-	 * passed strings as input.
-	 */
-	@NonNull
-	public static String getMD5Hash(@NonNull String... strings) {
-		return getHash(Hashing.md5(), strings);
-	}
+    /**
+     * Gets a String hash generated using the MD5 hashing algorithm with the passed strings as
+     * input.
+     */
+    @NonNull
+    public static String getMD5Hash(@NonNull String... strings) {
+        return getHash(Hashing.md5(), strings);
+    }
 
-	/**
-	 * Gets a String hash generated using the passed hashing algorithm.
-	 */
-	@NonNull
-	public static String getHash(@NonNull HashFunction hash, @NonNull String... strings) {
-		final Hasher hasher = hash.newHasher();
-		for (String input : strings) {
-			hasher.putString(input);
-		}
-		return hasher.hash().toString();
-	}
+    /**
+     * Gets a String hash generated using the passed hashing algorithm.
+     */
+    @NonNull
+    public static String getHash(@NonNull HashFunction hash, @NonNull String... strings) {
+        final Hasher hasher = hash.newHasher();
+        for (String input : strings) {
+            hasher.putString(input);
+        }
+        return hasher.hash().toString();
+    }
 
-	/**
-	 * Interface that represent any suitable object that can be used as a String
-	 * cache key. The key itself retrieved by calling the hash() method.
-	 * 
-	 * TODO: move this
-	 */
-	public interface CacheKey {
+    /**
+     * Interface that represent any suitable object that can be used as a String cache key. The key
+     * itself retrieved by calling the hash() method.
+     *
+     * TODO: move this
+     */
+    public interface CacheKey {
 
-		public String hash();
-	}
+        public String hash();
+    }
 
 }

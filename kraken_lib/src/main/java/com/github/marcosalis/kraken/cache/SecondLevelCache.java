@@ -21,23 +21,23 @@ import com.google.common.annotations.Beta;
 
 /**
  * Public interface for a second level cache, usually disk based.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface SecondLevelCache<K, V> extends ContentCache<K, V> {
 
-	/**
-	 * Defines the possible policies to clear a second level cache.
-	 */
-	public enum ClearMode {
-		ALL,
-		EVICT_OLD
-	}
+    /**
+     * Defines the possible policies to clear a second level cache.
+     */
+    public enum ClearMode {
+        ALL,
+        EVICT_OLD
+    }
 
-	public void scheduleClear();
+    public void scheduleClear();
 
-	public void clear(@NonNull ClearMode mode);
+    public void clear(@NonNull ClearMode mode);
 
 }

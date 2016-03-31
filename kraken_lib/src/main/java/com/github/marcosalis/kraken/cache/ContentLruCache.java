@@ -28,85 +28,81 @@ import com.google.common.cache.Cache;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Extension of the Android's {@link LruCache} to support some of the methods of
- * a {@link ConcurrentMap}.
- * 
+ * Extension of the Android's {@link LruCache} to support some of the methods of a {@link
+ * ConcurrentMap}.
+ *
  * TODO: unit tests
- * 
- * TODO: use Guava's {@link Cache} instead? It's really concurrent (backed by a
- * ConcurrentHashMap implementation, whereas LruCache operations block on the
- * whole structure) and automatically handles blocking load with Future's get().
- * 
- * @since 1.0
+ *
+ * TODO: use Guava's {@link Cache} instead? It's really concurrent (backed by a ConcurrentHashMap
+ * implementation, whereas LruCache operations block on the whole structure) and automatically
+ * handles blocking load with Future's get().
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public class ContentLruCache<K, V> extends LruCache<K, V> implements MemoryCache<K, V> {
 
-	@SuppressWarnings("unused")
-	private static final String TAG = ContentLruCache.class.getSimpleName();
+    @SuppressWarnings("unused")
+    private static final String TAG = ContentLruCache.class.getSimpleName();
 
-	public ContentLruCache(@IntRange(from=1) int maxSize) {
-		super(maxSize);
-	}
+    public ContentLruCache(@IntRange(from = 1) int maxSize) {
+        super(maxSize);
+    }
 
-	/**
-	 * If the specified key is not already associated with a value, associate it
-	 * with the given value.
-	 * 
-	 * @param key
-	 *            key with which the specified value is to be associated
-	 * @param value
-	 *            value to be associated with the specified key
-	 * @return the previous value associated with the specified key, or null if
-	 *         there was no mapping for the key. (A null return can also
-	 *         indicate that the map previously associated null with the key, if
-	 *         the implementation supports null values.)
-	 */
-	@Nullable
-	public synchronized V putIfAbsent(@NonNull K key, V value) {
-		V old = null;
-		if ((old = get(key)) == null) {
-			return put(key, value);
-		} else {
-			return old;
-		}
-	}
+    /**
+     * If the specified key is not already associated with a value, associate it with the given
+     * value.
+     *
+     * @param key   key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with the specified key, or null if there was no mapping
+     * for the key. (A null return can also indicate that the map previously associated null with
+     * the key, if the implementation supports null values.)
+     */
+    @Nullable
+    public synchronized V putIfAbsent(@NonNull K key, V value) {
+        V old = null;
+        if ((old = get(key)) == null) {
+            return put(key, value);
+        } else {
+            return old;
+        }
+    }
 
-	/**
-	 * Remove a cache entry if the key is currently associated with the passed
-	 * object.
-	 * 
-	 * @param key
-	 * @param value
-	 * @return true if the element was removed, false otherwise
-	 */
-	public boolean remove(@NonNull K key, V value) {
-		if (value == null) {
-			return false;
-		}
-		synchronized (this) {
-			V oldValue = get(key);
-			if (oldValue != null && oldValue.equals(value)) {
-				remove(key);
-				return true;
-			}
-			return false;
-		}
-	}
+    /**
+     * Remove a cache entry if the key is currently associated with the passed object.
+     *
+     * @param key
+     * @param value
+     * @return true if the element was removed, false otherwise
+     */
+    public boolean remove(@NonNull K key, V value) {
+        if (value == null) {
+            return false;
+        }
+        synchronized (this) {
+            V oldValue = get(key);
+            if (oldValue != null && oldValue.equals(value)) {
+                remove(key);
+                return true;
+            }
+            return false;
+        }
+    }
 
-	@Override
-	@CallSuper
-	public void clear() {
-		evictAll();
-	}
+    @Override
+    @CallSuper
+    public void clear() {
+        evictAll();
+    }
 
-	/**
-	 * @throws UnsupportedOperationException
-	 */
-	@Override
-	public void setOnEntryRemovedListener(OnEntryRemovedListener<K, V> listener) {
-		throw new UnsupportedOperationException();
-	}
+    /**
+     * @throws UnsupportedOperationException
+     */
+    @Override
+    public void setOnEntryRemovedListener(OnEntryRemovedListener<K, V> listener) {
+        throw new UnsupportedOperationException();
+    }
 
 }

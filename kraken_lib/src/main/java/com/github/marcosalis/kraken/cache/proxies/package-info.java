@@ -15,9 +15,10 @@
  */
 
 /**
- * This package contains classes that provide default implementations of content proxies cache management.
- * 
- * @since 1.0
+ * This package contains classes that provide default implementations of content proxies cache
+ * management.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.cache.proxies;

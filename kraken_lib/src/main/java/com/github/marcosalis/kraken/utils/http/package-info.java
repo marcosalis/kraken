@@ -16,19 +16,18 @@
  */
 
 /**
- * This package contains library-level utilities related to the creation and use of network connections.<br>
- * 
- * All of the connection utilities of this package make use and wrap components
- * of the <i>google-http-java-client</i> library.
- * Kraken library provides default, generic-use implementations for any
- * of the customizations features of that library.
- * 
- * Have a look at the library documentation at:<br>
- * {@link http://code.google.com/p/google-api-java-client/}<br>
- * 
+ * This package contains library-level utilities related to the creation and use of network
+ * connections.<br>
+ *
+ * All of the connection utilities of this package make use and wrap components of the
+ * <i>google-http-java-client</i> library. Kraken library provides default, generic-use
+ * implementations for any of the customizations features of that library.
+ *
+ * Have a look at the library documentation at:<br> {@link http://code.google.com/p/google-api-java-client/}<br>
+ *
  * For information on how to customise the HTTP connections behaviour, see {@link HttpTransport}
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.utils.http;

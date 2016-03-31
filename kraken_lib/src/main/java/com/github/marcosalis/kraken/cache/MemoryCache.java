@@ -24,70 +24,62 @@ import com.google.common.annotations.Beta;
 
 /**
  * Public interface for a 1st level, memory based cache.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface MemoryCache<K, V> extends ContentCache<K, V> {
 
-	/**
-	 * Sets an (optional) {@link OnEntryRemovedListener} to allow cache entries
-	 * to be removed when using another component that keeps references to them
-	 * (such as a {@link Memoizer} to populate the cache), in order to avoid
-	 * memory leaks and OOM. This is especially crucial when dealing with big
-	 * objects in memory such as bitmaps.
-	 * 
-	 * @param listener
-	 *            The listener to set or null to unset it
-	 */
-	public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, V> listener);
+    /**
+     * Sets an (optional) {@link OnEntryRemovedListener} to allow cache entries to be removed when
+     * using another component that keeps references to them (such as a {@link Memoizer} to populate
+     * the cache), in order to avoid memory leaks and OOM. This is especially crucial when dealing
+     * with big objects in memory such as bitmaps.
+     *
+     * @param listener The listener to set or null to unset it
+     */
+    public void setOnEntryRemovedListener(@Nullable OnEntryRemovedListener<K, V> listener);
 
-	/**
-	 * Retrieves an element from the memory cache by its cache key.
-	 * 
-	 * @param key
-	 *            The cache key for the requested item
-	 * @return The value (or null if not present)
-	 */
-	@Nullable
-	public V get(@NonNull K key);
+    /**
+     * Retrieves an element from the memory cache by its cache key.
+     *
+     * @param key The cache key for the requested item
+     * @return The value (or null if not present)
+     */
+    @Nullable
+    public V get(@NonNull K key);
 
-	/**
-	 * Puts an element into the cache.
-	 * 
-	 * @param key
-	 *            The item cache key
-	 * @param value
-	 *            The cache value or null to unset
-	 * @return The old element for the passed key if present
-	 */
-	@Nullable
-	public V put(@NonNull K key, @Nullable V value);
+    /**
+     * Puts an element into the cache.
+     *
+     * @param key   The item cache key
+     * @param value The cache value or null to unset
+     * @return The old element for the passed key if present
+     */
+    @Nullable
+    public V put(@NonNull K key, @Nullable V value);
 
-	/**
-	 * If the specified key is not already associated with a value, associate it
-	 * with the given value.
-	 * 
-	 * @param key
-	 *            key with which the specified value is to be associated
-	 * @param value
-	 *            value to be associated with the specified key
-	 * @return the previous value associated with the specified key, or null if
-	 *         there was no mapping for the key. (A null return can also
-	 *         indicate that the map previously associated null with the key, if
-	 *         the implementation supports null values.)
-	 */
-	@Nullable
-	public V putIfAbsent(@NonNull K key, V value);
+    /**
+     * If the specified key is not already associated with a value, associate it with the given
+     * value.
+     *
+     * @param key   key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     * @return the previous value associated with the specified key, or null if there was no mapping
+     * for the key. (A null return can also indicate that the map previously associated null with
+     * the key, if the implementation supports null values.)
+     */
+    @Nullable
+    public V putIfAbsent(@NonNull K key, V value);
 
-	/**
-	 * Removes the entry for the passed key if it exists.
-	 * 
-	 * @param key
-	 * @return the previous value mapped by key
-	 */
-	@Nullable
-	public V remove(K key);
+    /**
+     * Removes the entry for the passed key if it exists.
+     *
+     * @param key
+     * @return the previous value mapped by key
+     */
+    @Nullable
+    public V remove(K key);
 
 }

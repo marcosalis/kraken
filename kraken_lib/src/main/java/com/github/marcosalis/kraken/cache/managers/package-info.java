@@ -16,8 +16,8 @@
 
 /**
  * This package contains classes to handle global management of groups of caches.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.cache.managers;

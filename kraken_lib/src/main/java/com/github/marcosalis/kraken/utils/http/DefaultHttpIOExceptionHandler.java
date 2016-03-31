@@ -16,10 +16,6 @@
  */
 package com.github.marcosalis.kraken.utils.http;
 
-import java.io.IOException;
-
-import javax.annotation.concurrent.Immutable;
-
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -31,38 +27,41 @@ import com.google.api.client.util.BackOffUtils;
 import com.google.api.client.util.Sleeper;
 import com.google.common.annotations.Beta;
 
+import java.io.IOException;
+
+import javax.annotation.concurrent.Immutable;
+
 /**
- * Default, general simple {@link HttpIOExceptionHandler} implementation (as
- * suggested in docs) that uses the {@link DefaultLinearBackOff} to handle
- * request IO exceptions and, opposite to the library
- * {@link HttpBackOffIOExceptionHandler}, can be used for multiple requests as
- * it is stateless.
- * 
- * @since 1.0
+ * Default, general simple {@link HttpIOExceptionHandler} implementation (as suggested in docs) that
+ * uses the {@link DefaultLinearBackOff} to handle request IO exceptions and, opposite to the
+ * library {@link HttpBackOffIOExceptionHandler}, can be used for multiple requests as it is
+ * stateless.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public final class DefaultHttpIOExceptionHandler implements HttpIOExceptionHandler {
 
-	private static final String TAG = DefaultHttpIOExceptionHandler.class.getSimpleName();
+    private static final String TAG = DefaultHttpIOExceptionHandler.class.getSimpleName();
 
-	private static final BackOff BACKOFF = new DefaultLinearBackOff();
+    private static final BackOff BACKOFF = new DefaultLinearBackOff();
 
-	@Override
-	public boolean handleIOException(HttpRequest request, boolean supportsRetry) throws IOException {
-		if (!supportsRetry) {
-			// just return if retry is not supported
-			return false;
-		}
-		try {
-			if (DroidConfig.DEBUG) {
-				Log.v(TAG, "Retrying with backoff: " + request.getUrl());
-			}
-			return BackOffUtils.next(Sleeper.DEFAULT, BACKOFF);
-		} catch (InterruptedException exception) {
-			return false;
-		}
-	}
+    @Override
+    public boolean handleIOException(HttpRequest request, boolean supportsRetry) throws IOException {
+        if (!supportsRetry) {
+            // just return if retry is not supported
+            return false;
+        }
+        try {
+            if (DroidConfig.DEBUG) {
+                Log.v(TAG, "Retrying with backoff: " + request.getUrl());
+            }
+            return BackOffUtils.next(Sleeper.DEFAULT, BACKOFF);
+        } catch (InterruptedException exception) {
+            return false;
+        }
+    }
 
 }

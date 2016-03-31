@@ -16,10 +16,11 @@
 
 /**
  * This package contains library internal classes for downloading and caching bitmaps.
- * 
- * The classes and interfaces contained in this package and sub-packages are subject to change without notice and shouldn't be used directly.
- * 
- * @since 1.0
+ *
+ * The classes and interfaces contained in this package and sub-packages are subject to change
+ * without notice and shouldn't be used directly.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.cache.bitmap.internal;

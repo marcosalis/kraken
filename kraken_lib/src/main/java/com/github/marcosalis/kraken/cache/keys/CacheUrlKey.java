@@ -16,37 +16,36 @@
  */
 package com.github.marcosalis.kraken.cache.keys;
 
-import android.support.annotation.NonNull;
-
 import android.annotation.SuppressLint;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.utils.HashUtils.CacheKey;
 import com.google.common.annotations.Beta;
 
 /**
- * Interface for objects that hold either a String key and a URL representing
- * the resource (or value), to be used as cache key entries.
- * 
+ * Interface for objects that hold either a String key and a URL representing the resource (or
+ * value), to be used as cache key entries.
+ *
  * Implementations <b>must</b> implement {@link Parcelable}
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @SuppressLint("ParcelCreator")
 public interface CacheUrlKey extends CacheKey, Parcelable {
 
-	/**
-	 * Gets the hash string used as a key
-	 */
-	@NonNull
-	public String hash();
+    /**
+     * Gets the hash string used as a key
+     */
+    @NonNull
+    public String hash();
 
-	/**
-	 * Gets the string URL hold by this {@link CacheUrlKey}
-	 */
-	@NonNull
-	public String getUrl();
+    /**
+     * Gets the string URL hold by this {@link CacheUrlKey}
+     */
+    @NonNull
+    public String getUrl();
 
 }

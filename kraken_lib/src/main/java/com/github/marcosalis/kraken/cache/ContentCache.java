@@ -21,62 +21,54 @@ import android.support.annotation.NonNull;
 import com.google.common.annotations.Beta;
 
 /**
- * Base, simple interface that every content cache should implement in order to
- * perform some common operations.
+ * Base, simple interface that every content cache should implement in order to perform some common
+ * operations.
  *
  * TODO: consider implementing {@link com.google.common.cache.Cache}
  *
- * @since 1.0
+ * @param <K> Cache keys type
+ * @param <V> Cached items type
  * @author Marco Salis
- *
- * @param <K>
- *            Cache keys type
- * @param <V>
- *            Cached items type
+ * @since 1.0
  */
 @Beta
 public interface ContentCache<K, V> {
 
-	/**
-	 * Interface that cache implementations can use to notify a client component
-	 * when an item in the cache is removed/evicted. This is useful especially
-	 * for space-consuming cache items, in order to avoid other classes holding
-	 * a reference to the old cache entry and preventing it from being GCed.
-	 */
-	@Beta
-	public interface OnEntryRemovedListener<K, V> {
+    /**
+     * Interface that cache implementations can use to notify a client component when an item in the
+     * cache is removed/evicted. This is useful especially for space-consuming cache items, in order
+     * to avoid other classes holding a reference to the old cache entry and preventing it from
+     * being GCed.
+     */
+    @Beta
+    public interface OnEntryRemovedListener<K, V> {
 
-		/**
-		 * Called when a cache entry has been removed.
-		 *
-		 * @param evicted
-		 *            true if the item has been removed for space constraints,
-		 *            false otherwise (because it's been explicitly removed or
-		 *            replaced)
-		 * @param key
-		 *            the cache key of the removed element
-		 * @param value
-		 *            the removed element
-		 */
-		public void onEntryRemoved(boolean evicted, @NonNull K key, @NonNull V value);
-	}
+        /**
+         * Called when a cache entry has been removed.
+         *
+         * @param evicted true if the item has been removed for space constraints, false otherwise
+         *                (because it's been explicitly removed or replaced)
+         * @param key     the cache key of the removed element
+         * @param value   the removed element
+         */
+        public void onEntryRemoved(boolean evicted, @NonNull K key, @NonNull V value);
+    }
 
-	/**
-	 * Possible cache "sources" for an item retrieved from a
-	 * {@link ContentCache}.
-	 *
-	 * @since 1.0.2
-	 */
-	@Beta
-	public enum CacheSource {
-		MEMORY,
-		DISK,
-		NETWORK;
-	}
+    /**
+     * Possible cache "sources" for an item retrieved from a {@link ContentCache}.
+     *
+     * @since 1.0.2
+     */
+    @Beta
+    public enum CacheSource {
+        MEMORY,
+        DISK,
+        NETWORK;
+    }
 
-	/**
-	 * Completely clears the cache contents.
-	 */
-	public void clear();
+    /**
+     * Completely clears the cache contents.
+     */
+    public void clear();
 
 }

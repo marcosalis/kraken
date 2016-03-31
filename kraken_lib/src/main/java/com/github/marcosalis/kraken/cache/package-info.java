@@ -16,8 +16,8 @@
 
 /**
  * This package contains the cache public interfaces and main classes.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.cache;

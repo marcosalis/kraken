@@ -19,26 +19,26 @@ import com.google.common.annotations.Beta;
 
 /**
  * Interface for a network connection monitor.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public interface ConnectionMonitor {
 
-	/**
-	 * Checks if the connection monitor has already been registered.
-	 * 
-	 * @return true if it is already registered, false otherwise
-	 */
-	public boolean isRegistered();
+    /**
+     * Checks if the connection monitor has already been registered.
+     *
+     * @return true if it is already registered, false otherwise
+     */
+    public boolean isRegistered();
 
-	/**
-	 * Checks the current device's network connection state.
-	 * 
-	 * @return true if there is an active network connection or the monitor
-	 *         hasn't been initialized, false otherwise
-	 */
-	public boolean isNetworkActive();
+    /**
+     * Checks the current device's network connection state.
+     *
+     * @return true if there is an active network connection or the monitor hasn't been initialized,
+     * false otherwise
+     */
+    public boolean isNetworkActive();
 
 }

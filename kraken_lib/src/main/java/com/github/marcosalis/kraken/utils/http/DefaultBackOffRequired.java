@@ -29,43 +29,43 @@ import org.apache.http.HttpStatus;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Default, general simple {@link BackOffRequired} implementation with the
- * library's default policy for requests retry backoff.
- * 
- * @since 1.0
+ * Default, general simple {@link BackOffRequired} implementation with the library's default policy
+ * for requests retry backoff.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public class DefaultBackOffRequired implements BackOffRequired {
 
-	private static final String TAG = DefaultBackOffRequired.class.getSimpleName();
+    private static final String TAG = DefaultBackOffRequired.class.getSimpleName();
 
-	@Override
-	public boolean isRequired(@NonNull HttpResponse response) {
-		final int statusCode = response.getStatusCode();
-		switch (statusCode) {
-		case 0:
-			// No HTTP response (may be caused by a Google's library fault)
-			logBackoffRequired("Backoff required for '0' status code", response);
-			return true;
-		case HttpStatus.SC_CONFLICT:
-			// server-side conflict, retry with backoff
-			logBackoffRequired("Backoff required for '409 - Conflict' status code", response);
-			return true;
-		case HttpStatus.SC_BAD_GATEWAY:
-			// server unavailable, or too busy, retry with backoff
-			logBackoffRequired("Handle '502 - Bad Gateway' status code", response);
-			return true;
-		default:
-			return false;
-		}
-	}
+    @Override
+    public boolean isRequired(@NonNull HttpResponse response) {
+        final int statusCode = response.getStatusCode();
+        switch (statusCode) {
+            case 0:
+                // No HTTP response (may be caused by a Google's library fault)
+                logBackoffRequired("Backoff required for '0' status code", response);
+                return true;
+            case HttpStatus.SC_CONFLICT:
+                // server-side conflict, retry with backoff
+                logBackoffRequired("Backoff required for '409 - Conflict' status code", response);
+                return true;
+            case HttpStatus.SC_BAD_GATEWAY:
+                // server unavailable, or too busy, retry with backoff
+                logBackoffRequired("Handle '502 - Bad Gateway' status code", response);
+                return true;
+            default:
+                return false;
+        }
+    }
 
-	private void logBackoffRequired(@NonNull String message, @NonNull HttpResponse response) {
-		if (DroidConfig.DEBUG) {
-			Log.w(TAG, message + ": " + response.getRequest().getUrl());
-		}
-	}
+    private void logBackoffRequired(@NonNull String message, @NonNull HttpResponse response) {
+        if (DroidConfig.DEBUG) {
+            Log.w(TAG, message + ": " + response.getRequest().getUrl());
+        }
+    }
 
 }

@@ -26,75 +26,72 @@ import com.github.marcosalis.kraken.utils.network.NetworkBroadcastReceiver.Netwo
 import com.google.common.annotations.Beta;
 
 /**
- * Network connectivity changes notifier. Clients must register to get
- * connection updates through the application's {@link LocalBroadcastManager}
- * and passing an anonymous extension of this class as shown below:
- * 
+ * Network connectivity changes notifier. Clients must register to get connection updates through
+ * the application's {@link LocalBroadcastManager} and passing an anonymous extension of this class
+ * as shown below:
+ *
  * <pre>
  * LocalBroadcastManager.getInstance(context).registerReceiver(new NetworkReceiver() {
  * 	&#064;Override
  * 	public void onConnectionActive(int type) {
  * 		// do your stuff here
- * 	}
- * 
+ *    }
+ *
  * 	&#064;Override
  * 	public void onConnectionGone() {
  * 		// do your stuff here
- * 	}
+ *    }
  * }, NetworkReceiver.getFilter());
  * </pre>
- * 
- * Do <b>NOT</b> forget to unregister the receiver by calling the
- * unregisterReceiver() method of the {@link LocalBroadcastManager}.
- * 
- * For activities, the recommended way to register and unregister the receiver
- * is in the onResume() and onPause() methods.
- * 
- * <b>Note:</b> due to an Android issue, in several cases a connection change
- * gets notified more than once by the BroadcastReceiver. Use your own state
- * control when performing atomic operations inside the receiver callbacks.
- * 
- * @since 1.0
+ *
+ * Do <b>NOT</b> forget to unregister the receiver by calling the unregisterReceiver() method of the
+ * {@link LocalBroadcastManager}.
+ *
+ * For activities, the recommended way to register and unregister the receiver is in the onResume()
+ * and onPause() methods.
+ *
+ * <b>Note:</b> due to an Android issue, in several cases a connection change gets notified more
+ * than once by the BroadcastReceiver. Use your own state control when performing atomic operations
+ * inside the receiver callbacks.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 public abstract class NetworkReceiver extends BroadcastReceiver {
 
-	/**
-	 * Return the {@link IntentFilter} to subscribe to network connectivity
-	 * changes
-	 */
-	public static IntentFilter getFilter() {
-		final IntentFilter filter = new IntentFilter();
-		filter.addAction(NetworkBroadcastReceiver.ACTION_NETWORK_ACTIVE);
-		filter.addAction(NetworkBroadcastReceiver.ACTION_NETWORK_GONE);
-		return filter;
-	}
+    /**
+     * Return the {@link IntentFilter} to subscribe to network connectivity changes
+     */
+    public static IntentFilter getFilter() {
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction(NetworkBroadcastReceiver.ACTION_NETWORK_ACTIVE);
+        filter.addAction(NetworkBroadcastReceiver.ACTION_NETWORK_GONE);
+        return filter;
+    }
 
-	@Override
-	public final void onReceive(Context context, Intent intent) {
-		if (intent instanceof NetworkIntent) {
-			final NetworkIntent netIntent = (NetworkIntent) intent;
-			if (netIntent.getAction().equals(NetworkBroadcastReceiver.ACTION_NETWORK_ACTIVE)) {
-				onConnectionActive(netIntent.getNetworkType());
-			} else {
-				onConnectionGone();
-			}
-		}
-	}
+    @Override
+    public final void onReceive(Context context, Intent intent) {
+        if (intent instanceof NetworkIntent) {
+            final NetworkIntent netIntent = (NetworkIntent) intent;
+            if (netIntent.getAction().equals(NetworkBroadcastReceiver.ACTION_NETWORK_ACTIVE)) {
+                onConnectionActive(netIntent.getNetworkType());
+            } else {
+                onConnectionGone();
+            }
+        }
+    }
 
-	/**
-	 * Called when a network connection becomes available and active
-	 * 
-	 * @param type
-	 *            The connection type. Can be one of those listed in
-	 *            {@link ConnectionManager}
-	 */
-	public abstract void onConnectionActive(int type);
+    /**
+     * Called when a network connection becomes available and active
+     *
+     * @param type The connection type. Can be one of those listed in {@link ConnectionManager}
+     */
+    public abstract void onConnectionActive(int type);
 
-	/**
-	 * Called when a network connection is not available anymore
-	 */
-	public abstract void onConnectionGone();
+    /**
+     * Called when a network connection is not available anymore
+     */
+    public abstract void onConnectionGone();
 
 }

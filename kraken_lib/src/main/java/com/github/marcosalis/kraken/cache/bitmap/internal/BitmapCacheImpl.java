@@ -41,158 +41,153 @@ import java.util.concurrent.Future;
 
 /**
  * Concrete default implementation for a {@link BitmapCache}.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 class BitmapCacheImpl extends BitmapCacheBase {
 
-	private final BitmapMemoryCache<String> mMemoryCache;
-	@Nullable
-	private final BitmapDiskCache mDiskCache;
-	private final BitmapLoader.Config mLoaderConfig;
+    private final BitmapMemoryCache<String> mMemoryCache;
+    @Nullable
+    private final BitmapDiskCache mDiskCache;
+    private final BitmapLoader.Config mLoaderConfig;
 
-	BitmapCacheImpl(@NonNull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
-			@NonNull HttpRequestFactory factory, @NonNull BitmapDecoder decoder) {
-		mMemoryCache = cache;
-		cache.setOnEntryRemovedListener(this);
-		mDiskCache = diskCache;
-		mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory,
-				decoder);
-	}
+    BitmapCacheImpl(@NonNull BitmapMemoryCache<String> cache, @Nullable BitmapDiskCache diskCache,
+                    @NonNull HttpRequestFactory factory, @NonNull BitmapDecoder decoder) {
+        mMemoryCache = cache;
+        cache.setOnEntryRemovedListener(this);
+        mDiskCache = diskCache;
+        mLoaderConfig = new BitmapLoader.Config(getMemoizer(), mMemoryCache, mDiskCache, factory,
+                decoder);
+    }
 
-	@NonNull
-	@Override
-	public BitmapSetterBuilder newBitmapSetterBuilder(boolean allowReuse) {
-		return new BitmapSetterBuilder(this, allowReuse);
-	}
+    @NonNull
+    @Override
+    public BitmapSetterBuilder newBitmapSetterBuilder(boolean allowReuse) {
+        return new BitmapSetterBuilder(this, allowReuse);
+    }
 
-	@Override
-	public void getBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
-			@NonNull OnBitmapRetrievalListener listener) {
-		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
-		final boolean isRefresh = policy == AccessPolicy.REFRESH;
+    @Override
+    public void getBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
+                               @NonNull OnBitmapRetrievalListener listener) {
+        Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
+        final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
-		if (isRefresh) {
-			BitmapLoader.executeDownload(mLoaderConfig, key, policy, listener);
-		} else {
-			final Future<Bitmap> future = getBitmapFromMemory(key, listener);
-			if (future != null) {
-				// cache hit at memory level, we can avoid further overhead of
-				// executing tasks as an optimization
-			} else {
-				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, listener);
-				BitmapCacheBase.submitInExecutor(loader);
-			}
-		}
-	}
+        if (isRefresh) {
+            BitmapLoader.executeDownload(mLoaderConfig, key, policy, listener);
+        } else {
+            final Future<Bitmap> future = getBitmapFromMemory(key, listener);
+            if (future != null) {
+                // cache hit at memory level, we can avoid further overhead of
+                // executing tasks as an optimization
+            } else {
+                final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, listener);
+                BitmapCacheBase.submitInExecutor(loader);
+            }
+        }
+    }
 
-	@Override
-	public void preloadBitmap(@NonNull CacheUrlKey key) {
-		final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH,
-				null);
-		BitmapCacheBase.submitInExecutor(loader);
-	}
+    @Override
+    public void preloadBitmap(@NonNull CacheUrlKey key) {
+        final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, AccessPolicy.PRE_FETCH,
+                null);
+        BitmapCacheBase.submitInExecutor(loader);
+    }
 
-	@Override
-	public void setBitmapAsync(@NonNull String url, @NonNull ImageView view) {
-		final SimpleCacheUrlKey key = new SimpleCacheUrlKey(url);
-		setBitmapAsync(key, view);
-	}
+    @Override
+    public void setBitmapAsync(@NonNull String url, @NonNull ImageView view) {
+        final SimpleCacheUrlKey key = new SimpleCacheUrlKey(url);
+        setBitmapAsync(key, view);
+    }
 
-	@Override
-	public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull ImageView view) {
-		final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view);
-		getBitmap(key, AccessPolicy.NORMAL, setter, null);
-	}
+    @Override
+    public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull ImageView view) {
+        final BitmapAsyncSetter setter = new BitmapAsyncSetter(key, view);
+        getBitmap(key, AccessPolicy.NORMAL, setter, null);
+    }
 
-	@Override
-	public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
-			@NonNull BitmapSetter setter, @Nullable Drawable placeholder) {
-		getBitmap(key, policy, setter, placeholder);
-	}
+    @Override
+    public void setBitmapAsync(@NonNull CacheUrlKey key, @NonNull AccessPolicy policy,
+                               @NonNull BitmapSetter setter, @Nullable Drawable placeholder) {
+        getBitmap(key, policy, setter, placeholder);
+    }
 
-	/**
-	 * Get a bitmap content from the {@link BitmapCache} and set it into an
-	 * ImageView using the passed {@link BitmapAsyncSetter}.
-	 * 
-	 * <b>This needs to be called from the UI thread</b>, as the image setting
-	 * is asynchronous except in the case we already have the image available in
-	 * the memory cache.
-	 * 
-	 * @param key
-	 *            The {@link CacheUrlKey} of the image to retrieve
-	 * @param policy
-	 *            The {@link AccessPolicy} to use, can be one of
-	 *            {@link AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY}
-	 *            or {@link AccessPolicy#REFRESH}
-	 * @param setter
-	 *            The {@link OnBitmapRetrievalListener} to set the bitmap in an
-	 *            {@link ImageView}
-	 * @param placeholder
-	 *            An (optional) {@link Drawable} temporary placeholder, only set
-	 *            if the bitmap is not in the memory cache
-	 * @return The {@link Future} that holds the Bitmap loading
-	 */
-	@NonNull
-	protected final Future<Bitmap> getBitmap(@NonNull CacheUrlKey key,
-			@NonNull AccessPolicy policy, @NonNull BitmapSetter setter,
-			@Nullable Drawable placeholder) {
-		Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
-		final boolean isRefresh = policy == AccessPolicy.REFRESH;
+    /**
+     * Get a bitmap content from the {@link BitmapCache} and set it into an ImageView using the
+     * passed {@link BitmapAsyncSetter}.
+     *
+     * <b>This needs to be called from the UI thread</b>, as the image setting is asynchronous
+     * except in the case we already have the image available in the memory cache.
+     *
+     * @param key         The {@link CacheUrlKey} of the image to retrieve
+     * @param policy      The {@link AccessPolicy} to use, can be one of {@link
+     *                    AccessPolicy#NORMAL}, {@link AccessPolicy#CACHE_ONLY} or {@link
+     *                    AccessPolicy#REFRESH}
+     * @param setter      The {@link OnBitmapRetrievalListener} to set the bitmap in an {@link
+     *                    ImageView}
+     * @param placeholder An (optional) {@link Drawable} temporary placeholder, only set if the
+     *                    bitmap is not in the memory cache
+     * @return The {@link Future} that holds the Bitmap loading
+     */
+    @NonNull
+    protected final Future<Bitmap> getBitmap(@NonNull CacheUrlKey key,
+                                             @NonNull AccessPolicy policy, @NonNull BitmapSetter setter,
+                                             @Nullable Drawable placeholder) {
+        Preconditions.checkArgument(policy != AccessPolicy.PRE_FETCH, "Can't prefetch here");
+        final boolean isRefresh = policy == AccessPolicy.REFRESH;
 
-		final Future<Bitmap> future;
-		if (!isRefresh && (future = getBitmapFromMemory(key, setter)) != null) {
-			// cache hit at the very first attempt, no other actions needed
-			return future;
-		} else {
-			// set temporary placeholder
-			if (placeholder != null) {
-				setter.setPlaceholder(placeholder);
-			}
-			if (!isRefresh) {
-				final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, setter);
-				return BitmapCacheBase.submitInExecutor(loader);
-			} else {
-				return BitmapLoader.executeDownload(mLoaderConfig, key, policy, setter);
-			}
-		}
-	}
+        final Future<Bitmap> future;
+        if (!isRefresh && (future = getBitmapFromMemory(key, setter)) != null) {
+            // cache hit at the very first attempt, no other actions needed
+            return future;
+        } else {
+            // set temporary placeholder
+            if (placeholder != null) {
+                setter.setPlaceholder(placeholder);
+            }
+            if (!isRefresh) {
+                final BitmapLoader loader = new BitmapLoader(mLoaderConfig, key, policy, setter);
+                return BitmapCacheBase.submitInExecutor(loader);
+            } else {
+                return BitmapLoader.executeDownload(mLoaderConfig, key, policy, setter);
+            }
+        }
+    }
 
-	@Nullable
-	private Future<Bitmap> getBitmapFromMemory(@NonNull CacheUrlKey key,
-			@NonNull OnBitmapRetrievalListener listener) {
-		final Bitmap bitmap;
-		if ((bitmap = mMemoryCache.get(key.hash())) != null) {
-			if (listener instanceof BitmapAsyncSetter) {
-				((BitmapAsyncSetter) listener).setBitmapSync(bitmap);
-			} else {
-				listener.onBitmapRetrieved(key, bitmap, CacheSource.MEMORY);
-			}
-			return SettableFutureTask.fromResult(bitmap);
-		}
-		return null;
-	}
+    @Nullable
+    private Future<Bitmap> getBitmapFromMemory(@NonNull CacheUrlKey key,
+                                               @NonNull OnBitmapRetrievalListener listener) {
+        final Bitmap bitmap;
+        if ((bitmap = mMemoryCache.get(key.hash())) != null) {
+            if (listener instanceof BitmapAsyncSetter) {
+                ((BitmapAsyncSetter) listener).setBitmapSync(bitmap);
+            } else {
+                listener.onBitmapRetrieved(key, bitmap, CacheSource.MEMORY);
+            }
+            return SettableFutureTask.fromResult(bitmap);
+        }
+        return null;
+    }
 
-	@Override
-	public void clearMemoryCache() {
-		super.clearMemoryCache();
-		mMemoryCache.clear();
-	}
+    @Override
+    public void clearMemoryCache() {
+        super.clearMemoryCache();
+        mMemoryCache.clear();
+    }
 
-	@Override
-	public void clearDiskCache(ClearMode mode) {
-		if (mDiskCache != null) {
-			mDiskCache.clear(mode);
-		}
-	}
+    @Override
+    public void clearDiskCache(ClearMode mode) {
+        if (mDiskCache != null) {
+            mDiskCache.clear(mode);
+        }
+    }
 
-	@Override
-	public void scheduleClearDiskCache() {
-		if (mDiskCache != null) {
-			mDiskCache.scheduleClear();
-		}
-	}
+    @Override
+    public void scheduleClearDiskCache() {
+        if (mDiskCache != null) {
+            mDiskCache.scheduleClear();
+        }
+    }
 
 }

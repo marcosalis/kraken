@@ -19,117 +19,112 @@ package com.github.marcosalis.kraken.utils.json;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.io.IOException;
-
-import javax.annotation.concurrent.Immutable;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.api.client.util.ObjectParser;
 import com.google.common.annotations.Beta;
 
+import java.io.IOException;
+
+import javax.annotation.concurrent.Immutable;
+
 /**
- * Singleton class that provides JSON parsing utilities based on the Jackson
- * library for converting POJO (<i>Plain Old Java Objects</i>) data models into
- * JSON.
- * 
+ * Singleton class that provides JSON parsing utilities based on the Jackson library for converting
+ * POJO (<i>Plain Old Java Objects</i>) data models into JSON.
+ *
  * See {@link http://wiki.fasterxml.com/JacksonHome} for documentation.
- * 
- * Call {@link #registerGuavaModule()} at application startup to enable the
- * {@link GuavaModule} for Jackson.
- * 
+ *
+ * Call {@link #registerGuavaModule()} at application startup to enable the {@link GuavaModule} for
+ * Jackson.
+ *
  * TODO: do we really need a singleton enum here?
- * 
- * @deprecated
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
+ * @deprecated
  */
 @Beta
 @Deprecated
 @Immutable
 public enum JacksonJsonManager {
-	INSTANCE;
+    INSTANCE;
 
-	private final ObjectMapper mMapper;
-	private final JacksonObjectParser mObjParser;
+    private final ObjectMapper mMapper;
+    private final JacksonObjectParser mObjParser;
 
-	/**
-	 * Shortcut method to return the class public singleton
-	 */
-	@NonNull
-	public static JacksonJsonManager get() {
-		return INSTANCE;
-	}
+    /**
+     * Shortcut method to return the class public singleton
+     */
+    @NonNull
+    public static JacksonJsonManager get() {
+        return INSTANCE;
+    }
 
-	/**
-	 * Private constructor (only used to initialise the singleton fields)
-	 */
-	private JacksonJsonManager() {
-		// single global shared ObjectMapper instance
-		mMapper = new ObjectMapper();
-		// global setting to write dates in ISO8601 format (not needed for now)
-		// mMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS,
-		// false);
-		mObjParser = new JacksonObjectParser(mMapper);
-	}
+    /**
+     * Private constructor (only used to initialise the singleton fields)
+     */
+    private JacksonJsonManager() {
+        // single global shared ObjectMapper instance
+        mMapper = new ObjectMapper();
+        // global setting to write dates in ISO8601 format (not needed for now)
+        // mMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS,
+        // false);
+        mObjParser = new JacksonObjectParser(mMapper);
+    }
 
-	/**
-	 * Register {@link GuavaModule} module for Guava data structures
-	 */
-	public static void registerGuavaModule() {
-		INSTANCE.mMapper.registerModule(new GuavaModule());
-	}
+    /**
+     * Register {@link GuavaModule} module for Guava data structures
+     */
+    public static void registerGuavaModule() {
+        INSTANCE.mMapper.registerModule(new GuavaModule());
+    }
 
-	/**
-	 * Returns the global {@link ObjectParser} instance associated with the
-	 * {@link ObjectMapper}
-	 * 
-	 * @return The {@link JacksonObjectParser} parser
-	 */
-	@NonNull
-	public static JacksonObjectParser getObjectParser() {
-		return INSTANCE.mObjParser;
-	}
+    /**
+     * Returns the global {@link ObjectParser} instance associated with the {@link ObjectMapper}
+     *
+     * @return The {@link JacksonObjectParser} parser
+     */
+    @NonNull
+    public static JacksonObjectParser getObjectParser() {
+        return INSTANCE.mObjParser;
+    }
 
-	/**
-	 * Returns the global {@link ObjectMapper}
-	 * 
-	 * @return The {@link ObjectMapper}
-	 */
-	@NonNull
-	public static ObjectMapper getObjectMapper() {
-		return INSTANCE.mMapper;
-	}
+    /**
+     * Returns the global {@link ObjectMapper}
+     *
+     * @return The {@link ObjectMapper}
+     */
+    @NonNull
+    public static ObjectMapper getObjectMapper() {
+        return INSTANCE.mMapper;
+    }
 
-	/**
-	 * Builds a new {@link JacksonHttpContent} from the source object.
-	 * 
-	 * @param source
-	 *            The source object (keys must be specified for the mapping to
-	 *            work)
-	 * @return The built {@link JacksonHttpContent}
-	 */
-	public static JacksonHttpContent buildHttpContent(@NonNull Object source) {
-		return new JacksonHttpContent(source);
-	}
+    /**
+     * Builds a new {@link JacksonHttpContent} from the source object.
+     *
+     * @param source The source object (keys must be specified for the mapping to work)
+     * @return The built {@link JacksonHttpContent}
+     */
+    public static JacksonHttpContent buildHttpContent(@NonNull Object source) {
+        return new JacksonHttpContent(source);
+    }
 
-	/**
-	 * Shortcut method to parse a POJO object into a JSON string
-	 * 
-	 * @param data
-	 *            The object to parse
-	 * @return The string representation of that object (or null if the parse
-	 *         failed for an IOException)
-	 */
-	@Nullable
-	public static String toJsonString(Object data) {
-		try {
-			return INSTANCE.mMapper.writeValueAsString(data);
-		} catch (IOException e) {
-			LogUtils.logException(e);
-			return null;
-		}
-	}
+    /**
+     * Shortcut method to parse a POJO object into a JSON string
+     *
+     * @param data The object to parse
+     * @return The string representation of that object (or null if the parse failed for an
+     * IOException)
+     */
+    @Nullable
+    public static String toJsonString(Object data) {
+        try {
+            return INSTANCE.mMapper.writeValueAsString(data);
+        } catch (IOException e) {
+            LogUtils.logException(e);
+            return null;
+        }
+    }
 
 }

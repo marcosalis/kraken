@@ -15,9 +15,6 @@
  */
 package com.github.marcosalis.kraken.utils.json;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -26,38 +23,37 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.github.marcosalis.kraken.utils.android.LogUtils;
 import com.google.common.annotations.Beta;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
- * Abstract generic {@link JsonDeserializer} that deserializes a JSON array to a
- * list.
- * 
- * @since 1.0
+ * Abstract generic {@link JsonDeserializer} that deserializes a JSON array to a list.
+ *
+ * @param <M> The model object type
  * @author Marco Salis
- * 
- * @param <M>
- *            The model object type
+ * @since 1.0
  */
 @Beta
 public abstract class ArrayToListDeserializer<M> extends JsonDeserializer<List<M>> {
-	@Override
-	public List<M> deserialize(JsonParser jsonparser, DeserializationContext deserializationcontext)
-			throws IOException, JsonProcessingException {
-		try {
-			List<M> list = jsonparser.readValueAs(getTypeReference());
-			return list;
-		} catch (JsonProcessingException e) {
-			LogUtils.logException(e);
-			return null; // something wrong happened
-		}
-	}
+    @Override
+    public List<M> deserialize(JsonParser jsonparser, DeserializationContext deserializationcontext)
+            throws IOException, JsonProcessingException {
+        try {
+            List<M> list = jsonparser.readValueAs(getTypeReference());
+            return list;
+        } catch (JsonProcessingException e) {
+            LogUtils.logException(e);
+            return null; // something wrong happened
+        }
+    }
 
-	/**
-	 * Returns the parsed object type. A single, static instance is more
-	 * efficient. Create it with:
-	 * 
-	 * <code><pre>
-	 * new TypeReference<List<TYPE>>() {};
-	 * </pre></code>
-	 */
-	protected abstract TypeReference<List<M>> getTypeReference();
+    /**
+     * Returns the parsed object type. A single, static instance is more efficient. Create it with:
+     *
+     * <code><pre>
+     * new TypeReference<List<TYPE>>() {};
+     * </pre></code>
+     */
+    protected abstract TypeReference<List<M>> getTypeReference();
 
 }

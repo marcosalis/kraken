@@ -31,88 +31,87 @@ import java.util.concurrent.Semaphore;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Default implementation of {@link BitmapDecoder} that decodes bitmaps using
- * the {@link BitmapFactory} method.
- * 
- * All the concurrent decodings are controlled by a {@link Semaphore} and
- * limited depending on the number of device CPU cores to avoid overloading the
- * CPU and block the main thread.
- * 
- * @since 1.0.1
+ * Default implementation of {@link BitmapDecoder} that decodes bitmaps using the {@link
+ * BitmapFactory} method.
+ *
+ * All the concurrent decodings are controlled by a {@link Semaphore} and limited depending on the
+ * number of device CPU cores to avoid overloading the CPU and block the main thread.
+ *
  * @author Marco Salis
+ * @since 1.0.1
  */
 @Beta
 @ThreadSafe
 public final class DefaultBitmapDecoder implements BitmapDecoder {
 
-	static {
-		DECODE_SEMAPHORE = new Semaphore(calcMaxDecodingCores(), true);
-	}
+    static {
+        DECODE_SEMAPHORE = new Semaphore(calcMaxDecodingCores(), true);
+    }
 
-	private static final Semaphore DECODE_SEMAPHORE;
+    private static final Semaphore DECODE_SEMAPHORE;
 
-	@Override
-	@Nullable
-	public Bitmap decode(@NonNull byte[] data, @Nullable BitmapFactory.Options options) {
-		if (acquirePermit()) {
-			try {
-				return BitmapFactory.decodeByteArray(data, 0, data.length, options);
-			} finally {
-				releasePermit();
-			}
-		}
-		return null;
-	}
+    @Override
+    @Nullable
+    public Bitmap decode(@NonNull byte[] data, @Nullable BitmapFactory.Options options) {
+        if (acquirePermit()) {
+            try {
+                return BitmapFactory.decodeByteArray(data, 0, data.length, options);
+            } finally {
+                releasePermit();
+            }
+        }
+        return null;
+    }
 
-	@Override
-	@Nullable
-	public Bitmap decode(@NonNull InputStream stream, @Nullable BitmapFactory.Options options) {
-		if (acquirePermit()) {
-			try {
-				return BitmapFactory.decodeStream(stream, null, options);
-			} finally {
-				releasePermit();
-			}
-		}
-		return null;
-	}
+    @Override
+    @Nullable
+    public Bitmap decode(@NonNull InputStream stream, @Nullable BitmapFactory.Options options) {
+        if (acquirePermit()) {
+            try {
+                return BitmapFactory.decodeStream(stream, null, options);
+            } finally {
+                releasePermit();
+            }
+        }
+        return null;
+    }
 
-	@Override
-	@Nullable
-	public Bitmap decode(@NonNull String pathName, @Nullable BitmapFactory.Options options) {
-		if (acquirePermit()) {
-			try {
-				return BitmapFactory.decodeFile(pathName, options);
-			} finally {
-				releasePermit();
-			}
-		}
-		return null;
-	}
+    @Override
+    @Nullable
+    public Bitmap decode(@NonNull String pathName, @Nullable BitmapFactory.Options options) {
+        if (acquirePermit()) {
+            try {
+                return BitmapFactory.decodeFile(pathName, options);
+            } finally {
+                releasePermit();
+            }
+        }
+        return null;
+    }
 
-	@VisibleForTesting
-	static int calcMaxDecodingCores() {
-		final int cores = DroidUtils.CPU_CORES;
-		// max concurrent decodings: (cores - 1)
-		return cores > 1 ? cores - 1 : 1;
-	}
+    @VisibleForTesting
+    static int calcMaxDecodingCores() {
+        final int cores = DroidUtils.CPU_CORES;
+        // max concurrent decodings: (cores - 1)
+        return cores > 1 ? cores - 1 : 1;
+    }
 
-	@VisibleForTesting
-	static int getAvailablePermits() {
-		return DECODE_SEMAPHORE.availablePermits();
-	}
+    @VisibleForTesting
+    static int getAvailablePermits() {
+        return DECODE_SEMAPHORE.availablePermits();
+    }
 
-	private static boolean acquirePermit() {
-		try {
-			DECODE_SEMAPHORE.acquire();
-		} catch (InterruptedException e) {
-			return false;
-		}
-		return true;
-	}
+    private static boolean acquirePermit() {
+        try {
+            DECODE_SEMAPHORE.acquire();
+        } catch (InterruptedException e) {
+            return false;
+        }
+        return true;
+    }
 
-	private static void releasePermit() {
-		DECODE_SEMAPHORE.release();
-	}
+    private static void releasePermit() {
+        DECODE_SEMAPHORE.release();
+    }
 
 }

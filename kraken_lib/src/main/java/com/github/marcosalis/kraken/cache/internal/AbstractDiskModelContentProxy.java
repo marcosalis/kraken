@@ -45,208 +45,199 @@ import java.util.concurrent.Callable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
- * Generic, abstract implementation of {@link ContentProxy} that handles the
- * retrieval of {@link JsonModel}s using a 2-levels cache (
- * {@link ContentLruCache} and {@link ModelDiskCache}) before retrieving content
- * from the network.
- * 
+ * Generic, abstract implementation of {@link ContentProxy} that handles the retrieval of {@link
+ * JsonModel}s using a 2-levels cache ( {@link ContentLruCache} and {@link ModelDiskCache}) before
+ * retrieving content from the network.
+ *
  * It is backed by a {@link ContentLoader} for the content retrieval.
- * 
- * It provides methods to load and put models from and to the content proxy, and
- * perform common maintenance operations to the content proxy caches.
- * 
- * @since 1.0
+ *
+ * It provides methods to load and put models from and to the content proxy, and perform common
+ * maintenance operations to the content proxy caches.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @ThreadSafe
 public abstract class AbstractDiskModelContentProxy<MODEL extends JsonModel> extends
-		ModelContentProxy<MODEL> {
+        ModelContentProxy<MODEL> {
 
-	private static final String TAG = AbstractDiskModelContentProxy.class.getSimpleName();
+    private static final String TAG = AbstractDiskModelContentProxy.class.getSimpleName();
 
-	private final ContentLruCache<String, ExpirableFutureTask<MODEL>> mModelCache;
-	private volatile ModelDiskCache<MODEL> mModelDisk;
+    private final ContentLruCache<String, ExpirableFutureTask<MODEL>> mModelCache;
+    private volatile ModelDiskCache<MODEL> mModelDisk;
 
-	private final ContentLoader<CacheableRequest<MODEL>, MODEL> mContentLoader;
-	private final long mExpiration;
+    private final ContentLoader<CacheableRequest<MODEL>, MODEL> mContentLoader;
+    private final long mExpiration;
 
-	/**
-	 * Constructor for an {@link AbstractDiskModelContentProxy}.<br>
-	 * Takes care of initializing memory and disk caches.
-	 * 
-	 * @param context
-	 * @param mapper
-	 *            TODO
-	 * @param modelClass
-	 * @param modelsInCache
-	 * @param diskFolder
-	 * @param expiration
-	 * @param loaderFactory
-	 *            An (optional) custom {@link ModelDiskContentLoaderFactory}
-	 */
-	public AbstractDiskModelContentProxy(@NonNull Context context, @NonNull ObjectMapper mapper,
-			@NonNull Class<MODEL> modelClass, int modelsInCache, @NonNull String diskFolder,
-			long expiration,
-			ModelDiskContentLoaderFactory<CacheableRequest<MODEL>, MODEL> loaderFactory) {
-		// initialize memory LRU caches
-		mModelCache = new ContentLruCache<String, ExpirableFutureTask<MODEL>>(modelsInCache);
-		try { // initialize disk caches
-			mModelDisk = new ModelDiskCache<MODEL>(context, mapper, diskFolder, modelClass);
-		} catch (IOException e) {
-			// something went wrong. TODO: handle this!
-			LogUtils.log(Log.ERROR, TAG, "Unable to create disk cache for " + diskFolder);
-		}
-		if (loaderFactory != null) {
-			mContentLoader = loaderFactory.getContentLoader(mModelCache, mModelDisk);
-		} else {
-			mContentLoader = new DiskContentLoader<MODEL>(mModelCache, mModelDisk, expiration,
-					null, null);
-		}
-		mExpiration = expiration;
-	}
+    /**
+     * Constructor for an {@link AbstractDiskModelContentProxy}.<br> Takes care of initializing
+     * memory and disk caches.
+     *
+     * @param context
+     * @param mapper        TODO
+     * @param modelClass
+     * @param modelsInCache
+     * @param diskFolder
+     * @param expiration
+     * @param loaderFactory An (optional) custom {@link ModelDiskContentLoaderFactory}
+     */
+    public AbstractDiskModelContentProxy(@NonNull Context context, @NonNull ObjectMapper mapper,
+                                         @NonNull Class<MODEL> modelClass, int modelsInCache, @NonNull String diskFolder,
+                                         long expiration,
+                                         ModelDiskContentLoaderFactory<CacheableRequest<MODEL>, MODEL> loaderFactory) {
+        // initialize memory LRU caches
+        mModelCache = new ContentLruCache<String, ExpirableFutureTask<MODEL>>(modelsInCache);
+        try { // initialize disk caches
+            mModelDisk = new ModelDiskCache<MODEL>(context, mapper, diskFolder, modelClass);
+        } catch (IOException e) {
+            // something went wrong. TODO: handle this!
+            LogUtils.log(Log.ERROR, TAG, "Unable to create disk cache for " + diskFolder);
+        }
+        if (loaderFactory != null) {
+            mContentLoader = loaderFactory.getContentLoader(mModelCache, mModelDisk);
+        } else {
+            mContentLoader = new DiskContentLoader<MODEL>(mModelCache, mModelDisk, expiration,
+                    null, null);
+        }
+        mExpiration = expiration;
+    }
 
-	/**
-	 * @see {@link #AbstractDiskModelContentProxy(Context, ObjectMapper, Class, int, String, long, ModelDiskContentLoaderFactory)}
-	 *      with default content loader factory.
-	 */
-	public AbstractDiskModelContentProxy(@NonNull Context context, @NonNull ObjectMapper mapper,
-			@NonNull Class<MODEL> modelClass, int modelsInCache, @NonNull String diskFolder,
-			long expiration) {
-		this(context, mapper, modelClass, modelsInCache, diskFolder, expiration, null);
-	}
+    /**
+     * @see {@link #AbstractDiskModelContentProxy(Context, ObjectMapper, Class, int, String, long,
+     * ModelDiskContentLoaderFactory)} with default content loader factory.
+     */
+    public AbstractDiskModelContentProxy(@NonNull Context context, @NonNull ObjectMapper mapper,
+                                         @NonNull Class<MODEL> modelClass, int modelsInCache, @NonNull String diskFolder,
+                                         long expiration) {
+        this(context, mapper, modelClass, modelsInCache, diskFolder, expiration, null);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Nullable
-	@CallSuper
-	@NotForUIThread
-	public MODEL getModel(AccessPolicy policy, CacheableRequest<MODEL> request,
-			ContentUpdateCallback<MODEL> callback) throws Exception {
-		return mContentLoader.load(policy, request, callback);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nullable
+    @CallSuper
+    @NotForUIThread
+    public MODEL getModel(AccessPolicy policy, CacheableRequest<MODEL> request,
+                          ContentUpdateCallback<MODEL> callback) throws Exception {
+        return mContentLoader.load(policy, request, callback);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Nullable
-	@CallSuper
-	@NotForUIThread
-	public MODEL getModel(AccessPolicy policy, CacheableRequest<MODEL> request) throws Exception {
-		return mContentLoader.load(policy, request, null);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @Nullable
+    @CallSuper
+    @NotForUIThread
+    public MODEL getModel(AccessPolicy policy, CacheableRequest<MODEL> request) throws Exception {
+        return mContentLoader.load(policy, request, null);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@CallSuper
-	@NotForUIThread
-	public void putModel(final MODEL model) {
-		if (model == null) {
-			return; // fail-safe attitude
-		}
-		// auto-generate key
-		final String key = generateModelKey(model);
-		putModel(key, model);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @CallSuper
+    @NotForUIThread
+    public void putModel(final MODEL model) {
+        if (model == null) {
+            return; // fail-safe attitude
+        }
+        // auto-generate key
+        final String key = generateModelKey(model);
+        putModel(key, model);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@CallSuper
-	@NotForUIThread
-	public void putModel(@NonNull final String key, final MODEL model) {
-		if (model == null) {
-			return; // fail-safe attitude
-		}
-		final ExpirableFutureTask<MODEL> innerFuture = new ExpirableFutureTask<MODEL>(
-				new Callable<MODEL>() {
-					@Override
-					public MODEL call() throws Exception {
-						return model;
-					}
-				}, mExpiration);
-		/*
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    @CallSuper
+    @NotForUIThread
+    public void putModel(@NonNull final String key, final MODEL model) {
+        if (model == null) {
+            return; // fail-safe attitude
+        }
+        final ExpirableFutureTask<MODEL> innerFuture = new ExpirableFutureTask<MODEL>(
+                new Callable<MODEL>() {
+                    @Override
+                    public MODEL call() throws Exception {
+                        return model;
+                    }
+                }, mExpiration);
+        /*
 		 * Run the "task" in this thread: it's just getting in return a value we
 		 * already have, in order to be able to store it as a Future we need to
 		 * execute it
 		 */
-		innerFuture.run();
-		// update model into caches
-		mModelCache.put(key, innerFuture);
-		if (mModelDisk != null) {
-			mModelDisk.put(key, model);
-		}
-	}
+        innerFuture.run();
+        // update model into caches
+        mModelCache.put(key, innerFuture);
+        if (mModelDisk != null) {
+            mModelDisk.put(key, model);
+        }
+    }
 
-	/**
-	 * Removes the model with the passed key from the cache. This must be used
-	 * in specific cases where we need to explicitly invalidate an item only.
-	 * 
-	 * @param key
-	 *            The string key for the model to remove
-	 */
-	@CallSuper
-	@NotForUIThread
-	protected void invalidateModel(@NonNull String key) {
-		mModelCache.remove(key);
-		if (mModelDisk != null) {
-			mModelDisk.remove(key);
-		}
-	}
+    /**
+     * Removes the model with the passed key from the cache. This must be used in specific cases
+     * where we need to explicitly invalidate an item only.
+     *
+     * @param key The string key for the model to remove
+     */
+    @CallSuper
+    @NotForUIThread
+    protected void invalidateModel(@NonNull String key) {
+        mModelCache.remove(key);
+        if (mModelDisk != null) {
+            mModelDisk.remove(key);
+        }
+    }
 
-	/**
-	 * Needed from some subclasses to properly generate the key to store a model
-	 * into the cache.
-	 * 
-	 * The base implementation throws an {@link IllegalArgumentException}.
-	 * 
-	 * @param model
-	 *            The model to generate the key from
-	 * @return The generated key
-	 */
-	protected String generateModelKey(@NonNull MODEL model) {
-		throw new IllegalArgumentException("Not implemented");
-	}
+    /**
+     * Needed from some subclasses to properly generate the key to store a model into the cache.
+     *
+     * The base implementation throws an {@link IllegalArgumentException}.
+     *
+     * @param model The model to generate the key from
+     * @return The generated key
+     */
+    protected String generateModelKey(@NonNull MODEL model) {
+        throw new IllegalArgumentException("Not implemented");
+    }
 
-	/**
-	 * {@inheritDoc}<br>
-	 * Always call to the superclass when overriding.
-	 */
-	@Override
-	@CallSuper
-	public void clearMemoryCache() {
-		mModelCache.clear();
-	}
+    /**
+     * {@inheritDoc}<br> Always call to the superclass when overriding.
+     */
+    @Override
+    @CallSuper
+    public void clearMemoryCache() {
+        mModelCache.clear();
+    }
 
-	/**
-	 * {@inheritDoc}<br>
-	 * Always call to the superclass when overriding.
-	 */
-	@Override
-	@CallSuper
-	public void scheduleClearDiskCache() {
-		if (mModelDisk != null) {
-			mModelDisk.clear();
-		}
-	}
+    /**
+     * {@inheritDoc}<br> Always call to the superclass when overriding.
+     */
+    @Override
+    @CallSuper
+    public void scheduleClearDiskCache() {
+        if (mModelDisk != null) {
+            mModelDisk.clear();
+        }
+    }
 
-	/**
-	 * {@inheritDoc}<br>
-	 * Always call to the superclass when overriding.
-	 */
-	@Override
-	@NotForUIThread
-	@CallSuper
-	public void clearDiskCache(SimpleDiskCache.ClearMode mode) {
-		if (mModelDisk != null) {
-			mModelDisk.clear(mode);
-		}
-	}
+    /**
+     * {@inheritDoc}<br> Always call to the superclass when overriding.
+     */
+    @Override
+    @NotForUIThread
+    @CallSuper
+    public void clearDiskCache(SimpleDiskCache.ClearMode mode) {
+        if (mModelDisk != null) {
+            mModelDisk.clear(mode);
+        }
+    }
 
 }

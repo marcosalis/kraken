@@ -16,23 +16,8 @@
  */
 package com.github.marcosalis.kraken.cache.requests;
 
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import android.support.annotation.Nullable;
 import android.support.annotation.NonNull;
-import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.ThreadSafe;
-
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.github.marcosalis.kraken.DroidConfig;
@@ -52,371 +37,359 @@ import com.google.common.base.Preconditions;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Base abstract implementation of a {@link CacheableRequest}.
- * 
- * An {@link HttpRequest} is used by the {@link #execute()} method to perform
- * the actual request.
- * 
- * There are some extra features that can be used:
- * <ul>
- * <li>Support for use in caches: as per interface specifications, the content
- * can be stored in a cache map by using an hashed representation of its URL by
- * calling {@link #hash()} or its static equivalent {@link #hashUrl(String)} by
- * passing the URL of any request.</li>
- * <li>A thread pool executor ({@link #REQUESTS_EXECUTOR}) that can be used by
- * subclasses to directly execute requests</li>
- * </ul>
- * 
- * Note that most of the implemented methods perform network connections so they
- * can't be called from the UI thread. Callers must implement their own task
- * mechanism to handle UI updates following the requests.
- * 
- * @since 1.0
+ *
+ * An {@link HttpRequest} is used by the {@link #execute()} method to perform the actual request.
+ *
+ * There are some extra features that can be used: <ul> <li>Support for use in caches: as per
+ * interface specifications, the content can be stored in a cache map by using an hashed
+ * representation of its URL by calling {@link #hash()} or its static equivalent {@link
+ * #hashUrl(String)} by passing the URL of any request.</li> <li>A thread pool executor ({@link
+ * #REQUESTS_EXECUTOR}) that can be used by subclasses to directly execute requests</li> </ul>
+ *
+ * Note that most of the implemented methods perform network connections so they can't be called
+ * from the UI thread. Callers must implement their own task mechanism to handle UI updates
+ * following the requests.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @ThreadSafe
 public abstract class BaseCacheableRequest<E> implements CacheableRequest<E> {
 
-	static {
-		/*
+    static {
+        /*
 		 * The private executor is set with the same values as the default in
 		 * Android's AsyncTask class. Further tuning could be made in next
 		 * releases after some benchmarking on various devices.
 		 */
-		final int CORE_POOL_SIZE = 5;
-		final int MAXIMUM_POOL_SIZE = 128;
-		final int KEEP_ALIVE = 1;
-		final BlockingQueue<Runnable> poolWorkQueue = new LinkedBlockingQueue<Runnable>(10);
+        final int CORE_POOL_SIZE = 5;
+        final int MAXIMUM_POOL_SIZE = 128;
+        final int KEEP_ALIVE = 1;
+        final BlockingQueue<Runnable> poolWorkQueue = new LinkedBlockingQueue<Runnable>(10);
 
-		REQUESTS_EXECUTOR = Executors.unconfigurableExecutorService(new ThreadPoolExecutor(
-				CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS, poolWorkQueue,
-				new PriorityThreadFactory("AbstractModelRequest executor thread")));
-	}
+        REQUESTS_EXECUTOR = Executors.unconfigurableExecutorService(new ThreadPoolExecutor(
+                CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS, poolWorkQueue,
+                new PriorityThreadFactory("AbstractModelRequest executor thread")));
+    }
 
 	/* default components for HTTP requests and JSON parsing */
 
-	protected static final ExecutorService REQUESTS_EXECUTOR;
-	protected static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
+    protected static final ExecutorService REQUESTS_EXECUTOR;
+    protected static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
 
-	protected final String mHttpMethod;
+    protected final String mHttpMethod;
 
-	@Nullable
-	@GuardedBy("this")
-	private volatile String mRequestUrl;
+    @Nullable
+    @GuardedBy("this")
+    private volatile String mRequestUrl;
 
-	/**
-	 * Lazily initialized hash value for this request. Override the
-	 * {@link #hash()} method to provide a custom value.
-	 */
-	@GuardedBy("this")
-	private volatile String mHash; // lazily initialized
-	/**
-	 * {@link ResponseAsyncCallback} for the request. Update this before
-	 * executing the request or it won't be used.
-	 */
-	@GuardedBy("this")
-	protected volatile ResponseAsyncCallback<E> mCallback;
+    /**
+     * Lazily initialized hash value for this request. Override the {@link #hash()} method to
+     * provide a custom value.
+     */
+    @GuardedBy("this")
+    private volatile String mHash; // lazily initialized
+    /**
+     * {@link ResponseAsyncCallback} for the request. Update this before executing the request or it
+     * won't be used.
+     */
+    @GuardedBy("this")
+    protected volatile ResponseAsyncCallback<E> mCallback;
 
-	@GuardedBy("this")
-	private volatile HttpUnsuccessfulResponseHandler mHttpUnsuccessfulResponseHandler;
+    @GuardedBy("this")
+    private volatile HttpUnsuccessfulResponseHandler mHttpUnsuccessfulResponseHandler;
 
-	/**
-	 * Constructor for a model request whose request URL is generated
-	 * dynamically. Call {@link #setRequestUrl(String)} to set the URL.
-	 * 
-	 * @param httpMethod
-	 *            The HTTP method for the request (must be one of the ones
-	 *            listed in {@link HttpMethods})
-	 * @throws IllegalArgumentException
-	 *             if httpMethod is null
-	 */
-	public BaseCacheableRequest(@NonNull String httpMethod) {
-		this(httpMethod, null);
-	}
+    /**
+     * Constructor for a model request whose request URL is generated dynamically. Call {@link
+     * #setRequestUrl(String)} to set the URL.
+     *
+     * @param httpMethod The HTTP method for the request (must be one of the ones listed in {@link
+     *                   HttpMethods})
+     * @throws IllegalArgumentException if httpMethod is null
+     */
+    public BaseCacheableRequest(@NonNull String httpMethod) {
+        this(httpMethod, null);
+    }
 
-	/**
-	 * Constructor to pass HTTP method and URL to use for the request.
-	 * 
-	 * @param httpMethod
-	 *            The HTTP method for the request (must be one of the ones
-	 *            listed in {@link HttpMethods})
-	 * @param requestUrl
-	 *            The full request URL
-	 * @throws IllegalArgumentException
-	 *             if any parameter is null
-	 */
-	public BaseCacheableRequest(@NonNull String httpMethod, @Nullable String requestUrl) {
-		Preconditions.checkNotNull(httpMethod);
-		mHttpMethod = httpMethod;
-		mRequestUrl = requestUrl;
+    /**
+     * Constructor to pass HTTP method and URL to use for the request.
+     *
+     * @param httpMethod The HTTP method for the request (must be one of the ones listed in {@link
+     *                   HttpMethods})
+     * @param requestUrl The full request URL
+     * @throws IllegalArgumentException if any parameter is null
+     */
+    public BaseCacheableRequest(@NonNull String httpMethod, @Nullable String requestUrl) {
+        Preconditions.checkNotNull(httpMethod);
+        mHttpMethod = httpMethod;
+        mRequestUrl = requestUrl;
 
-		if (DroidConfig.DEBUG) {
-			Logger.getLogger(HttpTransport.class.getName()).setLevel(Level.CONFIG);
-		}
-	}
+        if (DroidConfig.DEBUG) {
+            Logger.getLogger(HttpTransport.class.getName()).setLevel(Level.CONFIG);
+        }
+    }
 
-	/**
-	 * Sets a custom {@link HttpUnsuccessfulResponseHandler} to handle error
-	 * responses.<br>
-	 * Call this before executing the request, otherwise the call will have no
-	 * effect.
-	 * 
-	 * @param handler
-	 *            The handler to set into the request
-	 */
-	public void setHttpUnsuccessfulResponseHandler(@Nullable HttpUnsuccessfulResponseHandler handler) {
-		mHttpUnsuccessfulResponseHandler = handler;
-	}
+    /**
+     * Sets a custom {@link HttpUnsuccessfulResponseHandler} to handle error responses.<br> Call
+     * this before executing the request, otherwise the call will have no effect.
+     *
+     * @param handler The handler to set into the request
+     */
+    public void setHttpUnsuccessfulResponseHandler(@Nullable HttpUnsuccessfulResponseHandler handler) {
+        mHttpUnsuccessfulResponseHandler = handler;
+    }
 
-	/**
-	 * Gets the currently set {@link HttpUnsuccessfulResponseHandler}.
-	 * 
-	 * @return The handler or null if not set
-	 */
-	@Nullable
-	public HttpUnsuccessfulResponseHandler getHttpUnsuccessfulResponseHandler() {
-		return mHttpUnsuccessfulResponseHandler;
-	}
+    /**
+     * Gets the currently set {@link HttpUnsuccessfulResponseHandler}.
+     *
+     * @return The handler or null if not set
+     */
+    @Nullable
+    public HttpUnsuccessfulResponseHandler getHttpUnsuccessfulResponseHandler() {
+        return mHttpUnsuccessfulResponseHandler;
+    }
 
-	/**
-	 * Returns the concrete request class HTTP method as per {@link HttpMethods}
-	 */
-	@NonNull
-	public final String getHttpMethod() {
-		return mHttpMethod;
-	}
+    /**
+     * Returns the concrete request class HTTP method as per {@link HttpMethods}
+     */
+    @NonNull
+    public final String getHttpMethod() {
+        return mHttpMethod;
+    }
 
 	/*
 	 * Methods for executing the request, either by using the default HTTP
 	 * connection manager or injecting a custom one.
 	 */
 
-	@Override
-	@Nullable
-	@NotForUIThread
-	public final E call() throws Exception {
-		return execute();
-	}
+    @Override
+    @Nullable
+    @NotForUIThread
+    public final E call() throws Exception {
+        return execute();
+    }
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * This implementation uses the default {@link DefaultHttpRequestsManager}
-	 * to build the request.
-	 */
-	@Override
-	@Nullable
-	@NotForUIThread
-	public E execute() throws Exception {
-		return execute(DefaultHttpRequestsManager.get());
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * This implementation uses the default {@link DefaultHttpRequestsManager} to build the
+     * request.
+     */
+    @Override
+    @Nullable
+    @NotForUIThread
+    public E execute() throws Exception {
+        return execute(DefaultHttpRequestsManager.get());
+    }
 
-	@Override
-	@Nullable
-	@NotForUIThread
-	public E execute(@NonNull HttpRequestsManager connManager) throws Exception {
-		// TODO: refactor this
-		HttpResponse response = null;
-		final String requestUrl = mRequestUrl;
-		Preconditions.checkNotNull(requestUrl, "Null request URL");
+    @Override
+    @Nullable
+    @NotForUIThread
+    public E execute(@NonNull HttpRequestsManager connManager) throws Exception {
+        // TODO: refactor this
+        HttpResponse response = null;
+        final String requestUrl = mRequestUrl;
+        Preconditions.checkNotNull(requestUrl, "Null request URL");
 
-		try {
-			final HttpRequest request = connManager.buildRequest(mHttpMethod, requestUrl, null);
+        try {
+            final HttpRequest request = connManager.buildRequest(mHttpMethod, requestUrl, null);
 
-			// set request custom parameters and content
-			configRequest(request);
-			request.setUnsuccessfulResponseHandler(getHttpUnsuccessfulResponseHandler());
+            // set request custom parameters and content
+            configRequest(request);
+            request.setUnsuccessfulResponseHandler(getHttpUnsuccessfulResponseHandler());
 
-			if (DroidConfig.DEBUG) {
-				Log.w(getTag(), "Executing " + mHttpMethod + " request to: " + requestUrl);
-			}
+            if (DroidConfig.DEBUG) {
+                Log.w(getTag(), "Executing " + mHttpMethod + " request to: " + requestUrl);
+            }
 
-			// Execute the request through the HTTP requests manager
-			response = request.execute();
+            // Execute the request through the HTTP requests manager
+            response = request.execute();
 
-			final int statusCode = response.getStatusCode();
-			if (DroidConfig.DEBUG) {
-				Log.w(getTag(), "Response status code: " + statusCode);
-			}
+            final int statusCode = response.getStatusCode();
+            if (DroidConfig.DEBUG) {
+                Log.w(getTag(), "Response status code: " + statusCode);
+            }
 
-			// set parser and proceed with parsing the response content
-			request.setParser(getObjectParser());
+            // set parser and proceed with parsing the response content
+            request.setParser(getObjectParser());
 
-			// check for the HTTP status code
-			if (response.isSuccessStatusCode()) { // codes 200-299
+            // check for the HTTP status code
+            if (response.isSuccessStatusCode()) { // codes 200-299
 				/*
 				 * Call the sub-class parser. If an error occurs, an IOException
 				 * will be thrown and caught into the outer try-catch
 				 */
-				final E model = parseResponse(response);
+                final E model = parseResponse(response);
 
-				if (DroidConfig.DEBUG) {
-					Log.v(getTag(), "Parsed response: " + model);
-				}
+                if (DroidConfig.DEBUG) {
+                    Log.v(getTag(), "Parsed response: " + model);
+                }
 
-				// request is effectively successful, return model object
-				if (mCallback != null) {
-					mCallback.onSuccess(model);
-				}
-				return model;
-			} else {
-				final String message = response.getStatusMessage();
-				if (mCallback != null) {
-					mCallback.onError(statusCode, message);
-				}
-				return null;
-			}
-		} catch (Exception e) {
-			if (DroidConfig.DEBUG) {
-				e.printStackTrace();
-			}
+                // request is effectively successful, return model object
+                if (mCallback != null) {
+                    mCallback.onSuccess(model);
+                }
+                return model;
+            } else {
+                final String message = response.getStatusMessage();
+                if (mCallback != null) {
+                    mCallback.onError(statusCode, message);
+                }
+                return null;
+            }
+        } catch (Exception e) {
+            if (DroidConfig.DEBUG) {
+                e.printStackTrace();
+            }
 
-			// the failed request has thrown an exception
-			if (mCallback != null) {
-				mCallback.onException(e);
-			}
-			throw e; // propagate exception
-		} finally {
-			if (response != null) {
-				try {
-					response.disconnect();
-				} catch (IOException e) { // won't affect the result
-					if (DroidConfig.DEBUG) {
-						e.printStackTrace();
-					}
-				}
-			}
-			mCallback = null; // reset callback
-		}
-	}
+            // the failed request has thrown an exception
+            if (mCallback != null) {
+                mCallback.onException(e);
+            }
+            throw e; // propagate exception
+        } finally {
+            if (response != null) {
+                try {
+                    response.disconnect();
+                } catch (IOException e) { // won't affect the result
+                    if (DroidConfig.DEBUG) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            mCallback = null; // reset callback
+        }
+    }
 
-	/**
-	 * Asynchronously executes a request using the passed
-	 * {@link ResponseAsyncCallback} to get the response. The class default
-	 * {@link Executor} ({@link #REQUESTS_EXECUTOR} is used to submit the task.
-	 * 
-	 * Note that the callback methods are not executed from the UI thread.
-	 * 
-	 * Properly override {@link #execute()} to use a custom
-	 * {@link HttpConnectionManagerInterface} for the request execution.
-	 * 
-	 * @param callback
-	 *            The callback to propagate the result to
-	 * @throws IllegalArgumentException
-	 *             If the callback object is null
-	 * @throws IllegalStateException
-	 *             If the request object hasn't been initialised properly
-	 */
-	@NonNull
-	public Future<E> executeAsync(@NonNull ResponseAsyncCallback<E> callback) {
-		Preconditions.checkNotNull(callback);
-		// save a callback reference
-		mCallback = callback;
-		// submit task to default executor
-		return REQUESTS_EXECUTOR.submit(this);
-	}
+    /**
+     * Asynchronously executes a request using the passed {@link ResponseAsyncCallback} to get the
+     * response. The class default {@link Executor} ({@link #REQUESTS_EXECUTOR} is used to submit
+     * the task.
+     *
+     * Note that the callback methods are not executed from the UI thread.
+     *
+     * Properly override {@link #execute()} to use a custom {@link HttpConnectionManagerInterface}
+     * for the request execution.
+     *
+     * @param callback The callback to propagate the result to
+     * @throws IllegalArgumentException If the callback object is null
+     * @throws IllegalStateException    If the request object hasn't been initialised properly
+     */
+    @NonNull
+    public Future<E> executeAsync(@NonNull ResponseAsyncCallback<E> callback) {
+        Preconditions.checkNotNull(callback);
+        // save a callback reference
+        mCallback = callback;
+        // submit task to default executor
+        return REQUESTS_EXECUTOR.submit(this);
+    }
 
-	/**
-	 * Dynamically set the request URL (and invalidate the request's hash value
-	 * if already set).
-	 * 
-	 * Keep in mind that overriding the request URL after a hash key (
-	 * {@link #hash()} value) has been lazily initialized can create caches
-	 * inconsistencies.
-	 * 
-	 * @param requestUrl
-	 *            The request URL string
-	 * @throws IllegalArgumentException
-	 *             if requestUrl is null
-	 */
-	public final synchronized void setRequestUrl(@NonNull String requestUrl) {
-		Preconditions.checkNotNull(requestUrl);
-		mRequestUrl = requestUrl;
-		mHash = null; // reset hash value
-	}
+    /**
+     * Dynamically set the request URL (and invalidate the request's hash value if already set).
+     *
+     * Keep in mind that overriding the request URL after a hash key ( {@link #hash()} value) has
+     * been lazily initialized can create caches inconsistencies.
+     *
+     * @param requestUrl The request URL string
+     * @throws IllegalArgumentException if requestUrl is null
+     */
+    public final synchronized void setRequestUrl(@NonNull String requestUrl) {
+        Preconditions.checkNotNull(requestUrl);
+        mRequestUrl = requestUrl;
+        mHash = null; // reset hash value
+    }
 
-	@Override
-	@Nullable
-	public final synchronized String getRequestUrl() {
-		return mRequestUrl;
-	}
+    @Override
+    @Nullable
+    public final synchronized String getRequestUrl() {
+        return mRequestUrl;
+    }
 
-	/**
-	 * Sets the 'Authorization' header for this request
-	 * 
-	 * @param request
-	 *            The request to set the authorization in
-	 * @param authorization
-	 *            The authorization string
-	 */
-	protected void setAuth(@NonNull HttpRequest request, @Nullable String authorization) {
-		request.getHeaders().setAuthorization(authorization);
-	}
+    /**
+     * Sets the 'Authorization' header for this request
+     *
+     * @param request       The request to set the authorization in
+     * @param authorization The authorization string
+     */
+    protected void setAuth(@NonNull HttpRequest request, @Nullable String authorization) {
+        request.getHeaders().setAuthorization(authorization);
+    }
 
-	/**
-	 * Called to configure the {@link HttpRequest} object prior to be executed,
-	 * for example to add an authorization header or a content to the request.
-	 * 
-	 * @param request
-	 *            The current HTTP request
-	 */
-	protected abstract void configRequest(@NonNull HttpRequest request);
+    /**
+     * Called to configure the {@link HttpRequest} object prior to be executed, for example to add
+     * an authorization header or a content to the request.
+     *
+     * @param request The current HTTP request
+     */
+    protected abstract void configRequest(@NonNull HttpRequest request);
 
-	protected abstract ObjectParser getObjectParser();
+    protected abstract ObjectParser getObjectParser();
 
-	@Nullable
-	protected abstract E parseResponse(HttpResponse response) throws IOException,
-			IllegalArgumentException;
+    @Nullable
+    protected abstract E parseResponse(HttpResponse response) throws IOException,
+            IllegalArgumentException;
 
-	/**
-	 * Returns the concrete request class logging TAG. Override this to provide
-	 * a custom TAG for subclasses that can be used for debugging purposes.
-	 */
-	protected abstract String getTag();
+    /**
+     * Returns the concrete request class logging TAG. Override this to provide a custom TAG for
+     * subclasses that can be used for debugging purposes.
+     */
+    protected abstract String getTag();
 
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * The function currently uses the {@link Hashing#murmur3_128()} function
-	 * giving the URL request as the only input parameter.
-	 * 
-	 * Subclasses might override this to implement different policies to use for
-	 * cache keys.
-	 */
-	@Override
-	@NonNull
-	public synchronized String hash() {
-		if (mHash == null) { // lazy initialization
-			final String requestUrl = mRequestUrl; // FindBugs, don't complain
-			if (requestUrl != null) {
-				// TODO: performance benchmark between murmur3_128 and MD5
-				mHash = hashUrl(requestUrl);
-			} else {
-				mHash = String.valueOf(hashCode());
-			}
-		}
-		return mHash;
-	}
+    /**
+     * {@inheritDoc}
+     *
+     * The function currently uses the {@link Hashing#murmur3_128()} function giving the URL request
+     * as the only input parameter.
+     *
+     * Subclasses might override this to implement different policies to use for cache keys.
+     */
+    @Override
+    @NonNull
+    public synchronized String hash() {
+        if (mHash == null) { // lazy initialization
+            final String requestUrl = mRequestUrl; // FindBugs, don't complain
+            if (requestUrl != null) {
+                // TODO: performance benchmark between murmur3_128 and MD5
+                mHash = hashUrl(requestUrl);
+            } else {
+                mHash = String.valueOf(hashCode());
+            }
+        }
+        return mHash;
+    }
 
-	/**
-	 * Returns a 128-bit unique hash code string representation for the given
-	 * URL. The returned hash will match the hash dynamically generated for a
-	 * request with the same URL.
-	 * 
-	 * <b>Warning:</b> Note that a subclass can override its {@link #hash()}
-	 * method: in this case, the hash string generated by this method won't
-	 * match the actual hash value, hence the key, for the model of that
-	 * request. Check the request documentation.
-	 * 
-	 * @param url
-	 *            The URL to hash
-	 * @return The String representation of this hash function
-	 */
-	@NonNull
-	public static String hashUrl(@NonNull String url) {
-		return HashUtils.getHash(HASH_FUNCTION, url);
-	}
+    /**
+     * Returns a 128-bit unique hash code string representation for the given URL. The returned hash
+     * will match the hash dynamically generated for a request with the same URL.
+     *
+     * <b>Warning:</b> Note that a subclass can override its {@link #hash()} method: in this case,
+     * the hash string generated by this method won't match the actual hash value, hence the key,
+     * for the model of that request. Check the request documentation.
+     *
+     * @param url The URL to hash
+     * @return The String representation of this hash function
+     */
+    @NonNull
+    public static String hashUrl(@NonNull String url) {
+        return HashUtils.getHash(HASH_FUNCTION, url);
+    }
 
 }

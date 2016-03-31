@@ -16,147 +16,137 @@
  */
 package com.github.marcosalis.kraken.cache.keys;
 
-import java.net.URI;
-
-import android.support.annotation.NonNull;
-import javax.annotation.concurrent.Immutable;
-
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 
 import com.github.marcosalis.kraken.utils.HashUtils;
 import com.google.common.annotations.Beta;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import java.net.URI;
+
+import javax.annotation.concurrent.Immutable;
+
 /**
- * Simple class that holds either an URI of a resource and generates a shorter
- * file system friendly String key to be used for memory and disk caches.
- * 
- * The main purpose of this implementation of {@link CacheUrlKey} is to allow
- * URLs with expiration parameters (as the Amazon AWS ones can be) to be trimmed
- * and used as cache keys, by simply using the only path to generate the key
- * hash itself.
- * 
- * Use {@link SimpleCacheUrlKey} when the URL doesn't change for better
- * performances and memory consumption (an {@link URI} object is created for
- * every instance of this class).
- * 
+ * Simple class that holds either an URI of a resource and generates a shorter file system friendly
+ * String key to be used for memory and disk caches.
+ *
+ * The main purpose of this implementation of {@link CacheUrlKey} is to allow URLs with expiration
+ * parameters (as the Amazon AWS ones can be) to be trimmed and used as cache keys, by simply using
+ * the only path to generate the key hash itself.
+ *
+ * Use {@link SimpleCacheUrlKey} when the URL doesn't change for better performances and memory
+ * consumption (an {@link URI} object is created for every instance of this class).
+ *
  * It implements {@link Parcelable}, so that it can be passed into Bundles.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public class URICacheUrlKey implements CacheUrlKey, Parcelable {
 
-	/**
-	 * Minimum allowed source path length for a {@link URICacheUrlKey}
-	 */
-	protected static final int MIN_KEY_SOURCE = 5;
+    /**
+     * Minimum allowed source path length for a {@link URICacheUrlKey}
+     */
+    protected static final int MIN_KEY_SOURCE = 5;
 
-	/**
-	 * Currently used hash function (murmur3 128 bit algorithm)
-	 */
-	protected static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
+    /**
+     * Currently used hash function (murmur3 128 bit algorithm)
+     */
+    protected static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
 
-	@NonNull
-	private final String mKey;
-	@NonNull
-	private final URI mUri;
+    @NonNull
+    private final String mKey;
+    @NonNull
+    private final URI mUri;
 
-	/**
-	 * Generate a unique key from the passed URL, ignoring any query parameters
-	 * or URL fragments.
-	 * 
-	 * @param url
-	 *            The URL of the resource to be cached
-	 * @throws IllegalArgumentException
-	 *             if the passed URL is not a valid {@link URI} or is not
-	 *             suitable for being converted to a cache key
-	 */
-	public URICacheUrlKey(@NonNull String url) throws IllegalArgumentException {
-		mUri = URI.create(url);
-		// process URI
-		mKey = hashUri();
-	}
+    /**
+     * Generate a unique key from the passed URL, ignoring any query parameters or URL fragments.
+     *
+     * @param url The URL of the resource to be cached
+     * @throws IllegalArgumentException if the passed URL is not a valid {@link URI} or is not
+     *                                  suitable for being converted to a cache key
+     */
+    public URICacheUrlKey(@NonNull String url) throws IllegalArgumentException {
+        mUri = URI.create(url);
+        // process URI
+        mKey = hashUri();
+    }
 
-	/**
-	 * Override this constructor to provide a custom implementation of the
-	 * hashed cache key.
-	 * 
-	 * @param url
-	 *            The URL of the resource to be cached
-	 * @param key
-	 *            The generated cache key
-	 * @throws IllegalArgumentException
-	 *             if the passed URL is not a valid {@link URI} or is not
-	 *             suitable for being converted to a cache key
-	 */
-	protected URICacheUrlKey(@NonNull String url, @NonNull String key)
-			throws IllegalArgumentException {
-		mUri = URI.create(url);
-		mKey = key;
-	}
+    /**
+     * Override this constructor to provide a custom implementation of the hashed cache key.
+     *
+     * @param url The URL of the resource to be cached
+     * @param key The generated cache key
+     * @throws IllegalArgumentException if the passed URL is not a valid {@link URI} or is not
+     *                                  suitable for being converted to a cache key
+     */
+    protected URICacheUrlKey(@NonNull String url, @NonNull String key)
+            throws IllegalArgumentException {
+        mUri = URI.create(url);
+        mKey = key;
+    }
 
 	/*
-	 * Needed for the Parcelable functionalities
+     * Needed for the Parcelable functionalities
 	 */
 
-	public URICacheUrlKey(Parcel source) throws IllegalArgumentException {
-		// Reconstruct from the Parcel
-		this(source.readString());
-	}
+    public URICacheUrlKey(Parcel source) throws IllegalArgumentException {
+        // Reconstruct from the Parcel
+        this(source.readString());
+    }
 
-	public static final Parcelable.Creator<URICacheUrlKey> CREATOR = new Parcelable.Creator<URICacheUrlKey>() {
-		@Override
-		public URICacheUrlKey createFromParcel(Parcel source) {
-			return new URICacheUrlKey(source);
-		}
+    public static final Parcelable.Creator<URICacheUrlKey> CREATOR = new Parcelable.Creator<URICacheUrlKey>() {
+        @Override
+        public URICacheUrlKey createFromParcel(Parcel source) {
+            return new URICacheUrlKey(source);
+        }
 
-		@Override
-		public URICacheUrlKey[] newArray(int size) {
-			return new URICacheUrlKey[size];
-		}
-	};
+        @Override
+        public URICacheUrlKey[] newArray(int size) {
+            return new URICacheUrlKey[size];
+        }
+    };
 
-	@Override
-	public int describeContents() {
-		return hashCode();
-	}
+    @Override
+    public int describeContents() {
+        return hashCode();
+    }
 
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeString(mUri.toString());
-	}
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mUri.toString());
+    }
 
-	/**
-	 * Gets the generated key for this object
-	 */
-	@Override
-	public String hash() {
-		return mKey;
-	}
+    /**
+     * Gets the generated key for this object
+     */
+    @Override
+    public String hash() {
+        return mKey;
+    }
 
-	/**
-	 * Gets the full URL for GET requests
-	 */
-	@Override
-	public String getUrl() {
-		return mUri.toString();
-	}
+    /**
+     * Gets the full URL for GET requests
+     */
+    @Override
+    public String getUrl() {
+        return mUri.toString();
+    }
 
-	/**
-	 * Generate an unique identifier for the cache key from the path part of the
-	 * given URI.
-	 */
-	private String hashUri() throws IllegalArgumentException {
-		String path = mUri.getPath();
-		if (path == null || path.length() < MIN_KEY_SOURCE) {
-			throw new IllegalArgumentException("Unsuitable URI");
-		}
-		return HashUtils.getHash(HASH_FUNCTION, path);
-	}
+    /**
+     * Generate an unique identifier for the cache key from the path part of the given URI.
+     */
+    private String hashUri() throws IllegalArgumentException {
+        String path = mUri.getPath();
+        if (path == null || path.length() < MIN_KEY_SOURCE) {
+            throw new IllegalArgumentException("Unsuitable URI");
+        }
+        return HashUtils.getHash(HASH_FUNCTION, path);
+    }
 
 }

@@ -27,113 +27,109 @@ import java.util.Stack;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Helper class that contains static methods to perform common complex
- * operations on the file system.
- * 
- * @since 1.0
+ * Helper class that contains static methods to perform common complex operations on the file
+ * system.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public class FileUtils {
 
-	private FileUtils() {
-		// hidden constructor, no instantiation needed
-	}
+    private FileUtils() {
+        // hidden constructor, no instantiation needed
+    }
 
-	/**
-	 * Delete a directory and its whole content (files, sub-directories).
-	 * 
-	 * @param directory
-	 *            The directory to remove
-	 * @return True if successful, false otherwise
-	 */
-	public static boolean deleteDirectoryTree(@NonNull File directory) {
+    /**
+     * Delete a directory and its whole content (files, sub-directories).
+     *
+     * @param directory The directory to remove
+     * @return True if successful, false otherwise
+     */
+    public static boolean deleteDirectoryTree(@NonNull File directory) {
 
-		// if the directory already doesn't exist, we're successful
-		if (!directory.exists()) {
-			return true;
-		}
+        // if the directory already doesn't exist, we're successful
+        if (!directory.exists()) {
+            return true;
+        }
 
-		// not a directory, can't continue
-		if (!directory.isDirectory()) {
-			return false;
-		}
+        // not a directory, can't continue
+        if (!directory.isDirectory()) {
+            return false;
+        }
 
-		boolean result = true;
-		final Stack<File> deletionStack = new Stack<File>();
-		deletionStack.push(directory);
+        boolean result = true;
+        final Stack<File> deletionStack = new Stack<File>();
+        deletionStack.push(directory);
 
-		while (!deletionStack.isEmpty()) {
-			File toDelete = deletionStack.peek();
-			if (toDelete.isDirectory()) {
-				File[] children = toDelete.listFiles();
-				if (children != null && children.length > 0) {
-					for (File child : children) {
-						deletionStack.push(child);
-					}
-				} else {
-					deletionStack.pop();
-					result = result && toDelete.delete();
-				}
-			} else {
-				deletionStack.pop();
-				result = result && toDelete.delete();
-			}
-		}
-		return result;
-	}
+        while (!deletionStack.isEmpty()) {
+            File toDelete = deletionStack.peek();
+            if (toDelete.isDirectory()) {
+                File[] children = toDelete.listFiles();
+                if (children != null && children.length > 0) {
+                    for (File child : children) {
+                        deletionStack.push(child);
+                    }
+                } else {
+                    deletionStack.pop();
+                    result = result && toDelete.delete();
+                }
+            } else {
+                deletionStack.pop();
+                result = result && toDelete.delete();
+            }
+        }
+        return result;
+    }
 
-	/**
-	 * Create directory full path if it doesn't exist, deleting any existing
-	 * file with the same name if present.
-	 * 
-	 * @param directory
-	 *            The directory path to create
-	 * @return true if the directory exists after this call, false otherwise
-	 */
-	public static boolean createDir(@NonNull File directory) {
-		if (!directory.exists() || directory.isFile()) {
-			if (directory.isFile()) {
-				if (!directory.delete()) {
-					return false;
-				}
-			}
-			return directory.mkdirs();
-		}
-		return true;
-	}
+    /**
+     * Create directory full path if it doesn't exist, deleting any existing file with the same name
+     * if present.
+     *
+     * @param directory The directory path to create
+     * @return true if the directory exists after this call, false otherwise
+     */
+    public static boolean createDir(@NonNull File directory) {
+        if (!directory.exists() || directory.isFile()) {
+            if (directory.isFile()) {
+                if (!directory.delete()) {
+                    return false;
+                }
+            }
+            return directory.mkdirs();
+        }
+        return true;
+    }
 
-	/**
-	 * Create an empty file and its full path if needed.
-	 * 
-	 * @param file
-	 * @return true if the file has been created, false if it already exists or
-	 *         something went wrong
-	 * @throws IllegalArgumentException
-	 *             if the passed File is a directory
-	 */
-	public static boolean createNewFileAndPath(@NonNull File file) {
-		if (file.exists()) {
-			return false;
-		}
+    /**
+     * Create an empty file and its full path if needed.
+     *
+     * @param file
+     * @return true if the file has been created, false if it already exists or something went wrong
+     * @throws IllegalArgumentException if the passed File is a directory
+     */
+    public static boolean createNewFileAndPath(@NonNull File file) {
+        if (file.exists()) {
+            return false;
+        }
 
-		String name = file.getName();
-		if (name.equals("")) {
-			throw new IllegalArgumentException(String.format("File name part missing in %s",
-					file.toString()));
-		}
+        String name = file.getName();
+        if (name.equals("")) {
+            throw new IllegalArgumentException(String.format("File name part missing in %s",
+                    file.toString()));
+        }
 
-		if (!createDir(new File(file.getParent()))) {
-			// directory tree creation failed
-			return false;
-		}
+        if (!createDir(new File(file.getParent()))) {
+            // directory tree creation failed
+            return false;
+        }
 
-		try {
-			return file.createNewFile();
-		} catch (IOException e) {
-			return false;
-		}
-	}
+        try {
+            return file.createNewFile();
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
 }

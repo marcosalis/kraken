@@ -15,13 +15,6 @@
  */
 package com.github.marcosalis.kraken.cache.bitmap.threading;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.concurrent.ThreadSafe;
-
 import android.os.Process;
 import android.support.annotation.NonNull;
 
@@ -29,71 +22,77 @@ import com.github.marcosalis.kraken.utils.DroidUtils;
 import com.github.marcosalis.kraken.utils.concurrent.PriorityThreadFactory;
 import com.github.marcosalis.kraken.utils.concurrent.ReorderingThreadPoolExecutor;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
  * Default recommended implementation of {@link BitmapThreadingPolicy}.
- * 
- * The thread pools are sized depending on the number of physical cores of the
- * current device.
- * 
- * @since 1.0
+ *
+ * The thread pools are sized depending on the number of physical cores of the current device.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @ThreadSafe
 public final class DefaultBitmapThreadingPolicy implements BitmapThreadingPolicy {
 
-	private final ThreadPoolExecutor mBitmapDiskExecutor;
-	private final ReorderingThreadPoolExecutor<String> mDownloaderExecutor;
+    private final ThreadPoolExecutor mBitmapDiskExecutor;
+    private final ReorderingThreadPoolExecutor<String> mDownloaderExecutor;
 
-	public DefaultBitmapThreadingPolicy() {
-		mBitmapDiskExecutor = buildDefaultDiskExecutor(getDefaultDiskExecutorSize(),
-				Process.THREAD_PRIORITY_BACKGROUND);
-		mDownloaderExecutor = buildDefaultDownloader(getDefaultDownloaderSize(),
-				Process.THREAD_PRIORITY_DEFAULT);
-	}
+    public DefaultBitmapThreadingPolicy() {
+        mBitmapDiskExecutor = buildDefaultDiskExecutor(getDefaultDiskExecutorSize(),
+                Process.THREAD_PRIORITY_BACKGROUND);
+        mDownloaderExecutor = buildDefaultDownloader(getDefaultDownloaderSize(),
+                Process.THREAD_PRIORITY_DEFAULT);
+    }
 
-	@NonNull
-	@Override
-	public ThreadPoolExecutor getBitmapDiskExecutor() {
-		return mBitmapDiskExecutor;
-	}
+    @NonNull
+    @Override
+    public ThreadPoolExecutor getBitmapDiskExecutor() {
+        return mBitmapDiskExecutor;
+    }
 
-	@NonNull
-	@Override
-	public ThreadPoolExecutor getBitmapDownloader() {
-		return mDownloaderExecutor;
-	}
+    @NonNull
+    @Override
+    public ThreadPoolExecutor getBitmapDownloader() {
+        return mDownloaderExecutor;
+    }
 
-	public static final int getDefaultDiskExecutorSize() {
-		// here we query memory and disk caches and decode bitmaps
-		return DroidUtils.getCpuBoundPoolSize() + 1;
-	}
+    public static final int getDefaultDiskExecutorSize() {
+        // here we query memory and disk caches and decode bitmaps
+        return DroidUtils.getCpuBoundPoolSize() + 1;
+    }
 
-	public static final int getDefaultDownloaderSize() {
-		// here we either execute a network request or we wait for it
-		return DroidUtils.getIOBoundPoolSize();
-	}
+    public static final int getDefaultDownloaderSize() {
+        // here we either execute a network request or we wait for it
+        return DroidUtils.getIOBoundPoolSize();
+    }
 
-	@NonNull
-	static final ThreadPoolExecutor buildDefaultDiskExecutor(int executorSize, int priority) {
-		final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
-		// priority here is less than default to face decoding overhead
-		final PriorityThreadFactory executorFactory = new PriorityThreadFactory(
-				"Bitmap caches disk executor thread", priority);
+    @NonNull
+    static final ThreadPoolExecutor buildDefaultDiskExecutor(int executorSize, int priority) {
+        final LinkedBlockingQueue<Runnable> executorQueue = new LinkedBlockingQueue<Runnable>();
+        // priority here is less than default to face decoding overhead
+        final PriorityThreadFactory executorFactory = new PriorityThreadFactory(
+                "Bitmap caches disk executor thread", priority);
 
-		return new ThreadPoolExecutor(executorSize, executorSize, 0L, TimeUnit.MILLISECONDS,
-				executorQueue, executorFactory);
-	}
+        return new ThreadPoolExecutor(executorSize, executorSize, 0L, TimeUnit.MILLISECONDS,
+                executorQueue, executorFactory);
+    }
 
-	@NonNull
-	static final ReorderingThreadPoolExecutor<String> buildDefaultDownloader(int executorSize,
-			int priority) {
-		final BlockingQueue<Runnable> downloaderQueue = ReorderingThreadPoolExecutor
-				.createBlockingQueue();
-		final PriorityThreadFactory downloaderFactory = new PriorityThreadFactory(
-				"Bitmap caches downloader executor thread", priority);
+    @NonNull
+    static final ReorderingThreadPoolExecutor<String> buildDefaultDownloader(int executorSize,
+                                                                             int priority) {
+        final BlockingQueue<Runnable> downloaderQueue = ReorderingThreadPoolExecutor
+                .createBlockingQueue();
+        final PriorityThreadFactory downloaderFactory = new PriorityThreadFactory(
+                "Bitmap caches downloader executor thread", priority);
 
-		return new ReorderingThreadPoolExecutor<String>(executorSize, executorSize, 0L,
-				TimeUnit.MILLISECONDS, downloaderQueue, downloaderFactory);
-	}
+        return new ReorderingThreadPoolExecutor<String>(executorSize, executorSize, 0L,
+                TimeUnit.MILLISECONDS, downloaderQueue, downloaderFactory);
+    }
 
 }

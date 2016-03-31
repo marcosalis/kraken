@@ -17,71 +17,66 @@ package com.github.marcosalis.kraken.cache.bitmap.threading;
 
 import android.support.annotation.NonNull;
 
-import java.util.concurrent.ThreadPoolExecutor;
-
-import android.support.annotation.NonNull;
-import javax.annotation.concurrent.ThreadSafe;
-
 import com.google.common.annotations.Beta;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
+import javax.annotation.concurrent.ThreadSafe;
+
 /**
- * Implementation of {@link BitmapThreadingPolicy} that allows setting custom
- * threading policies for bitmap caches.
- * 
- * @since 1.0
+ * Implementation of {@link BitmapThreadingPolicy} that allows setting custom threading policies for
+ * bitmap caches.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @ThreadSafe
 public final class CustomBitmapThreadingPolicy implements BitmapThreadingPolicy {
 
-	private final ThreadPoolExecutor mBitmapDiskExecutor;
-	private final ThreadPoolExecutor mDownloaderExecutor;
+    private final ThreadPoolExecutor mBitmapDiskExecutor;
+    private final ThreadPoolExecutor mDownloaderExecutor;
 
-	/**
-	 * Set custom thread pool sizes and thread priorities for the default
-	 * executors.
-	 * 
-	 * The priority values must one of the thread priority specified in the
-	 * {@link Process} class.
-	 * 
-	 * @param executorThreadSize
-	 * @param executorThreadPriority
-	 * @param downloaderThreadSize
-	 * @param downloaderThreadPriority
-	 */
-	public CustomBitmapThreadingPolicy(int executorThreadSize, int executorThreadPriority,
-			int downloaderThreadSize, int downloaderThreadPriority) {
-		mBitmapDiskExecutor = DefaultBitmapThreadingPolicy.buildDefaultDiskExecutor(
-				executorThreadSize, executorThreadPriority);
-		mDownloaderExecutor = DefaultBitmapThreadingPolicy.buildDefaultDownloader(
-				downloaderThreadSize, downloaderThreadPriority);
-	}
+    /**
+     * Set custom thread pool sizes and thread priorities for the default executors.
+     *
+     * The priority values must one of the thread priority specified in the {@link Process} class.
+     *
+     * @param executorThreadSize
+     * @param executorThreadPriority
+     * @param downloaderThreadSize
+     * @param downloaderThreadPriority
+     */
+    public CustomBitmapThreadingPolicy(int executorThreadSize, int executorThreadPriority,
+                                       int downloaderThreadSize, int downloaderThreadPriority) {
+        mBitmapDiskExecutor = DefaultBitmapThreadingPolicy.buildDefaultDiskExecutor(
+                executorThreadSize, executorThreadPriority);
+        mDownloaderExecutor = DefaultBitmapThreadingPolicy.buildDefaultDownloader(
+                downloaderThreadSize, downloaderThreadPriority);
+    }
 
-	/**
-	 * Set two custom executors for the bitmap caches.
-	 * 
-	 * @param diskExecutor
-	 *            The custom bitmap disk {@link ThreadPoolExecutor}
-	 * @param downloader
-	 *            The custom bitmap downloader {@link ThreadPoolExecutor}
-	 */
-	public CustomBitmapThreadingPolicy(@NonNull ThreadPoolExecutor diskExecutor,
-			@NonNull ThreadPoolExecutor downloader) {
-		mBitmapDiskExecutor = diskExecutor;
-		mDownloaderExecutor = downloader;
-	}
+    /**
+     * Set two custom executors for the bitmap caches.
+     *
+     * @param diskExecutor The custom bitmap disk {@link ThreadPoolExecutor}
+     * @param downloader   The custom bitmap downloader {@link ThreadPoolExecutor}
+     */
+    public CustomBitmapThreadingPolicy(@NonNull ThreadPoolExecutor diskExecutor,
+                                       @NonNull ThreadPoolExecutor downloader) {
+        mBitmapDiskExecutor = diskExecutor;
+        mDownloaderExecutor = downloader;
+    }
 
-	@NonNull
-	@Override
-	public ThreadPoolExecutor getBitmapDiskExecutor() {
-		return mBitmapDiskExecutor;
-	}
+    @NonNull
+    @Override
+    public ThreadPoolExecutor getBitmapDiskExecutor() {
+        return mBitmapDiskExecutor;
+    }
 
-	@NonNull
-	@Override
-	public ThreadPoolExecutor getBitmapDownloader() {
-		return mDownloaderExecutor;
-	}
+    @NonNull
+    @Override
+    public ThreadPoolExecutor getBitmapDownloader() {
+        return mDownloaderExecutor;
+    }
 
 }

@@ -16,47 +16,44 @@
  */
 package com.github.marcosalis.kraken.cache;
 
-import javax.annotation.concurrent.Immutable;
-
 import com.google.common.annotations.Beta;
 
+import javax.annotation.concurrent.Immutable;
+
 /**
- * Immutable decorator class to hold a memory cache value which has an
- * expiration time.
- * 
- * @since 1.0
+ * Immutable decorator class to hold a memory cache value which has an expiration time.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Beta
 @Immutable
 public class ExpirableCacheItem<E> {
 
-	/**
-	 * Content field, direct access to slightly improve performances.
-	 */
-	public final E content;
-	private final long mExpiration;
+    /**
+     * Content field, direct access to slightly improve performances.
+     */
+    public final E content;
+    private final long mExpiration;
 
-	/**
-	 * Instantiate an {@link ExpirableCacheItem}
-	 * 
-	 * @param content
-	 *            The content value to cache
-	 * @param expiration
-	 *            The expiration time, in milliseconds
-	 */
-	public ExpirableCacheItem(E content, long expiration) {
-		this.content = content;
-		mExpiration = System.currentTimeMillis() + expiration;
-	}
+    /**
+     * Instantiate an {@link ExpirableCacheItem}
+     *
+     * @param content    The content value to cache
+     * @param expiration The expiration time, in milliseconds
+     */
+    public ExpirableCacheItem(E content, long expiration) {
+        this.content = content;
+        mExpiration = System.currentTimeMillis() + expiration;
+    }
 
-	/**
-	 * Returns whether the held cache item is expired or not.
-	 * 
-	 * @return true if the item is expired, false otherwise
-	 */
-	public boolean isExpired() {
-		return System.currentTimeMillis() > mExpiration;
-	}
+    /**
+     * Returns whether the held cache item is expired or not.
+     *
+     * @return true if the item is expired, false otherwise
+     */
+    public boolean isExpired() {
+        return System.currentTimeMillis() > mExpiration;
+    }
 
 }

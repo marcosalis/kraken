@@ -15,41 +15,38 @@
  */
 package com.github.marcosalis.kraken.utils.json;
 
-import java.io.IOException;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.annotations.Beta;
 
+import java.io.IOException;
+import java.util.List;
+
 /**
- * Abstract generic {@link JsonSerializer} that serializes a list to a JSON
- * array.
- * 
- * @since 1.0
+ * Abstract generic {@link JsonSerializer} that serializes a list to a JSON array.
+ *
+ * @param <M> The model object type
  * @author Marco Salis
- * 
- * @param <M>
- *            The model object type
+ * @since 1.0
  */
 @Beta
 public abstract class ListToArraySerializer<M> extends JsonSerializer<List<M>> {
-	@Override
-	public void serialize(List<M> value, JsonGenerator jgen, SerializerProvider provider)
-			throws IOException, JsonProcessingException {
-		if (value != null) {
-			jgen.writeStartArray();
-			for (M model : value) {
-				jgen.writeObject(model);
-			}
-			jgen.writeEndArray();
+    @Override
+    public void serialize(List<M> value, JsonGenerator jgen, SerializerProvider provider)
+            throws IOException, JsonProcessingException {
+        if (value != null) {
+            jgen.writeStartArray();
+            for (M model : value) {
+                jgen.writeObject(model);
+            }
+            jgen.writeEndArray();
 
-		} else { // write empty array
-			jgen.writeStartArray();
-			jgen.writeEndArray();
-		}
-	}
+        } else { // write empty array
+            jgen.writeStartArray();
+            jgen.writeEndArray();
+        }
+    }
 
 }

@@ -16,48 +16,50 @@
  */
 package com.github.marcosalis.kraken.utils.json;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
-import javax.annotation.concurrent.NotThreadSafe;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.http.AbstractHttpContent;
 import com.google.api.client.json.Json;
 import com.google.common.base.Preconditions;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
+import javax.annotation.concurrent.NotThreadSafe;
+
 /**
- * Simple extension of {@link AbstractHttpContent} to be used with JSON content
- * to be mapped with the default Jackson parser.
- * 
- * @deprecated
- * @since 1.0
+ * Simple extension of {@link AbstractHttpContent} to be used with JSON content to be mapped with
+ * the default Jackson parser.
+ *
  * @author Marco Salis
+ * @since 1.0
+ * @deprecated
  */
 @Deprecated
 @NotThreadSafe
 public class JacksonHttpContent extends AbstractHttpContent {
 
-	private static final ObjectMapper JSON_MAPPER = JacksonJsonManager.getObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = JacksonJsonManager.getObjectMapper();
 
-	/** JSON key name/value data. */
-	private final Object data;
+    /**
+     * JSON key name/value data.
+     */
+    private final Object data;
 
-	public JacksonHttpContent(Object data) {
-		super(Json.MEDIA_TYPE);
-		this.data = Preconditions.checkNotNull(data);
-	}
+    public JacksonHttpContent(Object data) {
+        super(Json.MEDIA_TYPE);
+        this.data = Preconditions.checkNotNull(data);
+    }
 
-	@Override
-	public void writeTo(OutputStream out) throws IOException {
-		JSON_MAPPER.writeValue(out, data);
-	}
+    @Override
+    public void writeTo(OutputStream out) throws IOException {
+        JSON_MAPPER.writeValue(out, data);
+    }
 
-	/**
-	 * Returns the data object associated with this HttpContent
-	 */
-	public Object getData() {
-		return data;
-	}
+    /**
+     * Returns the data object associated with this HttpContent
+     */
+    public Object getData() {
+        return data;
+    }
 
 }

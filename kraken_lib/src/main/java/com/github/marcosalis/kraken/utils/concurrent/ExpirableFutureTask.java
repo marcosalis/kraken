@@ -26,63 +26,57 @@ import java.util.concurrent.Future;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Extension of a {@link SettableFutureTask} to hold a future computation with
- * an expiration time.
- * 
- * @since 1.0
+ * Extension of a {@link SettableFutureTask} to hold a future computation with an expiration time.
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 @Immutable
 public class ExpirableFutureTask<E> extends SettableFutureTask<E> {
 
-	private final long mExpirationMs;
+    private final long mExpirationMs;
 
-	/**
-	 * Instantiate an {@link ExpirableFutureTask} from a {@link Callable}
-	 * 
-	 * @param callable
-	 *            The content {@link Future} computation
-	 * @param expiration
-	 *            The expiration time, in milliseconds, or
-	 *            {@link Long#MAX_VALUE} for no expiration.
-	 */
-	public ExpirableFutureTask(@NonNull Callable<E> callable, @IntRange(from=0) long expiration) {
-		super(callable);
-		if (expiration == Long.MAX_VALUE) {
-			// force task to never expire
-			mExpirationMs = Long.MAX_VALUE;
-		} else {
-			mExpirationMs = System.currentTimeMillis() + expiration;
-		}
-	}
+    /**
+     * Instantiate an {@link ExpirableFutureTask} from a {@link Callable}
+     *
+     * @param callable   The content {@link Future} computation
+     * @param expiration The expiration time, in milliseconds, or {@link Long#MAX_VALUE} for no
+     *                   expiration.
+     */
+    public ExpirableFutureTask(@NonNull Callable<E> callable, @IntRange(from = 0) long expiration) {
+        super(callable);
+        if (expiration == Long.MAX_VALUE) {
+            // force task to never expire
+            mExpirationMs = Long.MAX_VALUE;
+        } else {
+            mExpirationMs = System.currentTimeMillis() + expiration;
+        }
+    }
 
-	/**
-	 * Instantiate an {@link ExpirableFutureTask} from a {@link Runnable}
-	 * 
-	 * @param runnable
-	 *            The {@link Runnable} that executes the task
-	 * @param result
-	 *            The result of the computation
-	 * @param expiration
-	 *            The expiration time, in milliseconds, or
-	 *            {@link Long#MAX_VALUE} for no expiration.
-	 */
-	public ExpirableFutureTask(@NonNull Runnable runnable, @Nullable E result,
-							   @IntRange(from=0) long expiration) {
-		super(runnable, result);
-		if (expiration == Long.MAX_VALUE) {
-			// force task to never expire
-			mExpirationMs = Long.MAX_VALUE;
-		} else {
-			mExpirationMs = System.currentTimeMillis() + expiration;
-		}
-	}
+    /**
+     * Instantiate an {@link ExpirableFutureTask} from a {@link Runnable}
+     *
+     * @param runnable   The {@link Runnable} that executes the task
+     * @param result     The result of the computation
+     * @param expiration The expiration time, in milliseconds, or {@link Long#MAX_VALUE} for no
+     *                   expiration.
+     */
+    public ExpirableFutureTask(@NonNull Runnable runnable, @Nullable E result,
+                               @IntRange(from = 0) long expiration) {
+        super(runnable, result);
+        if (expiration == Long.MAX_VALUE) {
+            // force task to never expire
+            mExpirationMs = Long.MAX_VALUE;
+        } else {
+            mExpirationMs = System.currentTimeMillis() + expiration;
+        }
+    }
 
-	/**
-	 * Returns whether the held computation result is expired or not.
-	 */
-	public boolean isExpired() {
-		return System.currentTimeMillis() > mExpirationMs;
-	}
+    /**
+     * Returns whether the held computation result is expired or not.
+     */
+    public boolean isExpired() {
+        return System.currentTimeMillis() > mExpirationMs;
+    }
 
 }

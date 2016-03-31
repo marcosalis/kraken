@@ -16,8 +16,8 @@
 
 /**
  * This package contains extension classes from the java.util.concurrent package and related.
- * 
- * @since 1.0
+ *
  * @author Marco Salis
+ * @since 1.0
  */
 package com.github.marcosalis.kraken.utils.concurrent;
