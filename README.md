@@ -1,8 +1,8 @@
 ## Release... the Kraken!
 
-*Kraken* is an easy to use, powerful and fast Android bitmaps/data loading and caching framework, based and refactored from my original open source project <b>droid_utils</b> @Luluvise (which can be found at https://github.com/Luluvise/droid-utils).
+*Kraken* is an easy to use, powerful and fast Android bitmaps/data loading and caching framework, based and refactored from my original open source project <b>droid_utils</b> @*Luluvise*.
 
-It can be used from Android versions **2.2** upwards, and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
+It can be used from Android versions **4.0.3** upwards (API 15), and it is based on Google's **Guava** and **google-http-java-client** libraries, and **Jackson** for JSON data processing.
 
 With *Kraken*, creating a global, multithreaded, two-level bitmap cache with default settings can be as easy as:
 ``` java
@@ -17,9 +17,17 @@ cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageVi
 ## Quick reference
 
 ### Current version and release notes
-*Kraken* current version is **1.0.2 beta**
+*Kraken* current version is **2.0.0 beta**
 
 #### What's new
+
+**2.0.0 beta**
+- Added **Gradle** support for compilation
+- Kraken finally comes as a fully working *Android Studio* project
+- Updated **google-http-java-client** to version 1.16.0rc
+- Updated **android-support-v4** and other support libs to version 23
+- Updated annotations to use the <code>com.android.support:support-annotations</code> dependency
+- Using Android Studio's default code formatter throughout the codebase
 
 **1.0.2 beta**
 - Created <code>BitmapSetterBuilder</code> to simplify customized setting of bitmaps into *ImageView*s
@@ -37,27 +45,25 @@ cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageVi
 *Kraken* is based and depends on the following open source (see licenses below) third-party libraries:
 
 * **guava-libraries-sdk5** v. 13 (https://code.google.com/p/guava-libraries/ - *Apache 2.0*)
-* **google-http-java-client** v. 1.15.0rc (https://code.google.com/p/google-http-java-client/ - *Apache 2.0*)
+* **google-http-java-client** v. 1.16.0rc (https://code.google.com/p/google-http-java-client/ - *Apache 2.0*)
 * **jackson-json-processor** v. 2.2.2 (http://jackson.codehaus.org/  - *multiple licenses available*)
-* **android-support-v4** v. 19 (http://developer.android.com/tools/support-library/  - *Apache 2.0*)
+* **android-support-v4** v. 23 (http://developer.android.com/tools/support-library/  - *Apache 2.0*)
 
 ### Setup
 To use *Kraken*, clone this repository:
 <pre><code>git clone https://github.com/marcosalis/kraken.git</code></pre>
-and add the *Eclipse* project as an Android library to your application project.
+and add the <code>kraken_lib</code> module as a dependency on your application module's *build.gradle*:
+<pre><code>dependencies {
+    compile project(':kraken_lib')
+}
+</code></pre>
 
-*Kraken* has two running configurations:
+*Kraken* has two Gradle build variants:
 * **debug**, which logs useful debug messages and statistics to the *LogCat*
 * **release**, which disables all logging and must be used when releasing the application
 
-In order to be able to compile the project, or switch between configurations, run one of this two *Ant* targets:
-<pre><code>ant kraken-debug-config</code></pre>
-or
-<pre><code>ant kraken-release-config</code></pre>
-(*fear not, Gradle configuration switching support is coming soon*).
-
 ### Demo application
-The folder */kraken_demo* contains a demo application project that demostrates how to use *Kraken* for bitmap caching. It implements very long *ListView*s and *GridView*s of bitmaps downloaded from the network so that you can see how the library performs in the most performance-critical scenario.
+The folder */kraken_demo* contains a demo application module that demonstrates how to use *Kraken* for bitmap caching. It implements very long *ListView*s and *GridView*s of bitmaps downloaded from the network so that you can see how the library performs in the most performance-critical scenario (*RecyclerView* demo coming soon).
 
 ### Bitmap loading and caching
 Efficiently load images from the network and cache them, as well as being able to set them asynchronously into image views, is one of the most common problems in Android: it's really easy to overuse the UI thread or cause memory leaks in the attempt of improving the performances, especially when dealing with adapters and *ListView*s.
@@ -129,7 +135,6 @@ See the following classes documentation for further information on how to subcla
 * <code>ModelDiskCache</code>
 
 ### Coming soon
-* Android Studio projects / Gradle integration
 * More examples of use in the GitHub Wiki documentation
 * Bitmaps: save into caches a resampled/resized version of a bitmap
 * Bitmaps: allow custom pre/post processing of the downloaded bitmap
@@ -145,16 +150,20 @@ See the following classes documentation for further information on how to subcla
 
 ### Annotations and FindBugs™
 I strongly believe in Java annotations as an effortless way to improve code quality and readability. That's why you'll find that the vast majority of *Kraken* source code is annotated with thread-safety (<code>@Immutable</code>, 
-<code>@ThreadSafe</code>, <code>@NotThreadSafe</code>, <code>@NotForUiThread</code>) and parameter/fields consistency (<code>@Nonnull</code>, <code>@Nullable</code>) information.<br />
+<code>@ThreadSafe</code>, <code>@NotThreadSafe</code>, <code>@NotForUiThread</code>) and parameter/fields consistency (<code>@NonNull</code>, <code>@Nullable</code>) information.<br />
 I also make frequent use of the static analyzer **FindBugs** (http://findbugs.sourceforge.net/) and I consider it a very powerful tool that every Java programmer shouldn't live without. Check it out if you still haven't.
+
+***Update (4/16):*** most static analysis capabilities are now by default built into Android Studio's *Analyze* features without the need to install a plugin. What's more, the Android support library now has a module <code>com.android.support:support-annotations</code> that includes many more useful annotations (see http://tools.android.com/tech-docs/support-annotations).
+*Kraken* makes use of it throughout the codebase.
 
 ### Issues reporting and tests
 A (hopefully enough) comprehensive suite of unit/functional tests for the library are provided as Android test project in the *kraken_tests* subfolder. Bug reports and feature requests are more then welcome, and the best way of submitting them is using the *Issues* feature in GitHub. Pull requests are more than welcome, too!
 
 ### Alternatives to Kraken
-There are many other valid (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
-* **Volley** (https://developers.google.com/events/io/sessions/325304728)
+There are many other valid, up to date (and well known) open source alternatives to *Kraken*, which may be more suitable for you. Here is a few ones:
+* **Fresco** (http://frescolib.org/)
 * **Picasso** (http://square.github.io/picasso/)
+* **Volley** (http://developer.android.com/training/volley/index.html)
 * **Universal Image Loader** (https://github.com/nostra13/Android-Universal-Image-Loader)
 * **ImageLoader** (https://github.com/novoda/ImageLoader)
 
@@ -162,7 +171,7 @@ There are many other valid (and well known) open source alternatives to *Kraken*
 You are free to use, modify, redistribute *Kraken* in any way permitted by the **Apache 2.0** license. If you like *Kraken* and you are using it inside your Android application, please let me know by sending an email to *fast3r(at)gmail.com*.
 
 > <pre>
-> Copyright 2013 Marco Salis - fast3r(at)gmail.com
+> Copyright 2016 Marco Salis - fast3r(at)gmail.com
 >
 > Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

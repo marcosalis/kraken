@@ -9,7 +9,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 3
-        versionName "2.0.0 alpha"
+        versionName "2.0.0 beta"
     }
 
     packagingOptions {
