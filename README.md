@@ -28,6 +28,7 @@ cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageVi
 - Updated **android-support-v4** and other support libs to version 23
 - Updated annotations to use the <code>com.android.support:support-annotations</code> dependency
 - Using Android Studio's default code formatter throughout the codebase
+- Updated demo project to new compatibility themes and UI
 
 **1.0.2 beta**
 - Created <code>BitmapSetterBuilder</code> to simplify customized setting of bitmaps into *ImageView*s
