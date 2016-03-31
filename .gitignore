@@ -1,7 +1,7 @@
-/.settings
-/gen
-/bin
+.gradle
 /local.properties
+/.idea/workspace.xml
+/.idea/libraries
+.DS_Store
 /build
-/.idea
-/.gradle
+/captures
