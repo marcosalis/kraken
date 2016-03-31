@@ -54,14 +54,14 @@ cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageVi
 To use *Kraken*, clone this repository:
 <pre><code>git clone https://github.com/marcosalis/kraken.git</code></pre>
 and add the <code>kraken_lib</code> module as a dependency on your application module's *build.gradle*:
-<pre><code>dependencies {
+<pre><dependencies {
     compile project(':kraken_lib')
 }
-</code></pre>
+</pre>
 
 *Kraken* has two Gradle build variants:
-* **debug**, which logs useful debug messages and statistics to the *LogCat*
-* **release**, which disables all logging and must be used when releasing the application
+- **debug**, which logs useful debug messages and statistics to the *LogCat*
+- **release**, which disables all logging and must be used when releasing the application
 
 ### Demo application
 The folder */kraken_demo* contains a demo application module that demonstrates how to use *Kraken* for bitmap caching. It implements very long *ListView*s and *GridView*s of bitmaps downloaded from the network so that you can see how the library performs in the most performance-critical scenario (*RecyclerView* demo coming soon).
