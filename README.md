@@ -54,7 +54,7 @@ cache.setBitmapAsync("https://www.google.co.uk/images/srpr/logo11w.png", imageVi
 To use *Kraken*, clone this repository:
 <pre><code>git clone https://github.com/marcosalis/kraken.git</code></pre>
 and add the <code>kraken_lib</code> module as a dependency on your application module's *build.gradle*:
-<pre><dependencies {
+<pre>dependencies {
     compile project(':kraken_lib')
 }
 </pre>
